@@ -20,7 +20,7 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
         scope: CoroutineScope,
     ): Coroutine<AppUpdate.UpdateInfo> {
         return Coroutine.async(scope) {
-            val lastReleaseUrl = "https://api.github.com/repos/gedoor/legado/releases/latest"
+            val lastReleaseUrl = "https://api.github.com/repos/LM-Firefly/YueDu-Firefly/releases/latest"
             val body = okHttpClient.newCallStrResponse {
                 url(lastReleaseUrl)
             }.body
@@ -33,7 +33,7 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
             if (tagName > AppConst.appInfo.versionName) {
                 val updateBody = rootDoc.readString("$.body")
                     ?: throw NoStackTraceException("获取新版本出错")
-                val path = "\$.assets[?(@.name =~ /legado_${appCtx.channel}_.*?apk\$/)]"
+                val path = "\$.assets[?(@.name =~ /YueDu.${appCtx.channel}.*?apk\$/)]"
                 val downloadUrl = rootDoc.read<List<String>>("${path}.browser_download_url")
                     .firstOrNull()
                     ?: throw NoStackTraceException("获取新版本出错")

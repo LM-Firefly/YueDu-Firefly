@@ -419,7 +419,7 @@
             android:name=".service.WebTileService"
             android:exported="true"
             android:icon="@drawable/ic_web_service_noti"
-            android:label="legado Web Service"
+            android:label="YueDu Web Service"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

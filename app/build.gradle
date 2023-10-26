@@ -9,10 +9,10 @@ plugins {
 apply from: 'download.gradle'
 
 static def releaseTime() {
-    return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
+    return new Date().format("yy.MMddHHmm", TimeZone.getTimeZone("GMT+8"))
 }
 
-def name = "legado"
+def name = "YueDu"
 def version = "3." + releaseTime()
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
 
@@ -70,7 +70,7 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.myConfig
             }
-            applicationIdSuffix '.release'
+            applicationIdSuffix '.Firefly'
 
             minifyEnabled true
             shrinkResources true
@@ -89,9 +89,14 @@ android {
     //noinspection GrDeprecatedAPIUsage
     flavorDimensions = ['mode']
     productFlavors {
-        app {
+//        app {
+//            dimension "mode"
+//            manifestPlaceholders.put("APP_CHANNEL_VALUE", "App")
+//        }
+        google {
             dimension "mode"
-            manifestPlaceholders.put("APP_CHANNEL_VALUE", "app")
+            applicationId "io.legado.play"
+            manifestPlaceholders.put("APP_CHANNEL_VALUE", "Google")
         }
     }
 
@@ -160,7 +165,7 @@ dependencies {
     //androidX
     implementation('androidx.core:core-ktx:1.12.0')
     implementation('androidx.appcompat:appcompat:1.6.1')
-    implementation('androidx.activity:activity-ktx:1.7.2')
+    implementation('androidx.activity:activity-ktx:1.8.0')
     implementation('androidx.fragment:fragment-ktx:1.6.1')
     implementation('androidx.preference:preference-ktx:1.2.1')
     implementation('androidx.constraintlayout:constraintlayout:2.1.4')
@@ -169,7 +174,7 @@ dependencies {
     implementation('androidx.webkit:webkit:1.8.0')
 
     //google
-    implementation('com.google.android.material:material:1.9.0')
+    implementation('com.google.android.material:material:1.10.0')
     implementation('com.google.android.flexbox:flexbox:3.0.0')
     implementation('com.google.code.gson:gson:2.10.1')
 
@@ -203,7 +208,7 @@ dependencies {
     implementation('io.github.jeremyliao:live-event-bus-x:1.8.0')
 
     //规则相关
-    implementation('org.jsoup:jsoup:1.16.1')
+    implementation('org.jsoup:jsoup:1.16.2')
     implementation('com.jayway.jsonpath:json-path:2.8.0')
     implementation('cn.wanghaomiao:JsoupXpath:2.5.3')
     implementation(project(path: ':modules:book'))
@@ -212,9 +217,9 @@ dependencies {
     implementation(project(path: ':modules:rhino1.7.3'))
 
     //网络
-    implementation('com.squareup.okhttp3:okhttp:4.11.0')
+    implementation('com.squareup.okhttp3:okhttp:4.12.0')
     implementation(fileTree(dir: 'cronetlib', include: ['*.jar', '*.aar']))
-    implementation 'com.google.protobuf:protobuf-javalite:3.24.3'
+    implementation 'com.google.protobuf:protobuf-javalite:3.24.4'
 
     //Glide
     def glideVersion = "4.16.0"
@@ -235,12 +240,12 @@ dependencies {
     //二维码
     //noinspection GradleDependency
     implementation('com.github.jenly1314:zxing-lite:2.4.0')
-
+    
     //颜色选择
     implementation('com.jaredrummler:colorpicker:1.1.0')
 
     //压缩解压
-    implementation 'me.zhanghai.android.libarchive:library:1.0.2'
+    implementation 'me.zhanghai.android.libarchive:library:1.0.3'
 
     //apache
     implementation('org.apache.commons:commons-text:1.10.0')
@@ -257,7 +262,7 @@ dependencies {
 
     //加解密类库,有些书源使用
     //noinspection GradleDependency,GradlePackageUpdate
-    implementation('cn.hutool:hutool-crypto:5.8.21')
+    implementation('cn.hutool:hutool-crypto:5.8.22')
 
     //firebase, 崩溃统计和性能统计, 会导致共存版本崩溃
     //implementation platform('com.google.firebase:firebase-bom:30.0.1')

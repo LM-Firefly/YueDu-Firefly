@@ -6,7 +6,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import android.view.InputDevice
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
@@ -17,7 +23,12 @@ import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import io.legado.app.BuildConfig
 import io.legado.app.R
-import io.legado.app.constant.*
+import io.legado.app.constant.AppConst
+import io.legado.app.constant.AppLog
+import io.legado.app.constant.BookType
+import io.legado.app.constant.EventBus
+import io.legado.app.constant.PreferKey
+import io.legado.app.constant.Status
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
@@ -27,7 +38,13 @@ import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.AppWebDav
 import io.legado.app.help.IntentData
 import io.legado.app.help.TTS
-import io.legado.app.help.book.*
+import io.legado.app.help.book.BookHelp
+import io.legado.app.help.book.ContentProcessor
+import io.legado.app.help.book.isAudio
+import io.legado.app.help.book.isEpub
+import io.legado.app.help.book.isLocal
+import io.legado.app.help.book.isLocalTxt
+import io.legado.app.help.book.removeType
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.help.config.ReadTipConfig
@@ -48,9 +65,12 @@ import io.legado.app.ui.book.audio.AudioPlayActivity
 import io.legado.app.ui.book.bookmark.BookmarkDialog
 import io.legado.app.ui.book.changesource.ChangeBookSourceDialog
 import io.legado.app.ui.book.changesource.ChangeChapterSourceDialog
-import io.legado.app.ui.book.read.config.*
+import io.legado.app.ui.book.read.config.AutoReadDialog
 import io.legado.app.ui.book.read.config.BgTextConfigDialog.Companion.BG_COLOR
 import io.legado.app.ui.book.read.config.BgTextConfigDialog.Companion.TEXT_COLOR
+import io.legado.app.ui.book.read.config.MoreConfigDialog
+import io.legado.app.ui.book.read.config.ReadAloudDialog
+import io.legado.app.ui.book.read.config.ReadStyleDialog
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
 import io.legado.app.ui.book.read.page.ContentTextView
@@ -71,9 +91,36 @@ import io.legado.app.ui.replace.edit.ReplaceEditActivity
 import io.legado.app.ui.widget.PopupAction
 import io.legado.app.ui.widget.dialog.PhotoDialog
 import io.legado.app.ui.widget.dialog.TextDialog
-import io.legado.app.utils.*
-import kotlinx.coroutines.*
+import io.legado.app.utils.ACache
+import io.legado.app.utils.Debounce
+import io.legado.app.utils.LogUtils
+import io.legado.app.utils.StartActivityContract
+import io.legado.app.utils.SyncedRenderer
+import io.legado.app.utils.applyOpenTint
+import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.getPrefString
+import io.legado.app.utils.hexString
+import io.legado.app.utils.iconItemOnLongClick
+import io.legado.app.utils.invisible
+import io.legado.app.utils.isAbsUrl
+import io.legado.app.utils.isTrue
+import io.legado.app.utils.launch
+import io.legado.app.utils.navigationBarGravity
+import io.legado.app.utils.navigationBarHeight
+import io.legado.app.utils.observeEvent
+import io.legado.app.utils.observeEventSticky
+import io.legado.app.utils.postEvent
+import io.legado.app.utils.showDialogFragment
+import io.legado.app.utils.startActivity
+import io.legado.app.utils.sysScreenOffTime
+import io.legado.app.utils.toastOnUi
+import io.legado.app.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 阅读界面
@@ -168,8 +215,8 @@ class ReadBookActivity : BaseReadBookActivity(),
     override val pageFactory: TextPageFactory get() = binding.readView.pageFactory
     override val headerHeight: Int get() = binding.readView.curPage.headerHeight
     private val menuLayoutIsVisible get() = bottomDialog > 0 || binding.readMenu.isVisible
-    private val nextPageRunnable by lazy { Runnable { mouseWheelPage(PageDirection.NEXT) } }
-    private val prevPageRunnable by lazy { Runnable { mouseWheelPage(PageDirection.PREV) } }
+    private val nextPageDebounce by lazy { Debounce { keyPage(PageDirection.NEXT) } }
+    private val prevPageDebounce by lazy { Debounce { keyPage(PageDirection.PREV) } }
     private var bookChanged = false
     private var pageChanged = false
     private var reloadContent = false
@@ -273,6 +320,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         upSystemUiVisibility()
         registerReceiver(timeBatteryReceiver, timeBatteryReceiver.filter)
         binding.readView.upTime()
+        screenOffTimerStart()
     }
 
     override fun onPause() {
@@ -553,13 +601,11 @@ class ReadBookActivity : BaseReadBookActivity(),
             if (event.action == MotionEvent.ACTION_SCROLL) {
                 val axisValue = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
                 LogUtils.d("onGenericMotionEvent", "axisValue = $axisValue")
-                binding.root.removeCallbacks(nextPageRunnable)
-                binding.root.removeCallbacks(prevPageRunnable)
                 // 获得垂直坐标上的滚动方向
                 if (axisValue < 0.0f) { // 滚轮向下滚
-                    binding.root.postDelayed(nextPageRunnable, 200)
+                    mouseWheelPage(PageDirection.NEXT)
                 } else { // 滚轮向上滚
-                    binding.root.postDelayed(prevPageRunnable, 200)
+                    mouseWheelPage(PageDirection.PREV)
                 }
                 return true
             }
@@ -570,68 +616,57 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 按键事件
      */
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (menuLayoutIsVisible) {
             return super.onKeyDown(keyCode, event)
         }
+        val longPress = event.repeatCount > 0
         when {
             isPrevKey(keyCode) -> {
-                if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
-                    binding.readView.cancelSelect()
-                    binding.readView.pageDelegate?.keyTurnPage(PageDirection.PREV)
-                    return true
-                }
+                handleKeyPage(PageDirection.PREV, longPress)
+                return true
             }
 
             isNextKey(keyCode) -> {
-                if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
-                    binding.readView.cancelSelect()
-                    binding.readView.pageDelegate?.keyTurnPage(PageDirection.NEXT)
-                    return true
-                }
-            }
-
-            keyCode == KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (volumeKeyPage(PageDirection.PREV)) {
-                    return true
-                }
-            }
-
-            keyCode == KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                if (volumeKeyPage(PageDirection.NEXT)) {
-                    return true
-                }
-            }
-
-            keyCode == KeyEvent.KEYCODE_PAGE_UP -> {
-                binding.readView.cancelSelect()
-                binding.readView.pageDelegate?.keyTurnPage(PageDirection.PREV)
+                handleKeyPage(PageDirection.NEXT, longPress)
                 return true
             }
-
-            keyCode == KeyEvent.KEYCODE_PAGE_DOWN -> {
-                binding.readView.cancelSelect()
-                binding.readView.pageDelegate?.keyTurnPage(PageDirection.NEXT)
-                return true
-            }
-
-            keyCode == KeyEvent.KEYCODE_SPACE -> {
-                binding.readView.cancelSelect()
-                binding.readView.pageDelegate?.keyTurnPage(PageDirection.NEXT)
-                return true
-            }
-
         }
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> if (volumeKeyPage(PageDirection.PREV, longPress)) {
+                return true
+            }
+
+            KeyEvent.KEYCODE_VOLUME_DOWN -> if (volumeKeyPage(PageDirection.NEXT, longPress)) {
+                return true
+            }
+
+            KeyEvent.KEYCODE_PAGE_UP -> {
+                handleKeyPage(PageDirection.PREV, longPress)
+                return true
+            }
+
+            KeyEvent.KEYCODE_PAGE_DOWN -> {
+                handleKeyPage(PageDirection.NEXT, longPress)
+                return true
+            }
+
+            KeyEvent.KEYCODE_SPACE -> {
+                handleKeyPage(PageDirection.NEXT, longPress)
+                return true
+            }
+        }
+
         return super.onKeyDown(keyCode, event)
     }
 
     /**
      * 松开按键事件
      */
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                if (volumeKeyPage(PageDirection.NONE)) {
+                if (volumeKeyPage(PageDirection.NONE, false)) {
                     return true
                 }
             }
@@ -810,34 +845,64 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 鼠标滚轮翻页
      */
-    private fun mouseWheelPage(direction: PageDirection): Boolean {
-        if (!binding.readMenu.isVisible) {
-            if (getPrefBoolean("mouseWheelPage", true)) {
-                binding.readView.pageDelegate?.isCancel = false
-                binding.readView.pageDelegate?.keyTurnPage(direction)
-                return true
-            }
+    private fun mouseWheelPage(direction: PageDirection) {
+        if (menuLayoutIsVisible || !AppConfig.mouseWheelPage) {
+            return
         }
-        return false
+        keyPageDebounce(direction, mouseWheel = true, longPress = false)
     }
 
     /**
      * 音量键翻页
      */
-    private fun volumeKeyPage(direction: PageDirection): Boolean {
-        if (!binding.readMenu.isVisible) {
-            if (getPrefBoolean("volumeKeyPage", true)) {
-                if (getPrefBoolean("volumeKeyPageOnPlay")
-                    || !BaseReadAloudService.isPlay()
-                ) {
-                    binding.readView.cancelSelect()
-                    binding.readView.pageDelegate?.isCancel = false
-                    binding.readView.pageDelegate?.keyTurnPage(direction)
-                    return true
-                }
-            }
+    private fun volumeKeyPage(direction: PageDirection, longPress: Boolean): Boolean {
+        if (!AppConfig.volumeKeyPage) {
+            return false
         }
-        return false
+        if (!AppConfig.volumeKeyPageOnPlay && BaseReadAloudService.isPlay()) {
+            return false
+        }
+        handleKeyPage(direction, longPress)
+        return true
+    }
+
+    private fun handleKeyPage(direction: PageDirection, longPress: Boolean) {
+        if (AppConfig.keyPageOnLongPress || direction == PageDirection.NONE) {
+            keyPage(direction)
+        } else {
+            keyPageDebounce(direction, longPress = longPress)
+        }
+    }
+
+    private fun keyPageDebounce(
+        direction: PageDirection,
+        mouseWheel: Boolean = false,
+        longPress: Boolean
+    ) {
+        if (longPress) {
+            return
+        }
+        nextPageDebounce.apply {
+            wait = if (mouseWheel) 200L else 600L
+            leading = !mouseWheel
+            trailing = mouseWheel
+        }
+        prevPageDebounce.apply {
+            wait = if (mouseWheel) 200L else 600L
+            leading = !mouseWheel
+            trailing = mouseWheel
+        }
+        when (direction) {
+            PageDirection.NEXT -> nextPageDebounce.invoke()
+            PageDirection.PREV -> prevPageDebounce.invoke()
+            else -> {}
+        }
+    }
+
+    private fun keyPage(direction: PageDirection) {
+        binding.readView.cancelSelect()
+        binding.readView.pageDelegate?.isCancel = false
+        binding.readView.pageDelegate?.keyTurnPage(direction)
     }
 
     override fun upMenuView() {

@@ -1,5 +1,6 @@
 package io.legado.app.constant
 
+@Suppress("ConstPropertyName")
 object PreferKey {
     const val language = "language"
     const val fontScale = "fontScale"
@@ -139,6 +140,10 @@ object PreferKey {
     const val showBookshelfFastScroller = "showBookshelfFastScroller"
     const val importKeepEnable = "importKeepEnable"
     const val previewImageByClick = "previewImageByClick"
+    const val keyPageOnLongPress = "keyPageOnLongPress"
+    const val volumeKeyPage = "volumeKeyPage"
+    const val volumeKeyPageOnPlay = "volumeKeyPageOnPlay"
+    const val mouseWheelPage = "mouseWheelPage"
 
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"

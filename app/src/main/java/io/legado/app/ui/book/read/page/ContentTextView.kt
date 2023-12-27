@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import io.legado.app.R
-import io.legado.app.constant.AppLog
 import io.legado.app.constant.PreferKey
 import io.legado.app.data.entities.Bookmark
 import io.legado.app.help.book.isImage
@@ -21,11 +19,20 @@ import io.legado.app.model.ReadBook
 import io.legado.app.ui.book.read.page.entities.TextLine
 import io.legado.app.ui.book.read.page.entities.TextPage
 import io.legado.app.ui.book.read.page.entities.TextPos
-import io.legado.app.ui.book.read.page.entities.column.*
+import io.legado.app.ui.book.read.page.entities.column.BaseColumn
+import io.legado.app.ui.book.read.page.entities.column.ButtonColumn
+import io.legado.app.ui.book.read.page.entities.column.ImageColumn
+import io.legado.app.ui.book.read.page.entities.column.ReviewColumn
+import io.legado.app.ui.book.read.page.entities.column.TextColumn
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
 import io.legado.app.ui.book.read.page.provider.TextPageFactory
 import io.legado.app.ui.widget.dialog.PhotoDialog
-import io.legado.app.utils.*
+import io.legado.app.utils.activity
+import io.legado.app.utils.dpToPx
+import io.legado.app.utils.getCompatColor
+import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.showDialogFragment
+import io.legado.app.utils.toastOnUi
 import kotlin.math.min
 
 /**
@@ -47,15 +54,7 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     var textPage: TextPage = TextPage()
         private set
     var isMainView = false
-    private var drawVisibleImageOnly = false
-    private var cacheIncreased = false
     private var longScreenshot = false
-    private val increaseSize = 8 * 1024 * 1024
-    private val maxCacheSize = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-        min(128 * 1024 * 1024, Runtime.getRuntime().maxMemory())
-    } else {
-        256 * 1024 * 1024
-    }
     var reverseStartCursor = false
     var reverseEndCursor = false
 
@@ -110,8 +109,6 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         }
         canvas.clipRect(visibleRect)
         drawPage(canvas)
-        drawVisibleImageOnly = false
-        cacheIncreased = false
     }
 
     /**
@@ -119,23 +116,26 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
      */
     private fun drawPage(canvas: Canvas) {
         var relativeOffset = relativeOffset(0)
-        textPage.lines.forEach { textLine ->
-            drawLine(canvas, textPage, textLine, relativeOffset)
+        var lines = textPage.lines
+        for (i in lines.indices) {
+            drawLine(canvas, textPage, lines[i], relativeOffset)
         }
         if (!callBack.isScroll) return
         //滚动翻页
         if (!pageFactory.hasNext()) return
         val textPage1 = relativePage(1)
         relativeOffset = relativeOffset(1)
-        textPage1.lines.forEach { textLine ->
-            drawLine(canvas, textPage1, textLine, relativeOffset)
+        lines = textPage1.lines
+        for (i in lines.indices) {
+            drawLine(canvas, textPage1, lines[i], relativeOffset)
         }
         if (!pageFactory.hasNextPlus()) return
         relativeOffset = relativeOffset(2)
         if (relativeOffset < ChapterProvider.visibleHeight) {
             val textPage2 = relativePage(2)
-            textPage2.lines.forEach { textLine ->
-                drawLine(canvas, textPage2, textLine, relativeOffset)
+            lines = textPage2.lines
+            for (i in lines.indices) {
+                drawLine(canvas, textPage2, lines[i], relativeOffset)
             }
         }
     }
@@ -189,21 +189,29 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
             ChapterProvider.contentPaint
         }
         val textColor = if (textLine.isReadAloud) context.accentColor else ReadBookConfig.textColor
-        textLine.columns.forEach {
-            when (it) {
+        val columns = textLine.columns
+        for (i in columns.indices) {
+            when (val column = columns[i]) {
                 is TextColumn -> {
-                    textPaint.color = textColor
-                    if (it.isSearchResult) {
+                    if (column.isSearchResult) {
                         textPaint.color = context.accentColor
+                    } else if (textPaint.color != textColor) {
+                        textPaint.color = textColor
                     }
-                    canvas.drawText(it.charData, it.start, lineBase, textPaint)
-                    if (it.selected) {
-                        canvas.drawRect(it.start, lineTop, it.end, lineBottom, selectedPaint)
+                    canvas.drawText(column.charData, column.start, lineBase, textPaint)
+                    if (column.selected) {
+                        canvas.drawRect(
+                            column.start,
+                            lineTop,
+                            column.end,
+                            lineBottom,
+                            selectedPaint
+                        )
                     }
                 }
 
-                is ImageColumn -> drawImage(canvas, textPage, textLine, it, lineTop, lineBottom)
-                is ReviewColumn -> it.drawToCanvas(canvas, lineBase, textPaint.textSize)
+                is ImageColumn -> drawImage(canvas, textPage, textLine, column, lineTop, lineBottom)
+                is ReviewColumn -> column.drawToCanvas(canvas, lineBase, textPaint.textSize)
             }
         }
     }
@@ -222,37 +230,14 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
     ) {
 
         val book = ReadBook.book ?: return
-        val isVisible = when {
-            lineTop > 0 -> lineTop < height
-            lineTop < 0 -> lineBottom > 0
-            else -> true
-        }
-        if (drawVisibleImageOnly && !isVisible) {
-            return
-        }
-        if (drawVisibleImageOnly &&
-            !cacheIncreased &&
-            ImageProvider.isTriggerRecycled() &&
-            !ImageProvider.isImageAlive(book, column.src)
-        ) {
-            val newSize = ImageProvider.bitmapLruCache.maxSize() + increaseSize
-            if (newSize < maxCacheSize) {
-                ImageProvider.bitmapLruCache.resize(newSize)
-                AppLog.put("图片缓存不够大，自动扩增至${(newSize / 1024 / 1024)}MB。")
-                cacheIncreased = true
-            }
-            return
-        }
+
         val bitmap = ImageProvider.getImage(
             book,
             column.src,
             (column.end - column.start).toInt(),
             (lineBottom - lineTop).toInt()
         ) {
-            if (!drawVisibleImageOnly && isVisible) {
-                drawVisibleImageOnly = true
-                invalidate()
-            }
+            invalidate()
         } ?: return
 
         val rectF = if (textLine.isImage) {

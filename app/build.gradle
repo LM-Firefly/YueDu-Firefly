@@ -208,7 +208,7 @@ dependencies {
     implementation('com.github.michaellee123:LiveEventBus:1.8.14')
 
     //规则相关
-    implementation('org.jsoup:jsoup:1.16.2')
+    implementation('org.jsoup:jsoup:1.17.2')
     implementation('com.jayway.jsonpath:json-path:2.8.0')
     implementation('cn.wanghaomiao:JsoupXpath:2.5.3')
     implementation(project(path: ':modules:book'))

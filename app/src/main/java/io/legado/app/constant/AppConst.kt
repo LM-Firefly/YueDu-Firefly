@@ -9,6 +9,7 @@ import io.legado.app.utils.channel
 import splitties.init.appCtx
 import java.text.SimpleDateFormat
 
+@Suppress("ConstPropertyName")
 @SuppressLint("SimpleDateFormat")
 object AppConst {
 

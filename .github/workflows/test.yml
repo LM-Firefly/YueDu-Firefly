@@ -91,7 +91,7 @@ jobs:
           sed '$a\RELEASE_STORE_PASSWORD=YueDu-Firefly'     $GITHUB_WORKSPACE/gradle.properties -i
           sed '$a\RELEASE_KEY_PASSWORD=YueDu-Firefly'       $GITHUB_WORKSPACE/gradle.properties -i
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: current
       - name: Build With Gradle
@@ -149,7 +149,7 @@ jobs:
   #        with:
   #          timezoneLinux: "Asia/Shanghai"
   #      - uses: actions/checkout@v4
-  #      - uses: actions/download-artifact@v3
+  #      - uses: actions/download-artifact@v4
   #        with:
   #          path: apk/
   #      - working-directory: apk/
@@ -169,7 +169,7 @@ jobs:
   #      VERSION: ${{ needs.prepare.outputs.ver }}
   #    steps:
   #      - uses: actions/checkout@v4
-  #      - uses: actions/download-artifact@v3
+  #      - uses: actions/download-artifact@v4
   #        with:
   #          path: apk/
   #      - working-directory: apk/
@@ -195,7 +195,7 @@ jobs:
   #      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
   #    steps:
   #      - uses: actions/checkout@v4
-  #      - uses: actions/download-artifact@v3
+  #      - uses: actions/download-artifact@v4
   #        with:
   #          path: apk/
   #      - working-directory: apk/

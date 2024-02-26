@@ -129,14 +129,14 @@ jobs:
       - name: Upload Missing Rules File To Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: legado.${{ env.product }}.${{ env.type }}.mapping.missing_rules
+          name: YueDu.${{ env.product }}.${{ env.type }}.mapping.missing_rules
           if-no-files-found: ignore
           path: ${{ github.workspace }}/mapping/missing_rules.txt
 
       - name: Check Build production
         run: |
           cd ${{ github.workspace }}/apk/
-          if [ ! -e legado_*.apk ]; then
+          if [ ! -e YueDu.*.apk ]; then
             echo "Build production not found! Check gradle logs."
             exit 1
           fi
@@ -145,7 +145,14 @@ jobs:
         uses: actions/upload-artifact@v4.3.1
         with:
           name: YueDu.${{ env.product }}.${{ env.type }}
+          if-no-files-found: ignore
           path: ${{ github.workspace }}/apk/*.apk
+      - name: Upload Mapping File To Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: YueDu.${{ env.product }}.${{ env.type }}.mapping
+          if-no-files-found: ignore
+          path: ${{ github.workspace }}/mapping/mapping.txt
       - name: Prerelease
         #        if: ${{ env.product == 'Google' }}
         uses: softprops/action-gh-release@v0.1.15

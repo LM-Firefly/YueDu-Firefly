@@ -209,13 +209,18 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["bookUrl"]
+          "columnNames": [
+            "bookUrl"
+          ]
         },
         "indices": [
           {
             "name": "index_books_name_author",
             "unique": true,
-            "columnNames": ["name", "author"],
+            "columnNames": [
+              "name",
+              "author"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_books_name_author` ON `${TABLE_NAME}` (`name`, `author`)"
           }
@@ -266,7 +271,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["groupId"]
+          "columnNames": [
+            "groupId"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -453,13 +460,17 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["bookSourceUrl"]
+          "columnNames": [
+            "bookSourceUrl"
+          ]
         },
         "indices": [
           {
             "name": "index_book_sources_bookSourceUrl",
             "unique": false,
-            "columnNames": ["bookSourceUrl"],
+            "columnNames": [
+              "bookSourceUrl"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_book_sources_bookSourceUrl` ON `${TABLE_NAME}` (`bookSourceUrl`)"
           }
@@ -563,20 +574,28 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["url", "bookUrl"]
+          "columnNames": [
+            "url",
+            "bookUrl"
+          ]
         },
         "indices": [
           {
             "name": "index_chapters_bookUrl",
             "unique": false,
-            "columnNames": ["bookUrl"],
+            "columnNames": [
+              "bookUrl"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_chapters_bookUrl` ON `${TABLE_NAME}` (`bookUrl`)"
           },
           {
             "name": "index_chapters_bookUrl_index",
             "unique": true,
-            "columnNames": ["bookUrl", "index"],
+            "columnNames": [
+              "bookUrl",
+              "index"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_chapters_bookUrl_index` ON `${TABLE_NAME}` (`bookUrl`, `index`)"
           }
@@ -586,8 +605,12 @@
             "table": "books",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
-            "columns": ["bookUrl"],
-            "referencedColumns": ["bookUrl"]
+            "columns": [
+              "bookUrl"
+            ],
+            "referencedColumns": [
+              "bookUrl"
+            ]
           }
         ]
       },
@@ -679,13 +702,17 @@
         ],
         "primaryKey": {
           "autoGenerate": true,
-          "columnNames": ["id"]
+          "columnNames": [
+            "id"
+          ]
         },
         "indices": [
           {
             "name": "index_replace_rules_id",
             "unique": false,
-            "columnNames": ["id"],
+            "columnNames": [
+              "id"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_replace_rules_id` ON `${TABLE_NAME}` (`id`)"
           }
@@ -789,20 +816,26 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["bookUrl"]
+          "columnNames": [
+            "bookUrl"
+          ]
         },
         "indices": [
           {
             "name": "index_searchBooks_bookUrl",
             "unique": true,
-            "columnNames": ["bookUrl"],
+            "columnNames": [
+              "bookUrl"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_searchBooks_bookUrl` ON `${TABLE_NAME}` (`bookUrl`)"
           },
           {
             "name": "index_searchBooks_origin",
             "unique": false,
-            "columnNames": ["origin"],
+            "columnNames": [
+              "origin"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_searchBooks_origin` ON `${TABLE_NAME}` (`origin`)"
           }
@@ -812,8 +845,12 @@
             "table": "book_sources",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
-            "columns": ["origin"],
-            "referencedColumns": ["bookSourceUrl"]
+            "columns": [
+              "origin"
+            ],
+            "referencedColumns": [
+              "bookSourceUrl"
+            ]
           }
         ]
       },
@@ -842,13 +879,17 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["word"]
+          "columnNames": [
+            "word"
+          ]
         },
         "indices": [
           {
             "name": "index_search_keywords_word",
             "unique": true,
-            "columnNames": ["word"],
+            "columnNames": [
+              "word"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_search_keywords_word` ON `${TABLE_NAME}` (`word`)"
           }
@@ -874,13 +915,17 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["url"]
+          "columnNames": [
+            "url"
+          ]
         },
         "indices": [
           {
             "name": "index_cookies_url",
             "unique": true,
-            "columnNames": ["url"],
+            "columnNames": [
+              "url"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cookies_url` ON `${TABLE_NAME}` (`url`)"
           }
@@ -1098,13 +1143,17 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["sourceUrl"]
+          "columnNames": [
+            "sourceUrl"
+          ]
         },
         "indices": [
           {
             "name": "index_rssSources_sourceUrl",
             "unique": false,
-            "columnNames": ["sourceUrl"],
+            "columnNames": [
+              "sourceUrl"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_rssSources_sourceUrl` ON `${TABLE_NAME}` (`sourceUrl`)"
           }
@@ -1166,13 +1215,18 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["time"]
+          "columnNames": [
+            "time"
+          ]
         },
         "indices": [
           {
             "name": "index_bookmarks_bookName_bookAuthor",
             "unique": false,
-            "columnNames": ["bookName", "bookAuthor"],
+            "columnNames": [
+              "bookName",
+              "bookAuthor"
+            ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_bookmarks_bookName_bookAuthor` ON `${TABLE_NAME}` (`bookName`, `bookAuthor`)"
           }
@@ -1252,7 +1306,10 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["origin", "link"]
+          "columnNames": [
+            "origin",
+            "link"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1276,7 +1333,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["record"]
+          "columnNames": [
+            "record"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1348,7 +1407,10 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["origin", "link"]
+          "columnNames": [
+            "origin",
+            "link"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1396,7 +1458,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["id"]
+          "columnNames": [
+            "id"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1434,7 +1498,10 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["deviceId", "bookName"]
+          "columnNames": [
+            "deviceId",
+            "bookName"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1515,7 +1582,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["id"]
+          "columnNames": [
+            "id"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1545,13 +1614,17 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["key"]
+          "columnNames": [
+            "key"
+          ]
         },
         "indices": [
           {
             "name": "index_caches_key",
             "unique": true,
-            "columnNames": ["key"],
+            "columnNames": [
+              "key"
+            ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_caches_key` ON `${TABLE_NAME}` (`key`)"
           }
@@ -1607,7 +1680,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["id"]
+          "columnNames": [
+            "id"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1643,7 +1718,9 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["name"]
+          "columnNames": [
+            "name"
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -1683,7 +1760,10 @@
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": ["type", "key"]
+          "columnNames": [
+            "type",
+            "key"
+          ]
         },
         "indices": [],
         "foreignKeys": []

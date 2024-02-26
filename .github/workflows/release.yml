@@ -85,8 +85,6 @@ jobs:
           sed '$a\RELEASE_KEY_PASSWORD=YueDu-Firefly'       $GITHUB_WORKSPACE/gradle.properties -i
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: current
       - name: Build With Gradle
         run: |
           if [ ${{ env.type }} == 'Original' ]; then

@@ -3,7 +3,6 @@ package io.legado.app.service
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.util.ArraySet
@@ -11,8 +10,6 @@ import androidx.core.app.NotificationCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import io.legado.app.R
 import io.legado.app.base.BaseService
 import io.legado.app.constant.AppConst
@@ -469,7 +466,9 @@ class ExportBookService : BaseService() {
         val bookFile = FileUtils.createFileWithReplace(bookPath)
         //设置正文
         setEpubContent(contentModel, book, epubBook)
-        EpubWriter().write(epubBook, bookFile.outputStream().buffered())
+        bookFile.outputStream().buffered().use {
+            EpubWriter().write(epubBook, it)
+        }
         if (AppConfig.exportToWebDav) {
             // 导出到webdav
             AppWebDav.exportWebDav(Uri.fromFile(bookFile), filename)
@@ -602,24 +601,20 @@ class ExportBookService : BaseService() {
     }
 
     private fun setCover(book: Book, epubBook: EpubBook) {
-        Glide.with(this)
-            .asBitmap()
-            .load(book.getDisplayCover())
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: Transition<in Bitmap>?
-                ) {
-                    val stream = ByteArrayOutputStream()
-                    resource.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    val byteArray: ByteArray = stream.toByteArray()
-                    stream.close()
-                    epubBook.coverImage = Resource(byteArray, "Images/cover.jpg")
-                }
-
-                override fun onLoadCleared(placeholder: Drawable?) {
-                }
-            })
+        kotlin.runCatching {
+            val bitmap = Glide.with(this)
+                .asBitmap()
+                .load(book.getDisplayCover())
+                .submit()
+                .get()
+            val byteArray = ByteArrayOutputStream().use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                it.toByteArray()
+            }
+            epubBook.coverImage = Resource(byteArray, "Images/cover.jpg")
+        }.onFailure {
+            AppLog.put("获取书籍封面出错\n${it.localizedMessage}", it)
+        }
     }
 
     private suspend fun setEpubContent(

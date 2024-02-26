@@ -29,7 +29,7 @@ jobs:
     #      sign: ${{ steps.check.outputs.sign }}
     steps:
       - name: Setup timezone
-        uses: szenius/set-timezone@v1.2
+        uses: hoang-rio/set-timezone@v1.4
         with:
           timezoneLinux: "Asia/Shanghai"
       - uses: actions/checkout@v4

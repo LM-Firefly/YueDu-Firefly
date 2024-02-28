@@ -179,7 +179,7 @@ dependencies {
     implementation('com.google.code.gson:gson:2.10.1')
 
     //lifecycle
-    def lifecycle_version = '2.6.2'
+    def lifecycle_version = '2.7.0'
     implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
     implementation("androidx.lifecycle:lifecycle-service:$lifecycle_version")
 
@@ -209,7 +209,7 @@ dependencies {
 
     //规则相关
     implementation('org.jsoup:jsoup:1.16.2')
-    implementation('com.jayway.jsonpath:json-path:2.8.0')
+    implementation('com.jayway.jsonpath:json-path:2.9.0')
     implementation('cn.wanghaomiao:JsoupXpath:2.5.3')
     implementation(project(path: ':modules:book'))
 

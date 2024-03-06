@@ -35,6 +35,8 @@ data class TextChapter(
 
     private var layout: TextChapterLayout? = null
 
+    val layoutChannel get() = layout!!.channel
+
     fun getPage(index: Int): TextPage? {
         return pages.getOrNull(index)
     }
@@ -188,9 +190,9 @@ data class TextChapter(
         pageSplit: Boolean,
     ): Int {
         val paragraphs = if (pageSplit) {
-            pageParagraphs
+            if (isCompleted) pageParagraphs else pageParagraphsInternal
         } else {
-            paragraphs
+            if (isCompleted) paragraphs else pageParagraphsInternal
         }
         paragraphs.forEach { paragraph ->
             if (position in paragraph.chapterIndices) {

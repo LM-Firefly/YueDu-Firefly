@@ -26,6 +26,7 @@ import io.legado.app.utils.fastSum
 import io.legado.app.utils.splitNotBlank
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.util.LinkedList
@@ -78,6 +79,8 @@ class TextChapterLayout(
 
     var exception: Throwable? = null
 
+    var channel = Channel<TextPage>(Int.MAX_VALUE)
+
     init {
         job = Coroutine.async(scope) {
             launch {
@@ -124,6 +127,7 @@ class TextChapterLayout(
         textPage.isCompleted = true
         textPage.textChapter = textChapter
         textPage.upLinesPosition()
+        channel.trySend(textPage)
         try {
             listener?.onLayoutPageCompleted(textPages.lastIndex, textPage)
         } catch (e: Exception) {
@@ -133,6 +137,7 @@ class TextChapterLayout(
     }
 
     private fun onCompleted() {
+        channel.close()
         try {
             listener?.onLayoutCompleted()
         } catch (e: Exception) {
@@ -144,6 +149,7 @@ class TextChapterLayout(
     }
 
     private fun onException(e: Throwable) {
+        channel.close(e)
         if (e is CancellationException) {
             listener = null
             return
@@ -774,16 +780,21 @@ class TextChapterLayout(
         }
         val widths = ArrayList<Float>(clusterCount)
         val stringList = ArrayList<String>(clusterCount)
-        var i = start
-        while (i < start + length) {
+        var i = 0
+        while (i < length) {
             val clusterBaseIndex = i++
-            widths.add(widthsArray[clusterBaseIndex])
-            while (i < length && widthsArray[i] == 0f) {
+            widths.add(widthsArray[start + clusterBaseIndex])
+            while (i < length && widthsArray[start + i] == 0f && !isZeroWidthChar(text[i])) {
                 i++
             }
-            stringList.add(text.substring(clusterBaseIndex - start, i - start))
+            stringList.add(text.substring(clusterBaseIndex, i))
         }
         return stringList to widths
+    }
+
+    private fun isZeroWidthChar(char: Char): Boolean {
+        val code = char.code
+        return code == 8203 || code == 8204 || code == 8288
     }
 
 }

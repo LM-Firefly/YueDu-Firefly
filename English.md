@@ -118,11 +118,11 @@ https://gedoor.github.io/Disclaimer
 
 ### YueDu 3.0
 
-- [eBook sources rules](https://alanskycn.gitee.io/teachme)
-- [Update Log](/app/src/main/assets/updateLog.md)
-- [Help Documentation](/app/src/main/assets/help/appHelp.md)
-- [web bookshelf](https://github.com/gedoor/legado_web_bookshelf)
-- [web source editor](https://github.com/gedoor/legado_web_source_editor)
+* [eBook sources rules](https://mgz0227.github.io/The-tutorial-of-Legado/)
+* [Update Log](/app/src/main/assets/updateLog.md)
+* [Help Documentation](/app/src/main/assets/help/appHelp.md)
+* [web bookshelf](https://github.com/gedoor/legado_web_bookshelf)
+* [web source editor](https://github.com/gedoor/legado_web_source_editor)
 
 <a href="#readme">
     <img src="https://img.shields.io/badge/-Top-orange.svg" alt="#" align="right">

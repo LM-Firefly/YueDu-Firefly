@@ -111,7 +111,7 @@ jobs:
           path: ${{ github.workspace }}/apk/*.apk
       - name: Release
 #        if: ${{ env.product == 'Google' }}
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v2.0.2
         with:
           name: YueDu.${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}

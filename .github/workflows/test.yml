@@ -240,7 +240,10 @@ jobs:
   #          done
   #          rm -rf */
   #      - name: Post to channel
-  #        run: |
-  #          pip install pyTelegramBotAPI
-  #          path="$GITHUB_WORKSPACE/apk/"
-  #          python3 $GITHUB_WORKSPACE/.github/scripts/tg_bot.py "$BOT_TOKEN" "$CHANNEL_ID" "$path"
+  #        uses: xireiki/channel-post@v1
+  #        with:
+  #          chat_id: ${{ secrets.CHANNEL_ID }}
+  #          bot_token: ${{ secrets.BOT_TOKEN }}
+  #          context: "#阅读 #Legado #Beta ${{ needs.prepare.outputs.versionL }}"
+  #          path: apk/*
+  #          method: sendFile

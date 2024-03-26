@@ -155,7 +155,7 @@ jobs:
           path: ${{ github.workspace }}/mapping/mapping.txt
       - name: Prerelease
         #        if: ${{ env.product == 'Google' }}
-        uses: softprops/action-gh-release@v2.0.2
+        uses: softprops/action-gh-release@v2.0.4
         with:
           name: YueDu.${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}

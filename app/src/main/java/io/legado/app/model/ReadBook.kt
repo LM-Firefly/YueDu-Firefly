@@ -300,6 +300,9 @@ object ReadBook : CoroutineScope by MainScope() {
     }
 
     fun recycleRecorders(beforeIndex: Int, afterIndex: Int) {
+        if (!AppConfig.optimizeRender) {
+            return
+        }
         executor.execute {
             val textChapter = curTextChapter ?: return@execute
             if (afterIndex > beforeIndex) {
@@ -717,7 +720,7 @@ object ReadBook : CoroutineScope by MainScope() {
 
         fun contentLoadFinish()
 
-        fun upPageAnim()
+        fun upPageAnim(upRecorder: Boolean = false)
 
         fun notifyBookChanged()
     }

@@ -647,6 +647,9 @@ class ReadView(context: Context, attrs: AttributeSet) :
     }
 
     fun invalidateTextPage() {
+        if (!AppConfig.optimizeRender) {
+            return
+        }
         pageFactory.run {
             prevPage.invalidateAll()
             curPage.invalidateAll()

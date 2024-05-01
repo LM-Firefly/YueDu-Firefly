@@ -768,15 +768,7 @@ interface JsExtensions : JsEncodeUtils {
             var qTTF = CacheManager.getQueryTTF(key)
             if (qTTF != null) return qTTF
             val font: ByteArray? = when {
-                str.isAbsUrl() -> {
-                    var x = CacheManager.getByteArray(key)
-                    if (x == null) {
-                        x = AnalyzeUrl(str, source = getSource()).getByteArray()
-                        CacheManager.put(key, x)
-                    }
-                    x
-                }
-
+                str.isAbsUrl() -> AnalyzeUrl(str, source = getSource()).getByteArray()
                 str.isContentScheme() -> Uri.parse(str).readBytes(appCtx)
                 str.startsWith("/storage") -> File(str).readBytes()
                 else -> base64DecodeToByteArray(str)
@@ -799,21 +791,32 @@ interface JsExtensions : JsEncodeUtils {
     fun replaceFont(
         text: String,
         errorQueryTTF: QueryTTF?,
-        correctQueryTTF: QueryTTF?
+        correctQueryTTF: QueryTTF?,
+        filter: Boolean
     ): String {
         if (errorQueryTTF == null || correctQueryTTF == null) return text
         val contentArray = text.toStringArray() //这里不能用toCharArray,因为有些文字占多个字节
         contentArray.forEachIndexed { index, s ->
             val oldCode = s.codePointAt(0)
-            if (errorQueryTTF.inLimit(oldCode)) {
-                val glyf = errorQueryTTF.getGlyfByCode(oldCode)
-                val code = correctQueryTTF.getCodeByGlyf(glyf)
-                if (code != 0) {
-                    contentArray[index] = code.toChar().toString()
-                }
+            val glyf = errorQueryTTF.getGlyfByCode(oldCode)
+            val code = correctQueryTTF.getCodeByGlyf(glyf)
+            if (code != 0) {
+                contentArray[index] = code.toChar().toString()
+            }
+            if (glyf == "" && filter) {
+                // 删除轮廓数据为空的字符
+                contentArray[index] = ""
             }
         }
         return contentArray.joinToString("")
+    }
+
+    fun replaceFont(
+        text: String,
+        errorQueryTTF: QueryTTF?,
+        correctQueryTTF: QueryTTF?
+    ): String {
+        return replaceFont(text, errorQueryTTF, correctQueryTTF, false)
     }
 
 

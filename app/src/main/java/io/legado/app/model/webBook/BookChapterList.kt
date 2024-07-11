@@ -11,6 +11,7 @@ import io.legado.app.data.entities.rule.TocRule
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.exception.TocEmptyException
 import io.legado.app.help.book.ContentProcessor
+import io.legado.app.help.book.simulatedTotalChapterNum
 import io.legado.app.help.config.AppConfig
 import io.legado.app.model.Debug
 import io.legado.app.model.analyzeRule.AnalyzeRule
@@ -63,12 +64,14 @@ object BookChapterList {
                 var nextUrl = chapterData.second[0]
                 while (nextUrl.isNotEmpty() && !nextUrlList.contains(nextUrl)) {
                     nextUrlList.add(nextUrl)
-                    val res = AnalyzeUrl(
+                    val analyzeUrl = AnalyzeUrl(
                         mUrl = nextUrl,
                         source = bookSource,
                         ruleData = book,
-                        headerMapF = bookSource.getHeaderMap()
-                    ).getStrResponseAwait() //控制并发访问
+                        headerMapF = bookSource.getHeaderMap(),
+                        coroutineContext = coroutineContext
+                    )
+                    val res = analyzeUrl.getStrResponseAwait() //控制并发访问
                     res.body?.let { nextBody ->
                         chapterData = analyzeChapterList(
                             book, nextUrl, nextUrl,
@@ -91,12 +94,14 @@ object BookChapterList {
                         emit(urlStr)
                     }
                 }.mapAsync(AppConfig.threadCount) { urlStr ->
-                    val res = AnalyzeUrl(
+                    val analyzeUrl = AnalyzeUrl(
                         mUrl = urlStr,
                         source = bookSource,
                         ruleData = book,
-                        headerMapF = bookSource.getHeaderMap()
-                    ).getStrResponseAwait() //控制并发访问
+                        headerMapF = bookSource.getHeaderMap(),
+                        coroutineContext = coroutineContext
+                    )
+                    val res = analyzeUrl.getStrResponseAwait() //控制并发访问
                     analyzeChapterList(
                         book, urlStr, res.url,
                         res.body!!, tocRule, listRule, bookSource, false
@@ -109,11 +114,11 @@ object BookChapterList {
         if (chapterList.isEmpty()) {
             throw TocEmptyException(appCtx.getString(R.string.chapter_list_empty))
         }
-        //去重
         if (!reverse) {
             chapterList.reverse()
         }
         coroutineContext.ensureActive()
+        //去重
         val lh = LinkedHashSet(chapterList)
         val list = ArrayList(lh)
         if (!book.getReverseToc()) {
@@ -141,7 +146,8 @@ object BookChapterList {
         }
         val replaceRules = ContentProcessor.get(book.name, book.origin).getTitleReplaceRules()
         book.latestChapterTitle =
-            list.last().getDisplayTitle(replaceRules, book.getUseReplaceRule())
+            list.getOrElse(book.simulatedTotalChapterNum() - 1) {
+                list.last() }.getDisplayTitle(replaceRules, book.getUseReplaceRule())
         book.durChapterTitle = list.getOrElse(book.durChapterIndex) { list.last() }
             .getDisplayTitle(replaceRules, book.getUseReplaceRule())
         if (book.totalChapterNum < list.size) {

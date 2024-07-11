@@ -708,7 +708,7 @@ class ReadView(context: Context, attrs: AttributeSet) :
         }
 
     override fun hasNextChapter(): Boolean {
-        return ReadBook.durChapterIndex < ReadBook.chapterSize - 1
+        return ReadBook.durChapterIndex < ReadBook.simulatedChapterSize - 1
     }
 
     override fun hasPrevChapter(): Boolean {

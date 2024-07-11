@@ -24,6 +24,7 @@ import io.legado.app.data.entities.BookSource
 import io.legado.app.databinding.ActivityAudioPlayBinding
 import io.legado.app.help.book.isAudio
 import io.legado.app.help.book.removeType
+import io.legado.app.help.book.simulatedTotalChapterNum
 import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.model.AudioPlay
@@ -36,13 +37,21 @@ import io.legado.app.ui.book.source.edit.BookSourceEditActivity
 import io.legado.app.ui.book.toc.TocActivityResult
 import io.legado.app.ui.login.SourceLoginActivity
 import io.legado.app.ui.widget.seekbar.SeekBarChangeListener
-import io.legado.app.utils.*
+import io.legado.app.utils.StartActivityContract
+import io.legado.app.utils.dpToPx
+import io.legado.app.utils.invisible
+import io.legado.app.utils.observeEvent
+import io.legado.app.utils.observeEventSticky
+import io.legado.app.utils.sendToClip
+import io.legado.app.utils.showDialogFragment
+import io.legado.app.utils.startActivity
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import io.legado.app.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import splitties.views.onLongClick
-import java.util.*
+import java.util.Locale
 
 /**
  * 音频播放
@@ -108,12 +117,14 @@ class AudioPlayActivity :
             R.id.menu_change_source -> AudioPlay.book?.let {
                 showDialogFragment(ChangeBookSourceDialog(it.name, it.author))
             }
+
             R.id.menu_login -> AudioPlay.bookSource?.let {
                 startActivity<SourceLoginActivity> {
                     putExtra("type", "bookSource")
                     putExtra("key", it.bookSourceUrl)
                 }
             }
+
             R.id.menu_wake_lock -> AppConfig.audioPlayUseWakeLock = !AppConfig.audioPlayUseWakeLock
             R.id.menu_copy_audio_url -> sendToClip(AudioPlayService.url)
             R.id.menu_edit_source -> AudioPlay.bookSource?.let {
@@ -121,6 +132,7 @@ class AudioPlayActivity :
                     putExtra("sourceUrl", it.bookSourceUrl)
                 }
             }
+
             R.id.menu_log -> showDialogFragment<AppLogDialog>()
         }
         return super.onCompatOptionsItemSelected(item)
@@ -258,7 +270,8 @@ class AudioPlayActivity :
             binding.tvSubTitle.text = it
             AudioPlay.book?.let { book ->
                 binding.ivSkipPrevious.isEnabled = book.durChapterIndex > 0
-                binding.ivSkipNext.isEnabled = book.durChapterIndex < book.totalChapterNum - 1
+                binding.ivSkipNext.isEnabled =
+                    book.durChapterIndex < book.simulatedTotalChapterNum() - 1
             }
         }
         observeEventSticky<Int>(EventBus.AUDIO_SIZE) {

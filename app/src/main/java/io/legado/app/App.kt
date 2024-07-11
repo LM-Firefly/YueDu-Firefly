@@ -17,6 +17,7 @@ import io.legado.app.constant.AppConst.channelIdReadAloud
 import io.legado.app.constant.AppConst.channelIdWeb
 import io.legado.app.constant.PreferKey
 import io.legado.app.data.appDb
+import io.legado.app.help.AppFreezeMonitor
 import io.legado.app.help.AppWebDav
 import io.legado.app.help.CrashHandler
 import io.legado.app.help.DefaultData
@@ -36,7 +37,9 @@ import io.legado.app.utils.ChineseUtils
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.defaultSharedPreferences
 import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.isDebuggable
 import kotlinx.coroutines.launch
+import org.chromium.base.ThreadUtils
 import splitties.init.appCtx
 import splitties.systemservices.notificationManager
 import java.net.URL
@@ -51,6 +54,9 @@ class App : Application() {
         super.onCreate()
         LogUtils.d("App", "onCreate")
         LogUtils.logDeviceInfo()
+        if (isDebuggable) {
+            ThreadUtils.setThreadAssertsDisabledForTesting(true)
+        }
         oldConfig = Configuration(resources.configuration)
         CrashHandler(this)
         //预下载Cronet so
@@ -65,6 +71,7 @@ class App : Application() {
         registerActivityLifecycleCallbacks(LifecycleHelp)
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(AppConfig)
         DefaultData.upVersion()
+        AppFreezeMonitor.init()
         Coroutine.async {
             URL.setURLStreamHandlerFactory(ObsoleteUrlFactory(okHttpClient))
             launch { installGmsTlsProvider(appCtx) }
@@ -76,6 +83,7 @@ class App : Application() {
                 val clearTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
                 appDb.searchBookDao.clearExpired(clearTime)
             }
+            appDb.bookDao.deleteNotShelfBook()
             RuleBigDataHelp.clearInvalid()
             BookHelp.clearInvalidCache()
             Backup.clearCache()

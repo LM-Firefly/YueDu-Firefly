@@ -231,12 +231,13 @@ fun <T> Flow<T>.flowWithLifecycleAndDatabaseChangeFirst(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     table: String
 ): Flow<T> = callbackFlow {
-    if (!lifecycle.currentState.isAtLeast(minActiveState)) {
-        send(first())
-    }
-    val channel = appDb.invalidationTrackerFlow(table)
+    val isActive = lifecycle.currentState.isAtLeast(minActiveState)
+    val channel = appDb.invalidationTrackerFlow(table, emitInitialState = isActive)
         .conflate()
         .produceIn(this)
+    if (!isActive) {
+        send(first())
+    }
     lifecycle.repeatOnLifecycle(minActiveState) {
         channel.receive()
         this@flowWithLifecycleAndDatabaseChangeFirst.collect {

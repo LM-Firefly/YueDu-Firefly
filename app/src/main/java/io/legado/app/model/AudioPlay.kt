@@ -12,6 +12,7 @@ import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookSource
 import io.legado.app.help.book.ContentProcessor
 import io.legado.app.help.book.getBookSource
+import io.legado.app.help.book.simulatedTotalChapterNum
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.service.AudioPlayService
 import io.legado.app.utils.postEvent
@@ -165,7 +166,7 @@ object AudioPlay {
 
     fun next(context: Context) {
         book?.let { book ->
-            if (book.durChapterIndex + 1 < book.totalChapterNum) {
+            if (book.durChapterIndex + 1 < book.simulatedTotalChapterNum()) {
                 book.durChapterIndex += 1
                 book.durChapterPos = 0
                 durChapterIndex = book.durChapterIndex

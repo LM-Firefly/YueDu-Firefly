@@ -35,7 +35,6 @@ import io.legado.app.lib.theme.getPrimaryTextColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.lib.theme.primaryTextColor
 import io.legado.app.model.ReadBook
-import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.ui.browser.WebViewActivity
 import io.legado.app.ui.widget.seekbar.SeekBarChangeListener
 import io.legado.app.utils.ColorUtils
@@ -332,12 +331,7 @@ class ReadMenu @JvmOverloads constructor(
     private fun bindEvent() = binding.run {
         vwMenuBg.setOnClickListener { runMenuOut() }
         titleBar.toolbar.setOnClickListener {
-            ReadBook.book?.let {
-                context.startActivity<BookInfoActivity> {
-                    putExtra("name", it.name)
-                    putExtra("author", it.author)
-                }
-            }
+            callBack.openBookInfoActivity()
         }
         val chapterViewClickListener = OnClickListener {
             if (ReadBook.isLocalBook) {
@@ -515,7 +509,7 @@ class ReadMenu @JvmOverloads constructor(
             }
             upSeekBar()
             binding.tvPre.isEnabled = ReadBook.durChapterIndex != 0
-            binding.tvNext.isEnabled = ReadBook.durChapterIndex != ReadBook.chapterSize - 1
+            binding.tvNext.isEnabled = ReadBook.durChapterIndex != ReadBook.simulatedChapterSize - 1
         } ?: let {
             binding.tvChapterName.gone()
             binding.tvChapterUrl.gone()
@@ -533,7 +527,7 @@ class ReadMenu @JvmOverloads constructor(
                 }
 
                 "chapter" -> {
-                    max = ReadBook.chapterSize - 1
+                    max = ReadBook.simulatedChapterSize - 1
                     progress = ReadBook.durChapterIndex
                 }
             }
@@ -575,6 +569,7 @@ class ReadMenu @JvmOverloads constructor(
         fun openChapterList()
         fun openSearchActivity(searchWord: String?)
         fun openSourceEditActivity()
+        fun openBookInfoActivity()
         fun showReadStyle()
         fun showMoreSetting()
         fun showReadAloudDialog()

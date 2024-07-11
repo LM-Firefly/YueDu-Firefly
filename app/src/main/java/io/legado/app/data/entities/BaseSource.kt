@@ -98,19 +98,21 @@ interface BaseSource : JsExtensions {
      */
     fun getHeaderMap(hasLoginHeader: Boolean = false) = HashMap<String, String>().apply {
         header?.let {
-            GSON.fromJsonObject<Map<String, String>>(
+            val savedHeader = it
+            header = null
+            val json = try {
                 when {
                     it.startsWith("@js:", true) -> evalJS(it.substring(4)).toString()
                     it.startsWith("<js>", true) -> evalJS(
-                        it.substring(
-                            4,
-                            it.lastIndexOf("<")
-                        )
+                        it.substring(4, it.lastIndexOf("<"))
                     ).toString()
 
                     else -> it
                 }
-            ).getOrNull()?.let { map ->
+            } finally {
+                header = savedHeader
+            }
+            GSON.fromJsonObject<Map<String, String>>(json).getOrNull()?.let { map ->
                 putAll(map)
             }
         }

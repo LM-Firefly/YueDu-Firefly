@@ -57,6 +57,11 @@ val Book.isUmd: Boolean
 val Book.isPdf: Boolean
     get() = isLocal && originName.endsWith(".pdf", true)
 
+val Book.isMobi: Boolean
+    get() = isLocal && (originName.endsWith(".mobi", true) ||
+            originName.endsWith(".azw3", true) ||
+            originName.endsWith(".azw", true))
+
 val Book.isOnLineTxt: Boolean
     get() = !isLocal && isType(BookType.text)
 
@@ -68,6 +73,9 @@ val Book.isUpError: Boolean
 
 val Book.isArchive: Boolean
     get() = isType(BookType.archive)
+
+val Book.isNotShelf: Boolean
+    get() = isType(BookType.notShelf)
 
 val Book.archiveName: String
     get() {
@@ -302,7 +310,7 @@ fun Book.getExportFileName(
 
 // 根据当前日期计算章节总数
 fun Book.simulatedTotalChapterNum(): Int {
-    return if (config.readSimulating) {
+    return if (readSimulating()) {
         val currentDate = LocalDate.now()
         val daysPassed = between(this.config.startDate, currentDate).days + 1
         // 计算当前应该解锁到哪一章
@@ -312,6 +320,10 @@ fun Book.simulatedTotalChapterNum(): Int {
     } else {
         totalChapterNum
     }
+}
+
+fun Book.readSimulating(): Boolean {
+    return config.readSimulating
 }
 
 fun tryParesExportFileName(jsStr: String): Boolean {

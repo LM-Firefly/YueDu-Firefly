@@ -150,7 +150,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
      * 加载详情页
      */
     private suspend fun loadBookInfo(book: Book): Boolean {
-        val source = ReadBook.bookSource ?: return false
+        val source = ReadBook.bookSource ?: return true
         try {
             WebBook.getBookInfoAwait(source, book, canReName = false)
             return true
@@ -165,7 +165,10 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
      */
     fun loadChapterList(book: Book) {
         execute {
-            loadChapterListAwait(book)
+            if (loadChapterListAwait(book)) {
+                ReadBook.upMsg(null)
+                ReadBook.loadContent(resetPageOffset = true)
+            }
         }
     }
 
@@ -216,7 +219,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
                     }
             }
         }
-        return false
+        return true
     }
 
     /**

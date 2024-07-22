@@ -145,9 +145,6 @@ object BookChapterList {
             }
         }
         val replaceRules = ContentProcessor.get(book.name, book.origin).getTitleReplaceRules()
-        book.latestChapterTitle =
-            list.getOrElse(book.simulatedTotalChapterNum() - 1) {
-                list.last() }.getDisplayTitle(replaceRules, book.getUseReplaceRule())
         book.durChapterTitle = list.getOrElse(book.durChapterIndex) { list.last() }
             .getDisplayTitle(replaceRules, book.getUseReplaceRule())
         if (book.totalChapterNum < list.size) {
@@ -156,6 +153,9 @@ object BookChapterList {
         }
         book.lastCheckTime = System.currentTimeMillis()
         book.totalChapterNum = list.size
+        book.latestChapterTitle =
+            list.getOrElse(book.simulatedTotalChapterNum() - 1) { list.last() }
+                .getDisplayTitle(replaceRules, book.getUseReplaceRule())
         coroutineContext.ensureActive()
         return list
     }

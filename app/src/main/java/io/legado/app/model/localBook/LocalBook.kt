@@ -97,6 +97,10 @@ object LocalBook {
                 PdfFile.getChapterList(book)
             }
 
+            book.isMobi -> {
+                MobiFile.getChapterList(book)
+            }
+
             else -> {
                 TextFile.getChapterList(book)
             }
@@ -125,6 +129,10 @@ object LocalBook {
 
                 book.isPdf -> {
                     PdfFile.getContent(book, chapter)
+                }
+
+                book.isMobi -> {
+                    MobiFile.getContent(book, chapter)
                 }
 
                 else -> {
@@ -207,7 +215,8 @@ object LocalBook {
         when {
             book.isEpub -> EpubFile.upBookInfo(book)
             book.isUmd -> UmdFile.upBookInfo(book)
-            book.isPdf -> UmdFile.upBookInfo(book)
+            book.isPdf -> PdfFile.upBookInfo(book)
+            book.isMobi -> MobiFile.upBookInfo(book)
         }
     }
 

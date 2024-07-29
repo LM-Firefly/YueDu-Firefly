@@ -15,7 +15,7 @@ on:
       - "**/modules/web/**"
   workflow_run:
     workflows: [Build Web]
-    branches: [master]
+    branches: [main]
     types:
       - completed
   workflow_dispatch:
@@ -168,17 +168,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: apk/
-      - working-directory: apk/
-        run: |
-          mv */*.apk .
-          rm -rf */
-          for file in `ls *.apk`; do
-            if [[ "$file" == *Original* ]]; then
-              mv "$file" $(echo $file | sed s/Original/Original/)
-            else
-              mv "$file" $(echo $file | sed s/Firefly/Firefly/)
-            fi
-          done
+#      - working-directory: apk/
+#        run: |
+#          mv */*.apk .
+#          rm -rf */
+#          for file in `ls *.apk`; do
+#            if [[ "$file" == *Original* ]]; then
+#              mv "$file" $(echo $file | sed s/Original/Original/)
+#            else
+#              mv "$file" $(echo $file | sed s/Firefly/Firefly/)
+#            fi
+#          done
 
       - name: Delete Pre-Release
         run: |

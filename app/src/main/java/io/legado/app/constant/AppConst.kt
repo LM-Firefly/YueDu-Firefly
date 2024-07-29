@@ -67,8 +67,8 @@ object AppConst {
             ?.let {
                 appInfo.versionName = it.versionName
                 appInfo.appVariant = when {
-                    it.packageName.contains("Firefly") -> AppVariant.BETA_RELEASEA
-                    isBeta -> AppVariant.BETA_RELEASE
+                    it.packageName.contains("Firefly") -> AppVariant.BETA_FIREFLY
+                    isBeta -> AppVariant.BETA_ORIGINAL
                     isOfficial -> AppVariant.OFFICIAL
                     else -> AppVariant.UNKNOWN
                 }

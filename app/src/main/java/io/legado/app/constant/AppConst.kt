@@ -4,8 +4,9 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.annotation.Keep
+import cn.hutool.crypto.digest.DigestUtil
 import io.legado.app.BuildConfig
-import io.legado.app.utils.channel
+import io.legado.app.help.update.AppVariant
 import splitties.init.appCtx
 import java.text.SimpleDateFormat
 
@@ -25,6 +26,11 @@ object AppConst {
     const val MAX_THREAD = 9
 
     const val DEFAULT_WEBDAV_ID = -1L
+
+    private const val OFFICIAL_SIGNATURE =
+        "8DACBF25EC667C9B1374DB1450C1A866C2AAA1173016E80BF6AD2F06FABDDC08"
+    private const val BETA_SIGNATURE =
+        "93A28468B0F69E8D14C8A99AB45841CEF902BBBA3761BBFEE02E67CBA801563E"
 
     val timeFormat: SimpleDateFormat by lazy {
         SimpleDateFormat("HH:mm")
@@ -60,6 +66,13 @@ object AppConst {
         appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_ACTIVITIES)
             ?.let {
                 appInfo.versionName = it.versionName
+                appInfo.appVariant = when {
+                    it.packageName.contains("Firefly") -> AppVariant.BETA_RELEASEA
+                    isBeta -> AppVariant.BETA_RELEASE
+                    isOfficial -> AppVariant.OFFICIAL
+                    else -> AppVariant.UNKNOWN
+                }
+
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                     appInfo.versionCode = it.longVersionCode
                 } else {
@@ -70,13 +83,25 @@ object AppConst {
         appInfo
     }
 
+    @Suppress("DEPRECATION")
+    private val sha256Signature: String by lazy {
+        val packageInfo =
+            appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_SIGNATURES)
+        DigestUtil.sha256Hex(packageInfo.signatures[0].toByteArray()).uppercase()
+    }
+
+    private val isOfficial = sha256Signature == OFFICIAL_SIGNATURE
+
+    private val isBeta = sha256Signature == BETA_SIGNATURE || BuildConfig.DEBUG
+
     val charsets =
         arrayListOf("UTF-8", "GB2312", "GB18030", "GBK", "Unicode", "UTF-16", "UTF-16LE", "ASCII")
 
     @Keep
     data class AppInfo(
         var versionCode: Long = 0L,
-        var versionName: String = ""
+        var versionName: String = "",
+        var appVariant: AppVariant = AppVariant.UNKNOWN
     )
 
     /**

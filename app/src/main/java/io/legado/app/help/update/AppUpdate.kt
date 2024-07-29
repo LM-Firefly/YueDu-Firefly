@@ -1,4 +1,4 @@
-package io.legado.app.help
+package io.legado.app.help.update
 
 import io.legado.app.help.coroutine.Coroutine
 import kotlinx.coroutines.CoroutineScope
@@ -7,7 +7,7 @@ object AppUpdate {
 
     val gitHubUpdate by lazy {
         kotlin.runCatching {
-            Class.forName("io.legado.app.help.AppUpdateGitHub")
+            Class.forName("io.legado.app.help.update.AppUpdateGitHub")
                 .kotlin.objectInstance as AppUpdateInterface
         }.getOrNull()
     }

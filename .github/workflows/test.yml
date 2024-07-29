@@ -15,6 +15,7 @@ on:
       - "**/modules/web/**"
   workflow_run:
     workflows: [Build Web]
+    branches: [master]
     types:
       - completed
   workflow_dispatch:
@@ -24,7 +25,7 @@ on:
 #    - cron: '0 4 * * *'
 
 concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
+  group: "test"
   cancel-in-progress: true
 
 jobs:
@@ -156,20 +157,54 @@ jobs:
           name: YueDu.${{ env.product }}.${{ env.type }}.mapping
           if-no-files-found: ignore
           path: ${{ github.workspace }}/mapping/mapping.txt
-      - name: Prerelease
-        #        if: ${{ env.product == 'Google' }}
-        uses: softprops/action-gh-release@v2.0.8
+
+  prerelease:
+    needs: [ prepare, build ]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: apk/
+      - working-directory: apk/
+        run: |
+          mv */*.apk .
+          rm -rf */
+          for file in `ls *.apk`; do
+            if [[ "$file" == *Original* ]]; then
+              mv "$file" $(echo $file | sed s/Original/Original/)
+            else
+              mv "$file" $(echo $file | sed s/Firefly/Firefly/)
+            fi
+          done
+
+      - name: Delete Pre-Release
+        run: |
+          if gh release view beta &>/dev/null; then
+            gh release delete beta -y
+          fi
+        env:
+          GH_TOKEN: ${{secrets.ACTIONS_TOKEN}}
+
+      - name: Create or update beta tag
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: beta
+        env:
+          GITHUB_TOKEN: ${{secrets.ACTIONS_TOKEN}}
+
+      - name: Publish Pre-Release
+        uses: ncipollo/release-action@v1
         with:
           name: YueDu.${{ env.VERSION }}
-          tag_name: ${{ env.VERSION }}
-          #          body: ${{ env.CHANGE }}
-          body_path: ${{ github.workspace }}/app/src/main/assets/updateLog.md
+          tag: "beta"
+          body: "此版本为测试版，签名与正式版不同，可能存在不稳定情况，升级前请务必备份好数据。"
           generate_release_notes: true
-          #          append_body: true
-          token: ${{env.GIT_TOKEN}}
-          draft: false
           prerelease: true
-          files: ${{ github.workspace }}/apk/YueDu.*.apk
+          artifacts: ${{ github.workspace }}/apk/*.apk
+
 
   #  lanzou:
   #    needs: [ prepare, build ]

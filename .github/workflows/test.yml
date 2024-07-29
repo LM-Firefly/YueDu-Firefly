@@ -157,29 +157,6 @@ jobs:
           name: YueDu.${{ env.product }}.${{ env.type }}.mapping
           if-no-files-found: ignore
           path: ${{ github.workspace }}/mapping/mapping.txt
-
-  prerelease:
-    needs: [prepare, build]
-    runs-on: ubuntu-latest
-    env:
-      VERSION: ${{ needs.prepare.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          path: ${{ github.workspace }}/apk/*.apk
-      #      - working-directory: apk/
-      #        run: |
-      #          mv */*.apk .
-      #          rm -rf */
-      #          for file in `ls *.apk`; do
-      #            if [[ "$file" == *Original* ]]; then
-      #              mv "$file" $(echo $file | sed s/Original/Original/)
-      #            else
-      #              mv "$file" $(echo $file | sed s/Firefly/Firefly/)
-      #            fi
-      #          done
-
       - name: Delete Pre-Release
         run: |
           if gh release view beta &>/dev/null; then
@@ -187,14 +164,12 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{secrets.ACTIONS_TOKEN}}
-
       - name: Create or update beta tag
         uses: richardsimko/update-tag@v1
         with:
           tag_name: beta
         env:
           GITHUB_TOKEN: ${{secrets.ACTIONS_TOKEN}}
-
       - name: Publish Pre-Release
         uses: softprops/action-gh-release@v2.0.8
         with:

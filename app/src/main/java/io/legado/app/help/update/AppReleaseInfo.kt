@@ -1,5 +1,6 @@
 package io.legado.app.help.update
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import io.legado.app.exception.NoStackTraceException
 import java.time.Instant
@@ -27,6 +28,7 @@ enum class AppVariant {
 
 }
 
+@Keep
 data class GithubRelease(
     val assets: List<Asset>?,
     val body: String,
@@ -41,6 +43,7 @@ data class GithubRelease(
     }
 }
 
+@Keep
 data class Asset(
     @SerializedName("browser_download_url")
     val apkUrl: String,

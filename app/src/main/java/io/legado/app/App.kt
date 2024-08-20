@@ -52,13 +52,13 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashHandler(this)
         LogUtils.d("App", "onCreate")
         LogUtils.logDeviceInfo()
         if (isDebuggable) {
             ThreadUtils.setThreadAssertsDisabledForTesting(true)
         }
         oldConfig = Configuration(resources.configuration)
-        CrashHandler(this)
         //预下载Cronet so
         Cronet.preDownload()
         createNotificationChannels()
@@ -161,7 +161,7 @@ class App : Application() {
         val readAloudChannel = NotificationChannel(
             channelIdReadAloud,
             getString(R.string.read_aloud),
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
             enableLights(false)
             enableVibration(false)

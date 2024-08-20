@@ -39,6 +39,7 @@ import io.legado.app.ui.book.read.page.entities.TextChapter
 import io.legado.app.utils.activityPendingIntent
 import io.legado.app.utils.broadcastPendingIntent
 import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.isVivoDevice
 import io.legado.app.utils.observeEvent
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.toastOnUi
@@ -482,6 +483,16 @@ abstract class BaseReadAloudService : BaseService(),
         }
     }
 
+    private fun choiceMediaStyle(): androidx.media.app.NotificationCompat.MediaStyle {
+        val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
+            .setShowActionsInCompactView(0, 1, 2)
+        if (isVivoDevice) {
+            //fix #4090 android 14 can not show play control in lock screen
+            mediaStyle.setMediaSession(mediaSessionCompat.sessionToken)
+        }
+        return mediaStyle
+    }
+
     private fun createNotification(): NotificationCompat.Builder {
         var nTitle: String = when {
             pause -> getString(R.string.read_aloud_pause)
@@ -500,6 +511,8 @@ abstract class BaseReadAloudService : BaseService(),
             .Builder(this@BaseReadAloudService, AppConst.channelIdReadAloud)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setSmallIcon(R.drawable.ic_volume_up)
             .setSubText(getString(R.string.read_aloud))
             .setOngoing(true)
@@ -535,10 +548,7 @@ abstract class BaseReadAloudService : BaseService(),
             getString(R.string.set_timer),
             aloudServicePendingIntent(IntentAction.addTimer)
         )
-        builder.setStyle(
-            androidx.media.app.NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(0, 1, 2)
-        )
+        builder.setStyle(choiceMediaStyle())
         return builder
     }
 

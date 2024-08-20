@@ -446,8 +446,9 @@ class TextChapterLayout(
             val textLine = TextLine(isTitle = isTitle)
             if (durY + textHeight > visibleHeight) {
                 val textPage = pendingTextPage
-                if (textPage.height < durY) {
-                    textPage.height = durY
+                val height = textPage.lines.lastOrNull()?.lineBottom ?: 0f
+                if (textPage.height < height) {
+                    textPage.height = height
                 }
                 if (doublePage && absStartX < viewWidth / 2) {
                     //当前页面左列结束
@@ -530,8 +531,9 @@ class TextChapterLayout(
             val textPage = pendingTextPage
             textPage.addLine(textLine)
             durY += textHeight * lineSpacingExtra
-            if (textPage.height < durY) {
-                textPage.height = durY
+            val height = textPage.lines.lastOrNull()?.lineBottom ?: 0f
+            if (textPage.height < height) {
+                textPage.height = height
             }
         }
         durY += textHeight * paragraphSpacing / 10f

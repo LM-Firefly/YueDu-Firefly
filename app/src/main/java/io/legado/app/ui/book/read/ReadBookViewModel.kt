@@ -113,7 +113,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
             return
         }
         ReadBook.upMsg(null)
-        if (ReadBook.durChapterIndex > ReadBook.simulatedChapterSize - 1) {
+        if (ReadBook.simulatedChapterSize > 0 && ReadBook.durChapterIndex > ReadBook.simulatedChapterSize - 1) {
             ReadBook.durChapterIndex = ReadBook.simulatedChapterSize - 1
         }
         if (!isSameBook) {

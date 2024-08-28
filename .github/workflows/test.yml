@@ -25,7 +25,7 @@ on:
 #    - cron: '0 4 * * *'
 
 concurrency:
-  group: 'test'
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -140,6 +140,10 @@ jobs:
 
       - name: Check Build production
         run: |
+          if [ ! -d ${{ github.workspace }}/apk ]; then
+            echo "Build production not found! Check gradle logs."
+            exit 1
+          fi
           cd ${{ github.workspace }}/apk/
           if [ ! -e YueDu.*.apk ]; then
             echo "Build production not found! Check gradle logs."

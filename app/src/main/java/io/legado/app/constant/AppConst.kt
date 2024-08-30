@@ -64,7 +64,7 @@ object AppConst {
         @Suppress("DEPRECATION")
         appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_ACTIVITIES)
             ?.let {
-                appInfo.versionName = it.versionName
+                appInfo.versionName = it.versionName!!
                 appInfo.appVariant = when {
                     it.packageName.contains("Firefly") -> AppVariant.BETA_FIREFLY
                     isBeta -> AppVariant.BETA_ORIGINAL
@@ -86,7 +86,7 @@ object AppConst {
     private val sha256Signature: String by lazy {
         val packageInfo =
             appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_SIGNATURES)
-        DigestUtil.sha256Hex(packageInfo.signatures[0].toByteArray()).uppercase()
+        DigestUtil.sha256Hex(packageInfo.signatures!![0].toByteArray()).uppercase()
     }
 
     private val isOfficial = sha256Signature == OFFICIAL_SIGNATURE

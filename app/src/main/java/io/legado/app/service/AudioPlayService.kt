@@ -157,6 +157,13 @@ class AudioPlayService : BaseService(),
                     play()
                 }
 
+                IntentAction.stopPlay -> {
+                    exoPlayer.stop()
+                    upPlayProgressJob?.cancel()
+                    AudioPlay.status = Status.STOP
+                    postEvent(EventBus.AUDIO_STATE, Status.STOP)
+                }
+
                 IntentAction.pause -> pause()
                 IntentAction.resume -> resume()
                 IntentAction.prev -> AudioPlay.prev()
@@ -326,7 +333,7 @@ class AudioPlayService : BaseService(),
                     AudioPlay.status = Status.PAUSE
                     postEvent(EventBus.AUDIO_STATE, Status.PAUSE)
                 }
-                postEvent(EventBus.AUDIO_SIZE, exoPlayer.duration)
+                postEvent(EventBus.AUDIO_SIZE, exoPlayer.duration.toInt())
                 upMediaMetadata()
                 upPlayProgress()
                 AudioPlay.saveDurChapter(exoPlayer.duration)

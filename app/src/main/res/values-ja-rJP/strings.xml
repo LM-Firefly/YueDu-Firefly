@@ -98,9 +98,8 @@
         join us.
     </string>
     <string name="app_share_description">
-        YueDu (YueDu 3.0) download link：\n
-        https://play.google.com/store/apps/details?id=io.legado.play.release
-</string>
+        YueDu (YueDu 3.0) download link：\n https://github.com/gedoor/legado/releases
+    </string>
     <string name="version_name">Version %s</string>
     <string name="pt_background_verification">Background-verification</string>
     <string name="ps_background_verification">you can operate freely when verifying the book source</string>

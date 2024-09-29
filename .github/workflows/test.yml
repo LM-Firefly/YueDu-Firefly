@@ -187,7 +187,7 @@ jobs:
           prerelease: true
           files: ${{ github.workspace }}/apk/*
       - name: Release Changelog Builder
-        uses: mikepenz/release-changelog-builder-action@v4
+        uses: mikepenz/release-changelog-builder-action@v5
 
   #  lanzou:
   #    needs: [ prepare, build ]

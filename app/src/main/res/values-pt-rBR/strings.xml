@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--App-->
-    <string name="app_name">Legado</string>
-    <string name="receiving_shared_label">Legado·pesquisa</string>
-    <string name="tip_perm_request_storage">Legado precisa de acesso ao armazenamento para encontrar e ler livros. Por favor, vá às "Configurações do App" para conceder "Permissão de armazenamento".</string>
+    <string name="app_name">YueDu</string>
+    <string name="receiving_shared_label">YueDu·pesquisa</string>
+    <string name="tip_perm_request_storage">YueDu precisa de acesso ao armazenamento para encontrar
+        e ler livros. Por favor, vá às "Configurações do App" para conceder "Permissão de
+        armazenamento".</string>
 
     <!--Other-->
     <string name="menu_backup">Início</string>
     <string name="menu_restore">Restaurar</string>
-    <string name="menu_import_old">Importar dados ao Legado</string>
+    <string name="menu_import_old">Importar dados ao YueDu</string>
     <string name="webdav_cache_backup">Backup do cache dos livros para leitura off-line</string>
     <string name="webdav_cache_backup_s">Exportar localmente e fazer Backup à pasta de exportação</string>
     <string name="backup_path">Backup para</string>
     <string name="select_backup_path">Por favor, selecione uma pasta de Backup.</string>
-    <string name="menu_import_old_version">Importar dados de Legado</string>
+    <string name="menu_import_old_version">Importar dados de YueDu</string>
     <string name="menu_import_github">Importar dados de Github</string>
     <string name="menu_replace_rule">Substituição</string>
     <string name="menu_send">Enviar</string>
@@ -47,7 +49,8 @@
     <string name="recent_reading">Leitura recente</string>
     <string name="last_read">Última leitura</string>
     <string name="update_log">Novidades</string>
-    <string name="bookshelf_empty">A estante está vazia. Procure por livros ou adicione-os via descoberta!</string>
+    <string name="bookshelf_empty">A estante está vazia. Procure por livros ou adicione-os via
+        descoberta!</string>
     <string name="action_search">Pesquisar</string>
     <string name="action_download">Download</string>
     <string name="layout_list">Lista</string>
@@ -91,10 +94,11 @@
     <string name="offline_cache_s">salvar o(s) capítulo(s) selecionado(s) no Armazenamento em cache</string>
     <string name="change_origin">Alterar a origem</string>
     <string name="about_description">
-        \u3000\u3000 Este é um App de leitura de software livre, desenvolvido em Kotlin, você é bem-vindo a participar em projeto.
+        \u3000\u3000 Este é um App de leitura de software livre, desenvolvido em Kotlin, você é
+        bem-vindo a participar em projeto.
     </string>
     <string name="app_share_description">
-        Legado (YueDu 3.0) link de download：\n https://github.com/gedoor/legado/releases
+        YueDu (YueDu 3.0) link de download：\n https://github.com/gedoor/legado/releases
     </string>
     <string name="version_name">Versão %s</string>
     <string name="pt_background_verification">Verificação em segundo plano</string>
@@ -102,10 +106,11 @@
     <string name="pt_auto_refresh">Atualização automática</string>
     <string name="ps_auto_refresh">Atualizar os livros automaticamente ao abrir o App</string>
     <string name="pt_auto_download">Download automático</string>
-    <string name="ps_auto_download">Baixar automaticamente os últimos capítulos ao atualizar os livros</string>
+    <string name="ps_auto_download">Baixar automaticamente os últimos capítulos ao atualizar os
+        livros</string>
     <string name="backup_restore">Backup e restauração</string>
     <string name="web_dav_set">Configurações de WebDav</string>
-    <string name="web_dav_set_import_old">Configurações/importação WebDav de dados Legado </string>
+    <string name="web_dav_set_import_old">Configurações/importação WebDav de dados YueDu</string>
     <string name="backup">Fazer Backup</string>
     <string name="restore">Restaurar</string>
     <string name="backup_permission">O Backup precisa de permissão de armazenamento</string>
@@ -113,9 +118,11 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="backup_confirmation">Confirmação do Backup</string>
-    <string name="backup_message">Os novos arquivos de Backup substituirão os originais.\n Pasta de Backup: YueDu</string>
+    <string name="backup_message">Os novos arquivos de Backup substituirão os originais.\n Pasta de
+        Backup: YueDu</string>
     <string name="restore_confirmation">Confirmação da Restauração</string>
-    <string name="restore_message">A restauração dos dados da estante irá substituir a estante atual.</string>
+    <string name="restore_message">A restauração dos dados da estante irá substituir a estante
+        atual.</string>
     <string name="backup_success">Backup bem sucedido</string>
     <string name="backup_fail">O Backup falhou\n%s</string>
     <string name="on_restore">Restaurando</string>
@@ -206,10 +213,12 @@
     <string name="menu">Menu</string>
     <string name="adjust">Ajuste</string>
     <string name="scroll_bar">Barra de deslize</string>
-    <string name="clear_all_content">Ao limpar o cache você excluirá todos os capítulos salvos. Você tem certeza disso?</string>
+    <string name="clear_all_content">Ao limpar o cache você excluirá todos os capítulos salvos. Você
+        tem certeza disso?</string>
     <string name="book_source_share_url">Compartilhamento de fontes de livros</string>
     <string name="replace_rule_summary">Nome da regra</string>
-    <string name="replace_rule_invalid">A regra padrão está vazia ou não está em conformidade com as especificações de Regex.</string>
+    <string name="replace_rule_invalid">A regra padrão está vazia ou não está em conformidade com as
+        especificações de Regex.</string>
     <string name="select_action">Ação de seleção</string>
     <string name="select_all">Selecionar tudo</string>
     <string name="select_all_count">Selecionar tudo(%1$d/%2$d)</string>
@@ -259,7 +268,8 @@
     <string name="content">Conteúdo</string>
     <string name="copy_text">Copiar</string>
     <string name="download_all">Baixar tudo</string>
-    <string name="content_sl">Este é um texto de teste, \n\u3000\u3000 apenas para mostrar o resultado</string>
+    <string name="content_sl">Este é um texto de teste, \n\u3000\u3000 apenas para mostrar o
+        resultado</string>
     <string name="text_bg_style">Cor e fundo (toque longo para personalizar)</string>
     <string name="immersion_status_bar">Barra de status imersiva</string>
     <string name="un_download">%d capítulo(s) restante(s)</string>
@@ -294,7 +304,7 @@
     <string name="padding_right">Espaço da direita</string>
     <string name="check_book_source">Verificar fontes do livro</string>
     <string name="check_select_source">Verificar a fonte selecionada</string>
-    <string name="progress_show">%1$s      Progresso %2$d/%3$d</string>
+    <string name="progress_show">%1$s Progresso %2$d/%3$d</string>
     <string name="tts_fix">Favor instalar e selecionar o TTS chinês!</string>
     <string name="tts_init_failed">A inicialização do TTS falhou!</string>
     <string name="jf_convert">Conversão simplificada</string>
@@ -307,7 +317,8 @@
     <string name="nb_file_add_shelf">Adicionar ao Estante</string>
     <string name="nb_file_add_shelves">Adicionar ao Estante(%1$d)</string>
     <string name="nb_file_add_succeed">%1$d livros adicionados com sucesso</string>
-    <string name="fonts_folder">Favor colocar os arquivos de fontes na pasta Root de Fontes no armazenamento e selecionar novamente</string>
+    <string name="fonts_folder">Favor colocar os arquivos de fontes na pasta Root de Fontes no
+        armazenamento e selecionar novamente</string>
     <string name="default_font">Fonte padrão</string>
     <string name="select_font">Selecionar fontes</string>
     <string name="text_size">Tamanho do texto</string>
@@ -375,10 +386,13 @@
     <string name="page_anim_simulation">Simulação</string>
     <string name="page_anim_scroll">Deslizar</string>
     <string name="page_anim_none">Nenhum</string>
-    <string name="up_change_source_last_chapter_t">Atualizar o último capítulo após a alteração de origem em segundo plano</string>
-    <string name="up_change_source_last_chapter_s">se ativado, a atualização será iniciada 1 minuto depois o App for aberto</string>
+    <string name="up_change_source_last_chapter_t">Atualizar o último capítulo após a alteração de
+        origem em segundo plano</string>
+    <string name="up_change_source_last_chapter_s">se ativado, a atualização será iniciada 1 minuto
+        depois o App for aberto</string>
     <string name="behavior_main_t">Auto esconder a barra de ferramentas</string>
-    <string name="behavior_main_s">A barra de ferramentas será escondida automaticamente ao deslizar a Estante</string>
+    <string name="behavior_main_s">A barra de ferramentas será escondida automaticamente ao deslizar
+        a Estante</string>
     <string name="login">Login</string>
     <string name="login_source">Login%s</string>
     <string name="success">Sucesso</string>
@@ -447,7 +461,8 @@
     <string name="rule_is_pay">购买标识(isPay)</string>
     <!-- source end-->
 
-    <!--error string start-->
+    <!--error
+    string start-->
     <string name="error_no_source">Nenhum fonte</string>
     <string name="error_get_book_info">Falha ao obter informações sobre os livros</string>
     <string name="error_get_content">Falha ao obter o conteúdo</string>
@@ -460,7 +475,8 @@
     <string name="net_error_10001">Sem internet</string>
     <string name="net_error_10002">Tempo limite da conexão à rede</string>
     <string name="net_error_10003">O processamento de dados falhou</string>
-    <!--error string end-->
+    <!--error
+    string end-->
 
     <string name="source_http_header">Cabeçalho HTTP</string>
     <string name="debug_source">Fonte de depuração</string>
@@ -472,7 +488,8 @@
     <string name="theme_mode">Tipo de tema</string>
     <string name="theme_mode_desc">Selecionar tema que você preferir</string>
     <string name="join_qq_group">Junte-se ao grupo QQ</string>
-    <string name="bg_image_per">Para definir a imagem de fundo é necessária permissão de armazenamento</string>
+    <string name="bg_image_per">Para definir a imagem de fundo é necessária permissão de
+        armazenamento</string>
     <string name="input_book_source_url">Digite o endereço da fonte de livro</string>
     <string name="del_file">Excluir arquivo</string>
     <string name="del_file_success">Arquivo excluído</string>
@@ -497,10 +514,12 @@
     <string name="sure_del_all_book">Você realmente quer excluir todos os livros？</string>
     <string name="sure_del_download_book">Você também quer excluir os capítulos de livros baixados?</string>
     <string name="qr_per">Para digitalizar o código QR é necessário ter permissão da câmera</string>
-    <string name="aloud_can_not_auto_page">A voz está em execução, não pode virar páginas automaticamente</string>
+    <string name="aloud_can_not_auto_page">A voz está em execução, não pode virar páginas
+        automaticamente</string>
     <string name="input_charset">Codificação de entrada</string>
     <string name="text_chapter_list_rule">Capítulos de Txt Regex</string>
-    <string name="open_local_book_per">Para abrir livros locais é necessária permissão de armazenamento</string>
+    <string name="open_local_book_per">Para abrir livros locais é necessária permissão de
+        armazenamento</string>
     <string name="no_book_name">Livro sem nome</string>
     <string name="input_replace_url">URL da regra de substituição de entrada</string>
     <string name="get_book_list_success">A lista procurada obtida com sucesso%d</string>
@@ -508,8 +527,10 @@
     <string name="gallery">Galeria</string>
     <string name="get_ali_pay_hb">obter envelopes vermelhos de AliPay</string>
     <string name="non_update_url">Nenhuma atualização no endereço</string>
-    <string name="check_host_cookie">Abrindo a página inicial, ela voltará automaticamente após o sucesso</string>
-    <string name="click_check_after_success">Após o login bem sucedido, por favor toque no ícone no canto superior direito para testar o acesso à página inicial</string>
+    <string name="check_host_cookie">Abrindo a página inicial, ela voltará automaticamente após o
+        sucesso</string>
+    <string name="click_check_after_success">Após o login bem sucedido, por favor toque no ícone no
+        canto superior direito para testar o acesso à página inicial</string>
     <string name="chapter">Capítulo</string>
     <string name="to">Para</string>
     <string name="use_regex">Usando Regex</string>
@@ -633,18 +654,22 @@
     <string name="select_count">(%1$d/%2$d)</string>
     <string name="show_rss">Exibir assinatura</string>
     <string name="service_stop">Serviço parou</string>
-    <string name="service_start">Iniciando o serviço\nVerificando a barra de notificações para detalhes</string>
+    <string name="service_start">Iniciando o serviço\nVerificando a barra de notificações para
+        detalhes</string>
     <string name="default_path">Pasta padrão</string>
     <string name="sys_folder_picker">Seletor de pastas do sistema</string>
     <string name="app_folder_picker">Seletor de pastas do App</string>
     <string name="app_file_picker">Seletor de arquivos do App</string>
-    <string name="a10_permission_toast">Android 10+ não é capaz de ler e salvar arquivos devido a restrições de permissão</string>
-    <string name="add_to_text_context_menu_s">Clique longo para exibir o Legado·Pesquisa no menu de operação</string>
+    <string name="a10_permission_toast">Android 10+ não é capaz de ler e salvar arquivos devido a
+        restrições de permissão</string>
+    <string name="add_to_text_context_menu_s">Clique longo para exibir o YueDu·Pesquisa no menu de
+        operação</string>
     <string name="add_to_text_context_menu_t">Visualização da operação de texto na Pesquisa</string>
     <string name="record_log">Record log</string>
     <string name="log">Log</string>
     <string name="chinese_converter">Conversão simplificada</string>
-    <string name="change_icon_error">O ícone é um ícone vetorial, que não era suportado antes de Android 8.0</string>
+    <string name="change_icon_error">O ícone é um ícone vetorial, que não era suportado antes de
+        Android 8.0</string>
     <string name="aloud_config">Configurações da voz</string>
     <string name="main_activity">Página inicial</string>
     <string name="selectText">Clique longo para selecionar o texto</string>
@@ -681,12 +706,16 @@
     <string name="btn_default_s">Padrão</string>
     <string name="main_menu">Menu principal</string>
     <string name="request_permission">Toque para conceder permissão</string>
-    <string name="tip_local_perm_request_storage">Legado precisa de permissão de armazenamento, por favor toque abaixo no botão "Conceder Permissão", ou vá às "Configurações"-"Permissões do Apps"-para abrir a permissão necessária. Se a permissão não funcionar, por favor, toque no "Selecionar Pasta" no canto superior direito para usar o seletor de pastas do sistema.</string>
+    <string name="tip_local_perm_request_storage">YueDu precisa de permissão de armazenamento, por
+        favor toque abaixo no botão "Conceder Permissão", ou vá às "Configurações"-"Permissões do
+        Apps"-para abrir a permissão necessária. Se a permissão não funcionar, por favor, toque no
+        "Selecionar Pasta" no canto superior direito para usar o seletor de pastas do sistema.</string>
     <string name="alouding_disable">O texto selecionado não pode ser falado como texto completo</string>
     <string name="read_body_to_lh">Ampliar para recortar</string>
     <string name="toc_updateing">Atualização de capítulos</string>
     <string name="media_button_on_exit_title">Os botões de fones de ouvido estão sempre disponíveis</string>
-    <string name="media_button_on_exit_summary">Os botões de fones de ouvido estão disponíveis mesmo ao sair do App.</string>
+    <string name="media_button_on_exit_summary">Os botões de fones de ouvido estão disponíveis mesmo
+        ao sair do App.</string>
     <string name="contributors">Colaboradores</string>
     <string name="contact">Contato</string>
     <string name="license">Licença</string>
@@ -726,8 +755,9 @@
     <string name="auto_page_speed">Velocidade de rolagem automática</string>
     <string name="sort_by_url">Ordenar por URL</string>
     <string name="backup_summary">Faça backup local e de WebDav simultaneamente</string>
-    <string name="restore_summary">Primeiro restaurar de WebDAV, ao clicar longo restaurar do local backup</string>
-    <string name="import_old_summary">Selecione uma pasta Legado de Backup</string>
+    <string name="restore_summary">Primeiro restaurar de WebDAV, ao clicar longo restaurar do local
+        backup</string>
+    <string name="import_old_summary">Selecione uma pasta YueDu de Backup</string>
     <string name="enabled">Ativado</string>
     <string name="disabled">Desativado</string>
     <string name="enabled_explore">Discovery Enabled</string>
@@ -743,7 +773,8 @@
     <string name="alipay_red_envelope_qr_code">Envelope vermelho de AliPay código QR</string>
     <string name="alipay_payment_qr_code">AliPay código QR</string>
     <string name="qq_collection_qr_code">Coleção QQ Código QR</string>
-    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Para mais detalhes vá ao Github</string>
+    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Para mais detalhes vá ao
+        Github</string>
     <string name="clear_cache_summary">Limpar o cache dos livros e fontes baixados</string>
     <string name="default_cover">Capa padrão</string>
     <string name="restore_ignore">Lista de ignorados</string>
@@ -791,7 +822,8 @@
     <string name="auto_clear_expired_summary">Histórico de busca mais de um dia</string>
     <string name="re_segment">Re-segmentar</string>
     <string name="style_name">Formato do nome:</string>
-    <string name="empty_msg_import_book">Clique no ícone da pasta no canto superior direito e selecione a pasta</string>
+    <string name="empty_msg_import_book">Clique no ícone da pasta no canto superior direito e
+        selecione a pasta</string>
     <string name="scan_folder">Busca inteligente</string>
     <string name="import_file_name">Nome do arquivo importado</string>
     <string name="no_book">Sem livros</string>
@@ -803,13 +835,19 @@
     <string name="non_action">Nenhuma Ação</string>
     <string name="body_title">Título</string>
     <string name="show_hide">Mostrar/ocultar</string>
-    <string name="header_footer">rodapé <![CDATA[&]]> cabeçalho</string>
+    <string name="header_footer">
+        rodapé
+    <![CDATA[&]]>
+        cabeçalho
+    </string>
     <string name="rule_subscription">Assinatura de regras</string>
     <string name="rule_sub_empty_msg">添加大佬们提供的规则导入地址\n添加后点击可导入规则</string>
     <string name="get_book_progress">Obter o progresso da nuvem</string>
-    <string name="current_progress_exceeds_cloud">O progresso atual excede o progresso da nuvem. Você quer sincronizar?</string>
+    <string name="current_progress_exceeds_cloud">O progresso atual excede o progresso da nuvem.
+        Você quer sincronizar?</string>
     <string name="sync_book_progress_t">Progresso de leitura sincronizada</string>
-    <string name="sync_book_progress_s">Sincronizar o progresso da leitura ao entrar e sair da tela de leitura</string>
+    <string name="sync_book_progress_s">Sincronizar o progresso da leitura ao entrar e sair da tela
+        de leitura</string>
     <string name="create_bookmark_error">Falha ao marcar como favorito</string>
     <string name="single_url">URL única</string>
     <string name="export_bookshelf">Exportar a lista de livros</string>
@@ -860,17 +898,23 @@
     <string name="dict">Dicionários</string>
     <string name="unknown_error">Erro desconhecido</string>
     <string name="end">fim</string>
-    <string name="custom_group_summary">Desativar substituir agrupamento / Ativar adicionar agrupamento</string>
+    <string name="custom_group_summary">Desativar substituir agrupamento / Ativar adicionar
+        agrupamento</string>
     <string name="pref_media_button_per_next">Botões de mídia - Anterior|Próximo</string>
-    <string name="pref_media_button_per_next_summary">Anterior|Próximo Parágrafo/Anterior|Próximo Capítulo</string>
-    <string name="read_aloud_by_page_summary">Virar as páginas durante tempo, com uma pausa ao virar as páginas</string>
-    <string name="check_source_show_debug_message">Marcando a fonte do livro mostra uma mensagem de depuração</string>
-    <string name="check_source_show_debug_message_summary">Mostrar o status da rede com a data e hora durante a verificação da fonte</string>
+    <string name="pref_media_button_per_next_summary">Anterior|Próximo Parágrafo/Anterior|Próximo
+        Capítulo</string>
+    <string name="read_aloud_by_page_summary">Virar as páginas durante tempo, com uma pausa ao virar
+        as páginas</string>
+    <string name="check_source_show_debug_message">Marcando a fonte do livro mostra uma mensagem de
+        depuração</string>
+    <string name="check_source_show_debug_message_summary">Mostrar o status da rede com a data e
+        hora durante a verificação da fonte</string>
     <string name="export_no_chapter_name">Não há nomes de capítulos de exportação</string>
     <string name="autobackup_fail">Auto-Backup falhou\n%s</string>
     <string name="background_image_blurring">Desfocagem da imagem de fundo</string>
     <string name="background_image_blurring_radius">Raio da desfocagem</string>
-    <string name="background_image_hint">Desativado quando 0, Ativado entre 1 e 25\n Quanto maior o raio, mais forte o efeito de desfocagem</string>
+    <string name="background_image_hint">Desativado quando 0, Ativado entre 1 e 25\n Quanto maior o
+        raio, mais forte o efeito de desfocagem</string>
     <string name="need_login">Login necessário</string>
     <string name="pref_cronet_summary">Usando componentes de rede Cronet</string>
     <string name="anti_alias">Anti-Aliasing</string>

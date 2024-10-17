@@ -1,5 +1,5 @@
-<script setup>
-import { Link } from "@element-plus/icons-vue";
+<script setup lang="ts">
+import { Link } from '@element-plus/icons-vue'
 </script>
 <template>
   <el-link :icon="Link" href="/help/#appHelp" target="_blank"

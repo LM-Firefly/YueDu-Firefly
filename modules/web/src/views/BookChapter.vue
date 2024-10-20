@@ -255,9 +255,10 @@ const onResize = () => {
   const width = store.config.readWidth /**包含padding */
   checkPageWidth(width)
 }
-/** 判断阅读宽度是否超出页面 */
+/** 判断阅读宽度是否超出页面或者低于默认值640 */
 const checkPageWidth = (readWidth: number) => {
   if (store.miniInterface) return
+  if (readWidth < 640) store.config.readWidth = 640
   if (readWidth + 2 * 68 > window.innerWidth) store.config.readWidth -= 160
 }
 watch(
@@ -462,11 +463,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 }
 
 // 阻止默认滚动事件
-const ignoreKeyPress = (event: {
-  key: string
-  preventDefault: () => void
-  stopPropagation: () => void
-}) => {
+const ignoreKeyPress = (event: KeyboardEvent) => {
   if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
     event.preventDefault()
     event.stopPropagation()
@@ -482,7 +479,7 @@ onMounted(async () => {
   const chapterIndex = Number(sessionStorage.getItem('chapterIndex') || 0)
   const chapterPos = Number(sessionStorage.getItem('chapterPos') || 0)
   const isSeachBook = sessionStorage.getItem('isSeachBook') === 'true'
-  if (isNullOrBlank(bookUrl) || isNullOrBlank(name) || isNullOrBlank(author)) {
+  if (isNullOrBlank(bookUrl) || isNullOrBlank(name) || author === null) {
     ElMessage.warning('书籍信息为空，即将自动返回书架页面...')
     return setTimeout(toShelf, 500)
   }
@@ -491,7 +488,6 @@ onMounted(async () => {
     bookUrl,
     // @ts-expect-error: bookUrl name author is NON_Blank string here
     name,
-    // @ts-expect-error: bookUrl name author is NON_Blank string here
     author,
     chapterIndex,
     chapterPos,
@@ -539,7 +535,7 @@ const addToBookShelfConfirm = async () => {
       confirmButtonText: '确认',
       cancelButtonText: '否',
       type: 'info',
-      /*      
+      /*
         ElMessageBox.confirm默认在触发hashChange事件时自动关闭
         按下物理返回键时触发hashChange事件
         使用router.push("/")则不会触发hashChange事件

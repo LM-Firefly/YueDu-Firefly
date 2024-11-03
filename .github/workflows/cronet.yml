@@ -2,14 +2,14 @@ name: Update Cronet
 
 on:
   schedule:
-  # 周一北京时间9点
+    # 周一北京时间9点
     - cron: 0 1 * * 1
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'gedoor/legado' }}
+    if: ${{ github.repository == 'LM-Firefly/YueDu-Firefly' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,7 +34,7 @@ jobs:
 
       - name: Create Pull Request
         if: ${{ env.cronet == 'ok' }}
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         continue-on-error: true
         with:
           token: ${{ secrets.ACTIONS_TOKEN }}

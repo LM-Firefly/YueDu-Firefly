@@ -38,6 +38,7 @@ class BackstageWebView(
     private val sourceRegex: String? = null,
     private val overrideUrlRegex: String? = null,
     private val javaScript: String? = null,
+    private val delayTime: Long = 0,
 ) {
 
     private val mHandler = Handler(Looper.getMainLooper())
@@ -53,8 +54,9 @@ class BackstageWebView(
             }
             callback = object : Callback() {
                 override fun onResult(response: StrResponse) {
-                    if (!block.isCompleted)
+                    if (!block.isCompleted) {
                         block.resume(response)
+                    }
                 }
 
                 override fun onError(error: Throwable) {
@@ -149,7 +151,7 @@ class BackstageWebView(
                 runnable = EvalJsRunnable(view, url, getJs())
             }
             mHandler.removeCallbacks(runnable!!)
-            mHandler.postDelayed(runnable!!, 1000)
+            mHandler.postDelayed(runnable!!, 1000 + delayTime)
         }
 
         @SuppressLint("WebViewClientOnReceivedSslError")
@@ -257,7 +259,7 @@ class BackstageWebView(
             setCookie(url)
             if (!javaScript.isNullOrEmpty()) {
                 val runnable = LoadJsRunnable(webView, javaScript)
-                mHandler.postDelayed(runnable, 1000L)
+                mHandler.postDelayed(runnable, 1000L + delayTime)
             }
         }
 

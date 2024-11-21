@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.get
 import androidx.core.view.isVisible
@@ -61,6 +62,7 @@ import io.legado.app.model.ReadBook
 import io.legado.app.model.analyzeRule.AnalyzeRule
 import io.legado.app.model.localBook.EpubFile
 import io.legado.app.model.localBook.MobiFile
+import io.legado.app.receiver.NetworkChangedListener
 import io.legado.app.receiver.TimeBatteryReceiver
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.ui.about.AppLogDialog
@@ -99,6 +101,7 @@ import io.legado.app.ui.widget.dialog.PhotoDialog
 import io.legado.app.utils.ACache
 import io.legado.app.utils.Debounce
 import io.legado.app.utils.LogUtils
+import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.StartActivityContract
 import io.legado.app.utils.applyOpenTint
 import io.legado.app.utils.buildMainHandler
@@ -124,6 +127,7 @@ import io.legado.app.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -245,6 +249,11 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     //恢复跳转前进度对话框的交互结果
     private var confirmRestoreProcess: Boolean? = null
+    private val networkChangedListener by lazy {
+        NetworkChangedListener(this)
+    }
+    private var justInitData: Boolean = false
+    private var syncDialog: AlertDialog? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -289,6 +298,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             viewModel.initData(intent)
             false
         }
+        justInitData = true
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -318,6 +328,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             bookChanged = false
             ReadBook.callBack = this
             viewModel.initData(intent)
+            justInitData = true
         } else {
             //web端阅读时，app处于阅读界面，本地记录会覆盖web保存的进度，在此处恢复
             ReadBook.webBookProgress?.let {
@@ -329,6 +340,14 @@ class ReadBookActivity : BaseReadBookActivity(),
         registerReceiver(timeBatteryReceiver, timeBatteryReceiver.filter)
         binding.readView.upTime()
         screenOffTimerStart()
+        // 网络监听，当从无网切换到网络环境时同步进度（注意注册的同时就会收到监听，因此界面激活时无需重复执行同步操作）
+        networkChangedListener.register()
+        networkChangedListener.onNetworkChanged = {
+            // 当网络是可用状态且无需初始化时同步进度（初始化中已有同步进度逻辑）
+            if (AppConfig.syncBookProgressPlus && NetworkUtils.isAvailable() && !justInitData) {
+                ReadBook.syncProgress({ progress -> sureNewProgress(progress) })
+            }
+        }
     }
 
     override fun onPause() {
@@ -339,9 +358,15 @@ class ReadBookActivity : BaseReadBookActivity(),
         unregisterReceiver(timeBatteryReceiver)
         upSystemUiVisibility()
         if (!BuildConfig.DEBUG) {
-            ReadBook.uploadProgress()
+            if (AppConfig.syncBookProgressPlus) {
+                ReadBook.syncProgress()
+            } else {
+                ReadBook.uploadProgress()
+            }
             Backup.autoBack(this)
         }
+        justInitData = false
+        networkChangedListener.unRegister()
     }
 
     override fun onCompatCreateOptionsMenu(menu: Menu): Boolean {
@@ -406,6 +431,9 @@ class ReadBookActivity : BaseReadBookActivity(),
         }
         lifecycleScope.launch {
             menu.findItem(R.id.menu_get_progress)?.isVisible = withContext(IO) {
+                AppWebDav.isOk
+            }
+            menu.findItem(R.id.menu_cover_progress)?.isVisible = withContext(IO) {
                 AppWebDav.isOk
             }
         }
@@ -549,6 +577,10 @@ class ReadBookActivity : BaseReadBookActivity(),
                 viewModel.syncBookProgress(it) { progress ->
                     sureSyncProgress(progress)
                 }
+            }
+
+            R.id.menu_cover_progress -> ReadBook.book?.let {
+                ReadBook.uploadProgress({ toastOnUi(R.string.upload_book_success) })
             }
 
             R.id.menu_same_title_removed -> {
@@ -798,6 +830,7 @@ class ReadBookActivity : BaseReadBookActivity(),
                 1 -> lifecycleScope.launch {
                     binding.readView.aloudStartSelect()
                 }
+
                 else -> speak(binding.readView.getSelectText())
             }
 
@@ -1496,6 +1529,18 @@ class ReadBookActivity : BaseReadBookActivity(),
                 it.update()
                 Backup.autoBack(this@ReadBookActivity)
             }
+        }
+    }
+
+    override fun sureNewProgress(progress: BookProgress) {
+        syncDialog?.dismiss()
+        syncDialog = alert(R.string.get_book_progress) {
+            setMessage(R.string.cloud_progress_exceeds_current)
+            okButton {
+                ReadBook.setProgress(progress)
+                ReadBook.saveRead()
+            }
+            noButton()
         }
     }
 

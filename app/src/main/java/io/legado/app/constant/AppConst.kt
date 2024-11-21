@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 @SuppressLint("SimpleDateFormat")
 object AppConst {
 
-    const val APP_TAG = "Legado"
+    const val APP_TAG = "YueDu"
 
     const val channelIdDownload = "channel_download"
     const val channelIdReadAloud = "channel_read_aloud"
@@ -66,8 +66,8 @@ object AppConst {
             ?.let {
                 appInfo.versionName = it.versionName!!
                 appInfo.appVariant = when {
-                    it.packageName.contains("releaseA") -> AppVariant.BETA_RELEASEA
-                    isBeta -> AppVariant.BETA_RELEASE
+                    it.packageName.contains("Firefly") -> AppVariant.BETA_FIREFLY
+                    isBeta -> AppVariant.BETA_ORIGINAL
                     isOfficial -> AppVariant.OFFICIAL
                     else -> AppVariant.UNKNOWN
                 }

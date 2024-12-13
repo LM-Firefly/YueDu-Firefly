@@ -1,7 +1,7 @@
 <resources>
     <!--App-->
     <string name="app_name">閲讀</string>
-    <string name="app_name_a">閲讀·A</string>
+    <!--string name="app_name_a">閲讀</string-->
     <string name="receiving_shared_label">閲讀·搜尋</string>
     <string name="tip_perm_request_storage">閲讀需要訪問存儲卡權限，請前往「設定」—「應用程式權限」—開啟所需要的權限</string>
 
@@ -10,7 +10,7 @@
     <string name="menu_restore">還原</string>
     <string name="menu_import_old">導入閲讀數據</string>
     <string name="webdav_cache_backup">離線緩存書籍備份</string>
-    <string name="webdav_cache_backup_s">導出本地同時備份到legado文件夾下exports目錄</string>
+    <string name="webdav_cache_backup_s">導出本地同時備份到YueDu-Firefly文件夾下exports目錄</string>
     <string name="backup_path">備份路徑</string>
     <string name="menu_import_old_version">導入舊版數據</string>
     <string name="menu_import_github">導入 Github 數據</string>
@@ -292,7 +292,7 @@
     <string name="padding_right">右邊距</string>
     <string name="check_book_source">校驗書源</string>
     <string name="check_select_source">校驗所選</string>
-    <string name="progress_show">%1$s      進度 %2$d/%3$d</string>
+    <string name="progress_show">%1$s 進度 %2$d/%3$d</string>
     <string name="tts_fix">請安裝並選擇中文 TTS!</string>
     <string name="tts_init_failed">TTS 初始化失敗!</string>
     <string name="jf_convert">簡繁轉換</string>
@@ -442,7 +442,8 @@
     <string name="rule_is_pay">購買標誌(isPay)</string>
     <!-- source end-->
 
-    <!--error string start-->
+    <!--error
+    string start-->
     <string name="error_no_source">沒有源</string>
     <string name="error_get_book_info">書籍信息獲取失敗</string>
     <string name="error_get_content">內容獲取失敗</string>
@@ -455,7 +456,8 @@
     <string name="net_error_10001">沒有網絡</string>
     <string name="net_error_10002">網絡連接超時</string>
     <string name="net_error_10003">數據解析失敗</string>
-    <!--error string end-->
+    <!--error
+    string end-->
 
     <string name="source_http_header">請求頭 (header)</string>
     <string name="debug_source">調試源</string>
@@ -606,7 +608,7 @@
     <string name="refresh_cover">刷新封面</string>
     <string name="change_cover_source">封面換源</string>
     <string name="select_local_image">選擇本地圖片</string>
-    <string name="book_type">類型: </string>
+    <string name="book_type">類型:</string>
     <string name="to_backstage">後台</string>
     <string name="importing">正在導入</string>
     <string name="exporting">正在導出</string>
@@ -675,7 +677,8 @@
     <string name="btn_default_s">默認</string>
     <string name="main_menu">主菜單</string>
     <string name="request_permission">點擊授予權限</string>
-    <string name="tip_local_perm_request_storage">閲讀需要訪問存儲卡權限，請點擊下方的"授予權限"按鈕，或前往「設定」—「應用程式權限」—打開所需權限。如果授予權限後仍然不正常，請點擊右上角的「選擇文件夾」，使用系統文件夾選擇器。</string>
+    <string name="tip_local_perm_request_storage">
+        閲讀需要訪問存儲卡權限，請點擊下方的"授予權限"按鈕，或前往「設定」—「應用程式權限」—打開所需權限。如果授予權限後仍然不正常，請點擊右上角的「選擇文件夾」，使用系統文件夾選擇器。</string>
     <string name="alouding_disable">全文朗讀中不能朗讀選中文字</string>
     <string name="read_body_to_lh">擴展到劉海</string>
     <string name="toc_updateing">更新目錄中</string>
@@ -804,7 +807,11 @@
     <string name="non_action">無操作</string>
     <string name="body_title">正文標題</string>
     <string name="show_hide">顯示/隱藏</string>
-    <string name="header_footer">頁眉<![CDATA[&]]>頁腳</string>
+    <string name="header_footer">
+        頁眉
+    <![CDATA[&]]>
+        頁腳
+    </string>
     <string name="rule_subscription">規則訂閱</string>
     <string name="rule_sub_empty_msg">添加大佬們提供的規則匯入地址 添加後點擊可匯入規則</string>
     <string name="get_book_progress">拉取雲端進度</string>

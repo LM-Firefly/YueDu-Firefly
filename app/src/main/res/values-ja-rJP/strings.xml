@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--App-->
-    <string name="app_name">Legado</string>
-    <string name="app_name_a">Legado·A</string>
-    <string name="receiving_shared_label">Legado·search</string>
-    <string name="tip_perm_request_storage">Legado needs storage access to find and read books. please go "App Settings" to allow "Storage permission".</string>
+    <string name="app_name">YueDu</string>
+    <!--string name="app_name_a">YueDu</string-->
+    <string name="receiving_shared_label">YueDu·search</string>
+    <string name="tip_perm_request_storage">YueDu needs storage access to find and read books.
+        please go "App Settings" to allow "Storage permission".</string>
 
     <!--Other-->
     <string name="menu_backup">Home</string>
     <string name="menu_restore">Restore</string>
-    <string name="menu_import_old">Import Legado data</string>
+    <string name="menu_import_old">Import YueDu data</string>
     <string name="webdav_cache_backup">Offline cache book backup</string>
-    <string name="webdav_cache_backup_s">Export to local and back up to the exports directory under the legado folder</string>
+    <string name="webdav_cache_backup_s">Export to local and back up to the exports directory under
+        the YueDu-Firefly folder</string>
     <string name="backup_path">Backup to</string>
     <string name="select_backup_path">Please select a backup path.</string>
     <string name="menu_import_old_version">Import legacy data</string>
@@ -49,7 +51,8 @@
     <string name="custom_export_section">カスタムEPUBエクスポートの章</string>
     <string name="last_read">Last reading</string>
     <string name="update_log">What\'s new</string>
-    <string name="bookshelf_empty">The bookshelf is still empty. Search for books or add them from discovery! \n if you use it for the first time, please open legado.top get help!</string>
+    <string name="bookshelf_empty">The bookshelf is still empty. Search for books or add them from
+        discovery! \n if you use it for the first time, please open legado.top get help!</string>
     <string name="action_search">Search</string>
     <string name="action_download">Download</string>
     <string name="layout_list">List</string>
@@ -93,10 +96,11 @@
     <string name="offline_cache_s">cache the selected chapter(s) to Storage</string>
     <string name="change_origin">Change Origin</string>
     <string name="about_description">
-        \u3000\u3000 This is an open source reading software newly developed by Kotlin, welcome to join us.
+        \u3000\u3000 This is an open source reading software newly developed by Kotlin, welcome to
+        join us.
     </string>
     <string name="app_share_description">
-        Legado (YueDu 3.0) download link：\n https://github.com/gedoor/legado/releases
+        YueDu (YueDu 3.0) download link：\n https://github.com/gedoor/legado/releases
     </string>
     <string name="version_name">Version %s</string>
     <string name="pt_background_verification">Background-verification</string>
@@ -104,7 +108,7 @@
     <string name="pt_auto_refresh">Auto-refresh</string>
     <string name="ps_auto_refresh">Update books automatically when opening the software</string>
     <string name="pt_auto_download">Auto-download</string>
-    <string name="ps_auto_download">Download the latest chapters automatically  when updating books</string>
+    <string name="ps_auto_download">Download the latest chapters automatically when updating books</string>
     <string name="backup_restore">Backup and restore</string>
     <string name="web_dav_set">WebDav settings</string>
     <string name="web_dav_set_import_old">WebDav settings/Import legacy data</string>
@@ -115,9 +119,11 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="backup_confirmation">Backup confirmation</string>
-    <string name="backup_message">The new backup files will replace the original.\n Backup folder: YueDu</string>
+    <string name="backup_message">The new backup files will replace the original.\n Backup folder:
+        YueDu</string>
     <string name="restore_confirmation">Restore confirmation</string>
-    <string name="restore_message">Restoring the bookshelf data will overwrite the current Bookshelf.</string>
+    <string name="restore_message">Restoring the bookshelf data will overwrite the current
+        Bookshelf.</string>
     <string name="backup_success">Backup succeed</string>
     <string name="backup_fail">Backup failed\n%s</string>
     <string name="on_restore">Restoring</string>
@@ -208,10 +214,12 @@
     <string name="menu">Menu</string>
     <string name="adjust">Adjust</string>
     <string name="scroll_bar">Scroll bar</string>
-    <string name="clear_all_content">Clearing the cache will delete all saved chapters. Are you sure to delete it?</string>
+    <string name="clear_all_content">Clearing the cache will delete all saved chapters. Are you sure
+        to delete it?</string>
     <string name="book_source_share_url">Book sources sharing</string>
     <string name="replace_rule_summary">Rule name</string>
-    <string name="replace_rule_invalid">Pattern rule is empty or does not conform the regex specification.</string>
+    <string name="replace_rule_invalid">Pattern rule is empty or does not conform the regex
+        specification.</string>
     <string name="select_action">Selection action</string>
     <string name="select_all">Select all</string>
     <string name="select_all_count">Select all(%1$d/%2$d)</string>
@@ -296,7 +304,7 @@
     <string name="padding_right">Padding right</string>
     <string name="check_book_source">Check book sources</string>
     <string name="check_select_source">Check the selected source</string>
-    <string name="progress_show">%1$s      Progress %2$d/%3$d</string>
+    <string name="progress_show">%1$s Progress %2$d/%3$d</string>
     <string name="tts_fix">Please install and select Chinese TTS!</string>
     <string name="tts_init_failed">TTS initialization failed!</string>
     <string name="jf_convert">Simplified conversion</string>
@@ -309,7 +317,8 @@
     <string name="nb_file_add_shelf">Add to Bookshelf</string>
     <string name="nb_file_add_shelves">Add to Bookshelf(%1$d)</string>
     <string name="nb_file_add_succeed">%1$d books added successfully</string>
-    <string name="fonts_folder">Please put the font files in the Fonts folder of the storage root directory and reselect</string>
+    <string name="fonts_folder">Please put the font files in the Fonts folder of the storage root
+        directory and reselect</string>
     <string name="default_font">Default font</string>
     <string name="select_font">Select fonts</string>
     <string name="text_size">Text size</string>
@@ -379,10 +388,13 @@
     <string name="page_anim_simulation">Simulation</string>
     <string name="page_anim_scroll">Scroll</string>
     <string name="page_anim_none">None</string>
-    <string name="up_change_source_last_chapter_t">Update the latest chapter after changed origin in the background</string>
-    <string name="up_change_source_last_chapter_s">if enabled,the update will start 1 minute later when the software is run</string>
+    <string name="up_change_source_last_chapter_t">Update the latest chapter after changed origin in
+        the background</string>
+    <string name="up_change_source_last_chapter_s">if enabled,the update will start 1 minute later
+        when the software is run</string>
     <string name="behavior_main_t">Auto hide ToolBar</string>
-    <string name="behavior_main_s">The toolbar will be hidden automatically when scroll the Bookshelf</string>
+    <string name="behavior_main_s">The toolbar will be hidden automatically when scroll the
+        Bookshelf</string>
     <string name="login">Login</string>
     <string name="login_source">Login%s</string>
     <string name="success">Success</string>
@@ -451,7 +463,8 @@
     <string name="rule_is_pay">购买标识(isPay)</string>
     <!-- source end-->
 
-    <!--error string start-->
+    <!--error
+    string start-->
     <string name="error_no_source">No source</string>
     <string name="error_get_book_info">Failed to obtain book information</string>
     <string name="error_get_content">Failed to obtain content</string>
@@ -464,14 +477,15 @@
     <string name="net_error_10001">No network</string>
     <string name="net_error_10002">Network connection timeout</string>
     <string name="net_error_10003">Data parsing failed</string>
-    <!--error string end-->
+    <!--error
+    string end-->
 
     <string name="source_http_header">HTTP Header</string>
     <string name="debug_source">Debug source</string>
     <string name="import_by_qr_code">Import from QR code</string>
     <string name="share_selected_source">Share selected sources</string>
     <string name="scan_qr_code">Scan QR code</string>
-    <string name="click_on_selected_show_menu">Tap to display Menu when selected </string>
+    <string name="click_on_selected_show_menu">Tap to display Menu when selected</string>
     <string name="theme">Theme</string>
     <string name="theme_mode">Theme mode</string>
     <string name="theme_mode_desc">Select a theme you want</string>
@@ -499,7 +513,8 @@
     <string name="sure_del">Are you sure to delete it?</string>
     <string name="sure_del_any">Are you sure to delete %s?</string>
     <string name="sure_del_all_book">Are you sure to delete all books？</string>
-    <string name="sure_del_download_book">Do you want to delete the downloaded book chapters at the same time?</string>
+    <string name="sure_del_download_book">Do you want to delete the downloaded book chapters at the
+        same time?</string>
     <string name="qr_per">Scan QR code requires Camera permissions</string>
     <string name="aloud_can_not_auto_page">Speech is running, cannot turn pages automatically</string>
     <string name="input_charset">Input encoding</string>
@@ -512,8 +527,10 @@
     <string name="gallery">Gallery</string>
     <string name="get_ali_pay_hb">get AliPay red envelopes</string>
     <string name="non_update_url">No update address</string>
-    <string name="check_host_cookie">Opening the homepage, it will return to start page automatically after success</string>
-    <string name="click_check_after_success">After successful login, please tap the icon on the upper right corner to test the homepage access</string>
+    <string name="check_host_cookie">Opening the homepage, it will return to start page
+        automatically after success</string>
+    <string name="click_check_after_success">After successful login, please tap the icon on the
+        upper right corner to test the homepage access</string>
     <string name="chapter">Chapter</string>
     <string name="to">To</string>
     <string name="use_regex">Using Regex</string>
@@ -542,7 +559,8 @@
     <string name="source_tab_content">Content</string>
 
     <string name="e_ink_mode">E-Ink mode</string>
-    <string name="e_ink_mode_detail">Remove animations and optimize the experience of using E-paper books</string>
+    <string name="e_ink_mode_detail">Remove animations and optimize the experience of using E-paper
+        books</string>
     <string name="web_menu">Web service</string>
     <string name="web_port_title">Web port</string>
     <string name="web_port_summary">Current port %s</string>
@@ -642,13 +660,15 @@
     <string name="sys_folder_picker">System folder picker</string>
     <string name="app_folder_picker">App folder picker</string>
     <string name="app_file_picker">App file picker</string>
-    <string name="a10_permission_toast">Android 10+ unable to read and write file due to permission restrictions</string>
-    <string name="add_to_text_context_menu_s">Long tap to display Legado·Search in the operation menu</string>
+    <string name="a10_permission_toast">Android 10+ unable to read and write file due to permission
+        restrictions</string>
+    <string name="add_to_text_context_menu_s">Long tap to display YueDu·Search in the operation menu</string>
     <string name="add_to_text_context_menu_t">Text operation display Search</string>
     <string name="record_log">Record log</string>
     <string name="log">Log</string>
     <string name="chinese_converter">Simplified conversion</string>
-    <string name="change_icon_error">The icon is a vector icon, which was not supported before Android 8.0</string>
+    <string name="change_icon_error">The icon is a vector icon, which was not supported before
+        Android 8.0</string>
     <string name="aloud_config">Speech settings</string>
     <string name="main_activity">Start page</string>
     <string name="selectText">Long Tap to select text</string>
@@ -685,7 +705,10 @@
     <string name="btn_default_s">Default</string>
     <string name="main_menu">Main menu</string>
     <string name="request_permission">Tap to grant permission</string>
-    <string name="tip_local_perm_request_storage">Legado needs Storage permission, please tap the "Grant Permission" button below, or go to "Settings"-"Application Permissions"-to open the required permission. If the permission is still not work, please tap "Select Folder" in the upper right corner to use the system folder picker.</string>
+    <string name="tip_local_perm_request_storage">YueDu needs Storage permission, please tap the
+        "Grant Permission" button below, or go to "Settings"-"Application Permissions"-to open the
+        required permission. If the permission is still not work, please tap "Select Folder" in the
+        upper right corner to use the system folder picker.</string>
     <string name="alouding_disable">The selected text cannot be spoken in full text speech</string>
     <string name="read_body_to_lh">Extend to cutout</string>
     <string name="toc_updateing">Updating Chapters</string>
@@ -730,7 +753,8 @@
     <string name="auto_page_speed">Auto scroll speed</string>
     <string name="sort_by_url">Sort by URL</string>
     <string name="backup_summary">Backup the local and WebDav simultaneously</string>
-    <string name="restore_summary">Restore from WebDAV first, Restore form the local backup on long click</string>
+    <string name="restore_summary">Restore from WebDAV first, Restore form the local backup on long
+        click</string>
     <string name="import_old_summary">Select a legacy backup folder</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
@@ -747,7 +771,8 @@
     <string name="alipay_red_envelope_qr_code">AliPay red envelope QR code</string>
     <string name="alipay_payment_qr_code">AliPay QR code</string>
     <string name="qq_collection_qr_code">QQ Collection QR code</string>
-    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Checking in github for details</string>
+    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Checking in github for
+        details</string>
     <string name="clear_cache_summary">Clear the cache of the downloaded books and fonts</string>
     <string name="default_cover">Default cover</string>
     <string name="restore_ignore">Bypass list</string>
@@ -762,7 +787,7 @@
     <string name="day_bottom_bar_too_dark">Day bottom can not be too dark!</string>
     <string name="night_background_too_light">Night background can not be too bright!</string>
     <string name="night_bottom_bar_too_light">Night bottom can not be too bright!</string>
-    <string name="accent_background_diff">Need Difference between accent and background color </string>
+    <string name="accent_background_diff">Need Difference between accent and background color</string>
     <string name="accent_text_diff">Need Difference between accent and text color</string>
     <string name="wrong_format">Wrong format</string>
     <string name="error">Error</string>
@@ -796,7 +821,8 @@
     <string name="auto_clear_expired_summary">Search histories more than one day</string>
     <string name="re_segment">Re-segment</string>
     <string name="style_name">Style name:</string>
-    <string name="empty_msg_import_book">Click the folder icon in the upper right corner and select the folder</string>
+    <string name="empty_msg_import_book">Click the folder icon in the upper right corner and select
+        the folder</string>
     <string name="scan_folder">Intelligent scanning</string>
     <string name="import_file_name">Imported-file name</string>
     <string name="no_book">No books</string>
@@ -808,16 +834,23 @@
     <string name="non_action">None</string>
     <string name="body_title">Title</string>
     <string name="show_hide">Show/Hide</string>
-    <string name="header_footer">footer <![CDATA[&]]> header</string>
+    <string name="header_footer">
+        footer
+    <![CDATA[&]]>
+        header
+    </string>
     <string name="rule_subscription">Rule Subscription</string>
     <string name="rule_sub_empty_msg">添加大佬们提供的规则导入地址\n添加后点击可导入规则</string>
     <string name="get_book_progress">クラウド上の進捗状況のカバー</string>
     <string name="cover_book_progress">Cobertura do progresso na nuvem</string>
-    <string name="current_progress_exceeds_cloud">The current progress exceeds the cloud progress. Do you want to synchronize?</string>
+    <string name="current_progress_exceeds_cloud">The current progress exceeds the cloud progress.
+        Do you want to synchronize?</string>
     <string name="sync_book_progress_t">Synchronous reading progress</string>
-    <string name="sync_book_progress_s">Synchronize reading progress when entering / exiting the reading interface</string>
+    <string name="sync_book_progress_s">Synchronize reading progress when entering / exiting the
+        reading interface</string>
     <string name="sync_book_progress_plus_t">同期強化</string>
-    <string name="sync_book_progress_plus_s">ページに再入力する時（スリープ解除やバックグラウンドから復帰など）、またはネットワークが利用可能になるとクラウド進捗を同期します</string>
+    <string name="sync_book_progress_plus_s">
+        ページに再入力する時（スリープ解除やバックグラウンドから復帰など）、またはネットワークが利用可能になるとクラウド進捗を同期します</string>
     <string name="create_bookmark_error">Failed to create bookmark</string>
     <string name="single_url">Single URL</string>
     <string name="export_bookshelf">Export the list of books</string>
@@ -874,11 +907,13 @@
     <string name="pref_media_button_per_next_summary">上一段|下一段/上一章|下一章</string>
     <string name="read_aloud_by_page_summary">及时翻页,翻页时会停顿一下</string>
     <string name="check_source_show_debug_message">Check book source shows debug message</string>
-    <string name="check_source_show_debug_message_summary">Show network status and timestamp during source checking</string>
+    <string name="check_source_show_debug_message_summary">Show network status and timestamp during
+        source checking</string>
     <string name="autobackup_fail">Autobackup failed\n%s</string>
     <string name="background_image_blurring">Background image blurring</string>
     <string name="background_image_blurring_radius">Blurring radius</string>
-    <string name="background_image_hint">Disabled when 0, enable range from 1 to 25\nThe greater the radius, the stronger the effect of blurring</string>
+    <string name="background_image_hint">Disabled when 0, enable range from 1 to 25\nThe greater the
+        radius, the stronger the effect of blurring</string>
     <string name="need_login">需登录</string>
     <string name="pref_cronet_summary">使用Cronet网络组件</string>
     <string name="anti_alias">Anti-Aliasing</string>
@@ -1142,7 +1177,8 @@
     <string name="sync_book_progress_success">Sync progress success</string>
     <string name="show_bookshelf_fast_scroller">显示快速滚动条</string>
     <string name="export_all_use_book_source">导出所有书的书源</string>
-    <string name="cloud_progress_exceeds_current">The cloud progress exceeds the current progress. Do you want to synchronize?</string>
+    <string name="cloud_progress_exceeds_current">The cloud progress exceeds the current progress.
+        Do you want to synchronize?</string>
     <string name="keep_enable">保留启用状态</string>
     <string name="preview_image_by_click">点击预览图片</string>
     <string name="screen_portrait_reversed">反向竖屏</string>

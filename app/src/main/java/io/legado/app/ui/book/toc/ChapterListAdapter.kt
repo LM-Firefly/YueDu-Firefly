@@ -52,6 +52,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                         && oldItem.isPay == newItem.isPay
                         && oldItem.title == newItem.title
                         && oldItem.tag == newItem.tag
+                        && oldItem.wordCount == newItem.wordCount
                         && oldItem.isVolume == newItem.isVolume
             }
 
@@ -150,7 +151,7 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                 } else {
                     tvTag.gone()
                 }
-                if (!item.wordCount.isNullOrEmpty() && !item.isVolume) {
+                if (AppConfig.tocCountWords && !item.wordCount.isNullOrEmpty() && !item.isVolume) {
                     //章节字数
                     tvWordCount.text = item.wordCount
                     tvWordCount.visible()

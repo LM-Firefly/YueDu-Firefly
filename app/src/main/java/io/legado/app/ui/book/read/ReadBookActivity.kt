@@ -294,6 +294,7 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
+        viewModel.initReadBookConfig(intent)
         Looper.myQueue().addIdleHandler {
             viewModel.initData(intent)
             false
@@ -580,7 +581,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
 
             R.id.menu_cover_progress -> ReadBook.book?.let {
-                ReadBook.uploadProgress({ toastOnUi(R.string.upload_book_success) })
+                ReadBook.uploadProgress { toastOnUi(R.string.upload_book_success) }
             }
 
             R.id.menu_same_title_removed -> {

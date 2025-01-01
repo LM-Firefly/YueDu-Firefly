@@ -67,6 +67,15 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
         AppConfig.detectClickArea()
     }
 
+    fun initReadBookConfig(intent: Intent) {
+        val bookUrl = intent.getStringExtra("bookUrl")
+        val book = when {
+            bookUrl.isNullOrEmpty() -> appDb.bookDao.lastReadBook
+            else -> appDb.bookDao.getBook(bookUrl)
+        } ?: return
+        ReadBook.upReadBookConfig(book)
+    }
+
     /**
      * 初始化
      */

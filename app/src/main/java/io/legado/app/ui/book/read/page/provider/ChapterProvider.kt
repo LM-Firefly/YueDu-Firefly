@@ -359,7 +359,7 @@ object ChapterProvider {
             }
             var height = size.height
             var width = size.width
-            when (imageStyle?.toUpperCase(Locale.ROOT)) {
+            when (imageStyle?.uppercase(Locale.ROOT)) {
                 Book.imgStyleFull -> {
                     width = visibleWidth
                     height = size.height * visibleWidth / size.width
@@ -392,6 +392,18 @@ object ChapterProvider {
                             textPage.height = durY
                         }
                         durY = 0f
+                    }
+
+                    // 图片居中：调整 X 坐标
+                    if (width < visibleWidth) {
+                        val adjustWidth = (visibleWidth - width) / 2f
+                        absStartX += adjustWidth.toInt() // 将起始 X 坐标移至居中位置
+                    }
+
+                    // 图片竖直方向居中：调整 Y 坐标
+                    if (height < visibleHeight) {
+                        val adjustHeight = (visibleHeight - height) / 2f
+                        durY = adjustHeight // 将 Y 坐标设置为居中位置
                     }
                 }
                 
@@ -845,7 +857,11 @@ object ChapterProvider {
         titleTopSpacing = ReadBookConfig.titleTopSpacing.dpToPx()
         titleBottomSpacing = ReadBookConfig.titleBottomSpacing.dpToPx()
         val bodyIndent = ReadBookConfig.paragraphIndent
-        indentCharWidth = StaticLayout.getDesiredWidth(bodyIndent, contentPaint) / bodyIndent.length
+        var indentWidth = StaticLayout.getDesiredWidth(bodyIndent, contentPaint)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            indentWidth += contentPaint.letterSpacing * contentPaint.textSize
+        }
+        indentCharWidth = indentWidth / bodyIndent.length
         titlePaintTextHeight = titlePaint.textHeight
         contentPaintTextHeight = contentPaint.textHeight
         titlePaintFontMetrics = titlePaint.fontMetrics

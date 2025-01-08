@@ -7,9 +7,9 @@ import android.text.format.DateUtils
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.core.view.ViewCompat
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -45,14 +45,17 @@ import io.legado.app.ui.main.rss.RssFragment
 import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.utils.hideSoftInput
 import io.legado.app.utils.isCreated
+import io.legado.app.utils.navigationBarHeight
 import io.legado.app.utils.observeEvent
 import io.legado.app.utils.setEdgeEffectColor
+import io.legado.app.utils.shouldHideSoftInput
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import splitties.views.bottomPadding
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -87,18 +90,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         upBottomMenu()
-        binding.run {
-            viewPagerMain.setEdgeEffectColor(primaryColor)
-            viewPagerMain.offscreenPageLimit = 3
-            viewPagerMain.adapter = adapter
-            viewPagerMain.addOnPageChangeListener(PageChangeCallback())
-            bottomNavigationView.elevation = elevation
-            bottomNavigationView.setOnNavigationItemSelectedListener(this@MainActivity)
-            bottomNavigationView.setOnNavigationItemReselectedListener(this@MainActivity)
-            if (AppConfig.isEInkMode) {
-                bottomNavigationView.setBackgroundResource(R.drawable.bg_eink_border_top)
-            }
-        }
+        initView()
         upHomePage()
         viewModel.deleteNotShelfBook()
         onBackPressedDispatcher.addCallback(this) {
@@ -127,7 +119,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_DOWN) {
             currentFocus?.let {
-                if (it is EditText) {
+                if (it.shouldHideSoftInput(ev)) {
                     it.clearFocus()
                     it.hideSoftInput()
                 }
@@ -195,6 +187,24 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                     (fragmentMap[1] as? ExploreFragment)?.compressExplore()
                 }
             }
+        }
+    }
+
+    private fun initView() = binding.run {
+        viewPagerMain.setEdgeEffectColor(primaryColor)
+        viewPagerMain.offscreenPageLimit = 3
+        viewPagerMain.adapter = adapter
+        viewPagerMain.addOnPageChangeListener(PageChangeCallback())
+        bottomNavigationView.elevation = elevation
+        bottomNavigationView.setOnNavigationItemSelectedListener(this@MainActivity)
+        bottomNavigationView.setOnNavigationItemReselectedListener(this@MainActivity)
+        if (AppConfig.isEInkMode) {
+            bottomNavigationView.setBackgroundResource(R.drawable.bg_eink_border_top)
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, windowInsets ->
+            val height = windowInsets.navigationBarHeight
+            bottomNavigationView.bottomPadding = height
+            windowInsets.inset(0, 0, 0, height)
         }
     }
 

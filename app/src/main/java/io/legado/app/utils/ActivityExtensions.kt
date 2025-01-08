@@ -16,6 +16,10 @@ import android.view.WindowMetrics
 import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.fragment.app.DialogFragment
 import io.legado.app.R
 import io.legado.app.ui.widget.dialog.TextDialog
@@ -159,6 +163,29 @@ fun Activity.setNavigationBarColorAuto(@ColorInt color: Int) {
             systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
         }
         decorView.systemUiVisibility = systemUiVisibility
+    }
+}
+
+fun Activity.keepScreenOn(on: Boolean) {
+    val isScreenOn =
+        (window.attributes.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0
+    if (on == isScreenOn) return
+    if (on) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    } else {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+}
+
+fun Activity.toggleNavigationBar(show: Boolean) {
+    WindowCompat.getInsetsController(window, window.decorView).run {
+        if (show) {
+            show(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = BEHAVIOR_DEFAULT
+        } else {
+            hide(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 }
 

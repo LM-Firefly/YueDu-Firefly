@@ -1,22 +1,22 @@
 [versions]
 
-kotlin = "2.0.20"
-ksp = "2.0.20-1.0.24"
-agp = "8.6.0"
+kotlin = "2.1.0"
+ksp = "2.1.0-1.0.29"
+agp = "8.8.0"
 appcompat = "1.7.0"
 colorpicker = "1.1.0"
-commonsText = "1.12.0"
-constraintlayout = "2.1.4"
-core = "1.13.1"
+commonsText = "1.13.0"
+constraintlayout = "2.2.0"
+core = "1.15.0"
 firebaseBom = "33.2.0"
 flexbox = "3.0.0"
-fragment = "1.8.2"
+fragment = "1.8.5"
 
 #不要更新版本
 hutool = "5.8.22"
 
-libarchive = "1.1.0"
-lifecycle = "2.8.4"
+libarchive = "1.1.4"
+lifecycle = "2.8.7"
 glide = "4.16.0"
 gson = "2.11.0"
 jsonPath = "2.9.0"
@@ -24,30 +24,30 @@ jsonPath = "2.9.0"
 # 若要升级请确保相关代码不会受此变更影响（如AnalyzeByJSoup.kt、JsoupXpath库等）
 jsoup = "1.16.2"
 jsoupxpath = "2.5.3"
-coroutines = "1.8.1"
+coroutines = "1.10.1"
 liveeventbus = "1.8.14"
 markwon = "4.6.2"
 material = "1.12.0"
 media = "1.7.0"
-media3 = "1.4.1"
+media3 = "1.5.1"
 nanoHttpd = "2.3.1"
 okhttp = "4.12.0"
 preference = "1.2.1"
 protobufJavalite = "4.26.1"
-quickChineseTransfer = "0.2.13"
+quickChineseTransfer = "0.2.15"
 room = "2.6.1"
 splitties = "3.0.0"
 rhino = "1.8.0"
-desugar = "2.0.4"
+desugar = "2.1.4"
 
-activity = "1.9.1"
-kotlinxSerialization = "1.7.1"
+activity = "1.9.3"
+#kotlinxSerialization = "1.8.0"
 swiperefreshlayout = "1.1.0"
 #noinspection GradleDependency
 recyclerview = "1.2.0"
 #noinspection GradleDependency
 viewpager2 = "1.0.0"
-webkit = "1.11.0"
+webkit = "1.12.1"
 zxingLite = "3.2.0"
 
 
@@ -57,7 +57,7 @@ activity-activity = { module = "androidx.activity:activity", version.ref = "acti
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 
-androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.8.2" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.9.1" }
 #androidx-annotation-experimental = { group = "androidx.annotation", name = "annotation-experimental", version = "1.3.1" }
 
 appcompat-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -150,8 +150,8 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
 
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
+#kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+#kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 liveeventbus = { module = "com.github.michaellee123:LiveEventBus", version.ref = "liveeventbus" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
@@ -170,7 +170,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 
-androidx-benchmark = { id = "androidx.benchmark", version = "1.3.0" }
+#androidx-benchmark = { id = "androidx.benchmark", version = "1.3.3" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -187,6 +187,6 @@ google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 
-protobuf = { id = "com.google.protobuf", version = "0.9.4" }
+#protobuf = { id = "com.google.protobuf", version = "0.9.4" }
 
 download = { id = "de.undercouch.download", version = "5.6.0" }

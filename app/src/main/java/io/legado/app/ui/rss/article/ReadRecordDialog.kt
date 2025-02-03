@@ -43,18 +43,18 @@ class ReadRecordDialog : BaseDialogFragment(R.layout.dialog_recycler_view),
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             recyclerView.adapter = adapter
         }
-        adapter.setItems(viewModel.getRecord())
+        adapter.setItems(viewModel.getRecords())
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menu_clear -> {
                 alert(R.string.draw) {
-                    val countRead = viewModel.countRead()
+                    val countRead = viewModel.countRecords()
                     setMessage(getString(R.string.sure_del) + "\n" + countRead + " " + getString(R.string.read_record))
                     noButton()
-                    yesButton{
-                        viewModel.delReadRecord()
+                    yesButton {
+                        viewModel.deleteAllRecord()
                         adapter.clearItems()
                     }
                 }

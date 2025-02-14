@@ -67,7 +67,7 @@ interface BaseSource : JsExtensions {
     fun loginUi(): List<RowUi>? {
         return GSON.fromJsonArray<RowUi>(loginUi).onFailure {
             it.printOnDebug()
-        }.getOrNull()
+        }.getOrNull()?.filterNotNull() // filter null, see https://github.com/gedoor/legado/discussions/4650
     }
 
     fun getLoginJs(): String? {
@@ -116,7 +116,7 @@ interface BaseSource : JsExtensions {
                     putAll(map)
                 }
             } catch (e: Exception) {
-                AppLog.put("getHeaderMap 出错\n$e", e)
+                AppLog.put("执行请求头规则出错\n$e", e)
             }
         }
         if (!has(AppConst.UA_NAME, true)) {

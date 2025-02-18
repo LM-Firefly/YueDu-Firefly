@@ -22,7 +22,7 @@ import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.lib.theme.getPrimaryTextColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.lib.theme.primaryTextColor
-import io.legado.app.model.ReadMange
+import io.legado.app.model.ReadManga
 import io.legado.app.ui.browser.WebViewActivity
 import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.ConstraintModify
@@ -36,6 +36,9 @@ import io.legado.app.utils.modifyBegin
 import io.legado.app.utils.openUrl
 import io.legado.app.utils.startActivity
 import io.legado.app.utils.visible
+import splitties.views.bottomPadding
+import splitties.views.leftPadding
+import splitties.views.rightPadding
 
 class MangaMenu @JvmOverloads constructor(
     context: Context,
@@ -81,7 +84,7 @@ class MangaMenu @JvmOverloads constructor(
         }
 
         override fun onAnimationEnd(animation: Animation) {
-            binding.titleBar.invisible()
+            binding.flTitleBar.invisible()
             isMenuOutAnimating = false
             canShowMenu = false
             callBack.upSystemUiVisibility(false)
@@ -92,7 +95,7 @@ class MangaMenu @JvmOverloads constructor(
     private val menuInListener = object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation) {
             binding.tvSourceAction.text =
-                ReadMange.bookSource?.bookSourceName ?: context.getString(R.string.book_source)
+                ReadManga.bookSource?.bookSourceName ?: context.getString(R.string.book_source)
             callBack.upSystemUiVisibility(true)
             binding.tvSourceAction.isGone = false
         }
@@ -108,7 +111,7 @@ class MangaMenu @JvmOverloads constructor(
     }
 
     init {
-        initView()
+        initView(true)
         bindEvent()
     }
 
@@ -117,6 +120,7 @@ class MangaMenu @JvmOverloads constructor(
         if (immersiveMenu) {
             val lightTextColor = ColorUtils.withAlpha(ColorUtils.lightenColor(textColor), 0.75f)
             titleBar.setTextColor(textColor)
+            flTitleBar.setBackgroundColor(bgColor)
             titleBar.setBackgroundColor(bgColor)
             titleBar.setColorFilter(textColor)
             tvChapterName.setTextColor(lightTextColor)
@@ -125,6 +129,7 @@ class MangaMenu @JvmOverloads constructor(
             val bgColor = context.primaryColor
             val textColor = context.primaryTextColor
             titleBar.setTextColor(textColor)
+            flTitleBar.setBackgroundColor(bgColor)
             titleBar.setBackgroundColor(bgColor)
             titleBar.setColorFilter(textColor)
             tvChapterName.setTextColor(textColor)
@@ -173,7 +178,7 @@ class MangaMenu @JvmOverloads constructor(
         }
         if (this.isVisible) {
             if (anim) {
-                binding.titleBar.startAnimation(menuTopOut)
+                binding.flTitleBar.startAnimation(menuTopOut)
             } else {
                 menuOutListener.onAnimationStart(menuBottomOut)
                 menuOutListener.onAnimationEnd(menuBottomOut)
@@ -183,9 +188,9 @@ class MangaMenu @JvmOverloads constructor(
 
     fun runMenuIn(anim: Boolean = !AppConfig.isEInkMode) {
         this.visible()
-        binding.titleBar.visible()
+        binding.flTitleBar.visible()
         if (anim) {
-            binding.titleBar.startAnimation(menuTopIn)
+            binding.flTitleBar.startAnimation(menuTopIn)
         } else {
             menuInListener.onAnimationStart(menuBottomIn)
             menuInListener.onAnimationEnd(menuBottomIn)
@@ -206,7 +211,7 @@ class MangaMenu @JvmOverloads constructor(
                     val url = tvChapterUrl.text.toString()
                     putExtra("title", tvChapterName.text)
                     putExtra("url", url)
-                    IntentData.put(url, ReadMange.bookSource?.getHeaderMap(true))
+                    IntentData.put(url, ReadManga.bookSource?.getHeaderMap(true))
                 }
             }
         }
@@ -228,9 +233,18 @@ class MangaMenu @JvmOverloads constructor(
         tvChapterUrl.setOnLongClickListener(chapterViewLongClickListener)
     }
 
+    fun setTitleBarPadding(top: Int) {
+        if (top <= 0) {
+            return
+        }
+        binding.flTitleBar.run {
+            setPadding(leftPadding, this.paddingTop.plus(top), rightPadding, bottomPadding)
+        }
+    }
+
     interface CallBack {
         fun openBookInfoActivity()
-        fun upSystemUiVisibility(value:Boolean)
+        fun upSystemUiVisibility(value: Boolean)
     }
 
 }

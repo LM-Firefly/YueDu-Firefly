@@ -610,6 +610,37 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         get() = appCtx.getPrefBoolean(PreferKey.showMangaUi, true)
 
     //禁用漫画缩放
-    val disableMangaScaling: Boolean
+    var disableMangaScaling: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.disableMangaScaling, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.disableMangaScaling, value)
+        }
+
+    //漫画预加载数量
+    var mangaPreDownloadNum
+        get() = appCtx.getPrefInt(PreferKey.mangaPreDownloadNum, 10)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.mangaPreDownloadNum, value)
+        }
+
+    //单页滚动
+    var singlePageScrolling
+        get() = appCtx.getPrefBoolean(PreferKey.singlePageScrolling, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.singlePageScrolling, value)
+        }
+
+    //点击翻页
+    var disableClickScroller
+        get() = appCtx.getPrefBoolean(PreferKey.disableClickScroller, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.disableClickScroller, value)
+        }
+
+    //漫画滚动速度
+    var mangaAutoPageSpeed
+        get() = appCtx.getPrefInt(PreferKey.mangaAutoPageSpeed, 3)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.mangaAutoPageSpeed, value)
+        }
 }

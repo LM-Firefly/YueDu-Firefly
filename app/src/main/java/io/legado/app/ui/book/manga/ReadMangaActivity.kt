@@ -26,6 +26,7 @@ import com.bumptech.glide.util.FixedPreloadSizeProvider
 import io.legado.app.BuildConfig
 import io.legado.app.R
 import io.legado.app.base.VMBaseActivity
+import io.legado.app.constant.EventBus
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookProgress
@@ -38,21 +39,26 @@ import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.model.ReadManga
 import io.legado.app.model.ReadManga.mFirstLoading
-import io.legado.app.model.recyclerView.MangeContent
+import io.legado.app.model.recyclerView.MangaContent
 import io.legado.app.model.recyclerView.ReaderLoading
 import io.legado.app.receiver.NetworkChangedListener
 import io.legado.app.ui.book.changesource.ChangeBookSourceDialog
 import io.legado.app.ui.book.info.BookInfoActivity
+import io.legado.app.ui.book.manga.config.MangaFooterConfig
+import io.legado.app.ui.book.manga.config.MangaFooterSettingDialog
 import io.legado.app.ui.book.manga.rv.MangaAdapter
 import io.legado.app.ui.book.read.MangaMenu
 import io.legado.app.ui.book.read.ReadBookActivity.Companion.RESULT_DELETED
 import io.legado.app.ui.book.toc.TocActivityResult
 import io.legado.app.ui.widget.number.NumberPickerDialog
 import io.legado.app.ui.widget.recycler.LoadMoreView
+import io.legado.app.utils.GSON
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.StartActivityContract
+import io.legado.app.utils.fromJsonObject
 import io.legado.app.utils.getCompatColor
 import io.legado.app.utils.gone
+import io.legado.app.utils.observeEvent
 import io.legado.app.utils.printOnDebug
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
@@ -101,6 +107,8 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, MangaViewModel>()
     }
 
     private var mMangaAutoPageSpeed = mInitMangaAutoPageSpeed
+    private lateinit var mMangaFooterConfig: MangaFooterConfig
+    private val mLabelBuilder by lazy { StringBuilder() }
 
     private val autoScrollHandler = Handler(Looper.getMainLooper())
     private val autoScrollRunnable = object : Runnable {
@@ -170,6 +178,18 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, MangaViewModel>()
             }
         }
         loadMoreView.gone()
+        mMangaFooterConfig =
+            GSON.fromJsonObject<MangaFooterConfig>(AppConfig.mangaFooterConfig).getOrNull()
+                ?: MangaFooterConfig()
+        observeEvent<MangaFooterConfig>(EventBus.UP_MANGA_CONFIG) {
+            mMangaFooterConfig = it
+            upInfoBar(
+                ReadManga.durChapterPagePos.plus(1),
+                ReadManga.durChapterPageCount,
+                ReadManga.durChapterPos.plus(1),
+                ReadManga.durChapterCount
+            )
+        }
     }
 
     private fun initRecyclerView() {
@@ -201,7 +221,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, MangaViewModel>()
                 ) {
                     try {
                         val content = mAdapter.getCurrentList()[position]
-                        if (content is MangeContent) {
+                        if (content is MangaContent) {
                             ReadManga.durChapterPos = content.mDurChapterPos.minus(1)
                             upInfoBar(
                                 content.mChapterPagePos,
@@ -291,12 +311,33 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, MangaViewModel>()
     private fun upInfoBar(
         chapterPagePos: Int, chapterPageCount: Int, chapterPos: Int, chapterCount: Int,
     ) {
+        mMangaFooterConfig.run {
+            mLabelBuilder.clear()
+            binding.infobar.isGone = hideFooter
+            binding.infobar.textInfoAlignment = footerOrientation
+            if (!hidePageNumber) {
+                if (!hidePageNumberLabel) {
+                    mLabelBuilder.append(getString(R.string.manga_check_page_number))
+                }
+                mLabelBuilder.append("${chapterPos}/${chapterCount}").append(" ")
+            }
+
+            if (!hideChapter) {
+                if (!hideChapterLabel) {
+                    mLabelBuilder.append(getString(R.string.manga_check_chapter))
+                }
+                mLabelBuilder.append("${chapterPagePos}/${chapterPageCount}").append(" ")
+            }
+
+            if (!hideProgressRatio) {
+                if (!hideProgressRatioLabel) {
+                    mLabelBuilder.append(getString(R.string.manga_check_progress))
+                }
+                mLabelBuilder.append("${chapterPagePos.div(chapterPageCount).times(100)}%")
+            }
+        }
         binding.infobar.update(
-            chapterPagePos,
-            chapterPageCount,
-            chapterPagePos.times(1f).div(chapterPageCount.times(1f)),
-            chapterPos,
-            chapterCount
+            if (mLabelBuilder.isEmpty()) "" else mLabelBuilder.toString()
         )
     }
 
@@ -470,6 +511,10 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, MangaViewModel>()
                     stopAutoPage()
                     startAutoPage()
                 }
+            }
+
+            R.id.menu_manga_footer_config -> {
+                MangaFooterSettingDialog().show(supportFragmentManager, "mangaFooterSettingDialog")
             }
         }
         return super.onCompatOptionsItemSelected(item)

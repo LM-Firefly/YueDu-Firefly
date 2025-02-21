@@ -20,6 +20,8 @@ import io.legado.app.utils.canvasrecorder.recordIfNeeded
 import io.legado.app.utils.dpToPx
 import splitties.init.appCtx
 import java.text.DecimalFormat
+import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -35,7 +37,8 @@ data class TextPage(
     var chapterSize: Int = 0,
     var chapterIndex: Int = 0,
     var height: Float = 0f,
-    var leftLineSize: Int = 0
+    var leftLineSize: Int = 0,
+    var renderHeight: Int = 0
 ) {
 
     companion object {
@@ -177,6 +180,7 @@ data class TextPage(
                 addLine(textLine)
             }
             height = ChapterProvider.visibleHeight.toFloat()
+            upRenderHeight()
             invalidate()
             isCompleted = true
         }
@@ -332,8 +336,7 @@ data class TextPage(
 
     fun render(view: ContentTextView): Boolean {
         if (!isCompleted) return false
-        val height = lines.lastOrNull()?.lineBottom?.toInt() ?: 0
-        return canvasRecorder.recordIfNeeded(view.width, height) {
+        return canvasRecorder.recordIfNeeded(view.width, renderHeight) {
             drawPage(view, this)
         }
     }
@@ -358,5 +361,13 @@ data class TextPage(
 
     fun hasImageOrEmpty(): Boolean {
         return textLines.any { it.isImage } || textLines.isEmpty()
+    }
+
+    fun upRenderHeight() {
+        renderHeight = ceil(lines.last().lineBottom).toInt()
+        if (leftLineSize > 0 && leftLineSize != lines.size) {
+            val leftHeight = ceil(lines[leftLineSize - 1].lineBottom).toInt()
+            renderHeight = max(renderHeight, leftHeight)
+        }
     }
 }

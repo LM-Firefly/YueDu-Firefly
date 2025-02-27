@@ -6,7 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import splitties.init.appCtx
 
 fun <T> ActivityResultLauncher<T?>.launch() {
     launch(null)
@@ -14,20 +17,32 @@ fun <T> ActivityResultLauncher<T?>.launch() {
 
 class SelectImageContract : ActivityResultContract<Int?, SelectImageContract.Result>() {
 
-    var requestCode: Int? = null
+    private val delegate = ActivityResultContracts.PickVisualMedia()
+    private var requestCode: Int? = null
+    private var useFallback = false
 
     override fun createIntent(context: Context, input: Int?): Intent {
         requestCode = input
-        return Intent(Intent.ACTION_GET_CONTENT)
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
             .addCategory(Intent.CATEGORY_OPENABLE)
             .setType("image/*")
+        if (intent.resolveActivity(appCtx.packageManager) == null) {
+            useFallback = true
+            val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            return delegate.createIntent(context, request)
+        }
+        return intent
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Result {
-        if (resultCode == RESULT_OK) {
-            return Result(requestCode, intent?.data)
+        val uri = if (useFallback) {
+            delegate.parseResult(resultCode, intent)
+        } else if (resultCode == RESULT_OK) {
+            intent?.data
+        } else {
+            null
         }
-        return Result(requestCode, null)
+        return Result(requestCode, uri)
     }
 
     data class Result(

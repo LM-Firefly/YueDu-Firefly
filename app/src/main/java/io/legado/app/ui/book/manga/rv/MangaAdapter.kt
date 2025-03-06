@@ -59,9 +59,13 @@ class MangaAdapter(private val context: Context) :
 
     private val mDiffer = AsyncListDiffer(this, mDiffCallback)
 
-    private fun getItem(@IntRange(from = 0) position: Int) = mDiffer.currentList[position]
+    fun getItem(@IntRange(from = 0) position: Int) = mDiffer.currentList.getOrNull(position)
 
     fun getCurrentList() = mDiffer.currentList
+
+    fun isEmpty() = mDiffer.currentList.isEmpty()
+
+    fun isNotEmpty() = !isEmpty()
 
     //全部替换数据
     fun submitList(contents: MutableList<Any>, runnable: Runnable) {

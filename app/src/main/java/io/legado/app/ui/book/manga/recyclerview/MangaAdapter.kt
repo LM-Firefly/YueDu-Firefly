@@ -1,4 +1,4 @@
-package io.legado.app.ui.book.manga.rv
+package io.legado.app.ui.book.manga.recyclerview
 
 import android.content.Context
 import android.util.SparseArray
@@ -22,15 +22,16 @@ import io.legado.app.databinding.BookComicRvBinding
 import io.legado.app.help.glide.progress.ProgressManager
 import io.legado.app.model.BookCover
 import io.legado.app.model.ReadManga
-import io.legado.app.model.recyclerView.MangaContent
-import io.legado.app.model.recyclerView.MangaVH
-import io.legado.app.model.recyclerView.ReaderLoading
+import io.legado.app.ui.book.manga.entities.MangaContent
+import io.legado.app.ui.book.manga.entities.ReaderLoading
 import io.legado.app.utils.getCompatDrawable
 import java.util.Collections
 
 
 class MangaAdapter(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), PreloadModelProvider<Any> {
+
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     companion object {
         private const val LOADING_VIEW = 0
@@ -68,17 +69,8 @@ class MangaAdapter(private val context: Context) :
     fun isNotEmpty() = !isEmpty()
 
     //全部替换数据
-    fun submitList(contents: MutableList<Any>, runnable: Runnable) {
-        val list = if (ReadManga.chapterChanged) {
-            contents
-        } else {
-            val currentList = mDiffer.currentList.toMutableList()
-            currentList.addAll(contents)
-            currentList
-        }
-        mDiffer.submitList(list) {
-            runnable.run()
-        }
+    fun submitList(contents: List<Any>, runnable: Runnable? = null) {
+        mDiffer.submitList(contents, runnable)
     }
 
     inner class PageViewHolder(binding: BookComicRvBinding) :
@@ -95,13 +87,15 @@ class MangaAdapter(private val context: Context) :
             binding.retry.setOnClickListener {
                 val item = mDiffer.currentList[layoutPosition]
                 if (item is MangaContent) {
-                    loadImageWithRetry(item.mImageUrl, isHorizontal)
+                    loadImageWithRetry(
+                        item.mImageUrl, isHorizontal, item.mDurChapterImageCount == 1
+                    )
                 }
             }
         }
 
         fun onBind(item: MangaContent) {
-            loadImageWithRetry(item.mImageUrl, isHorizontal)
+            loadImageWithRetry(item.mImageUrl, isHorizontal, item.mDurChapterImageCount == 1)
         }
     }
 
@@ -115,29 +109,18 @@ class MangaAdapter(private val context: Context) :
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
         return when {
-
             viewType >= TYPE_FOOTER_VIEW -> {
                 ItemViewHolder(footerItems.get(viewType).invoke(parent))
             }
 
-            viewType == LOADING_VIEW -> PageMoreViewHolder(
-                BookComicLoadingRvBinding.inflate(
-                    LayoutInflater.from(
-                        parent.context
-                    ), parent, false
-                )
-            )
+            viewType == LOADING_VIEW -> {
+                PageMoreViewHolder(BookComicLoadingRvBinding.inflate(inflater, parent, false))
+            }
 
-            viewType == CONTENT_VIEW -> PageViewHolder(
-                BookComicRvBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-
+            viewType == CONTENT_VIEW -> {
+                PageViewHolder(BookComicRvBinding.inflate(inflater, parent, false))
+            }
 
             else -> error("Unknown view type!")
         }

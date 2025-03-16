@@ -1,6 +1,9 @@
 package io.legado.app.ui.book.manga.recyclerview
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -22,7 +25,8 @@ import io.legado.app.databinding.BookComicRvBinding
 import io.legado.app.help.glide.progress.ProgressManager
 import io.legado.app.model.BookCover
 import io.legado.app.model.ReadManga
-import io.legado.app.ui.book.manga.entities.MangaContent
+import io.legado.app.ui.book.manga.config.MangaColorFilterConfig
+import io.legado.app.ui.book.manga.entities.MangaPage
 import io.legado.app.ui.book.manga.entities.ReaderLoading
 import io.legado.app.utils.getCompatDrawable
 import java.util.Collections
@@ -32,6 +36,7 @@ class MangaAdapter(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), PreloadModelProvider<Any> {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private lateinit var mConfig: MangaColorFilterConfig
 
     companion object {
         private const val LOADING_VIEW = 0
@@ -44,7 +49,7 @@ class MangaAdapter(private val context: Context) :
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
             return if (oldItem is ReaderLoading && newItem is ReaderLoading) {
                 newItem.mMessage == oldItem.mMessage
-            } else if (oldItem is MangaContent && newItem is MangaContent) {
+            } else if (oldItem is MangaPage && newItem is MangaPage) {
                 oldItem.mImageUrl == newItem.mImageUrl
             } else false
         }
@@ -52,7 +57,7 @@ class MangaAdapter(private val context: Context) :
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
             return if (oldItem is ReaderLoading && newItem is ReaderLoading) {
                 oldItem == newItem
-            } else if (oldItem is MangaContent && newItem is MangaContent) {
+            } else if (oldItem is MangaPage && newItem is MangaPage) {
                 oldItem == newItem
             } else false
         }
@@ -62,7 +67,7 @@ class MangaAdapter(private val context: Context) :
 
     fun getItem(@IntRange(from = 0) position: Int) = mDiffer.currentList.getOrNull(position)
 
-    fun getCurrentList() = mDiffer.currentList
+    fun getItems() = mDiffer.currentList
 
     fun isEmpty() = mDiffer.currentList.isEmpty()
 
@@ -86,7 +91,7 @@ class MangaAdapter(private val context: Context) :
             )
             binding.retry.setOnClickListener {
                 val item = mDiffer.currentList[layoutPosition]
-                if (item is MangaContent) {
+                if (item is MangaPage) {
                     loadImageWithRetry(
                         item.mImageUrl, isHorizontal, item.imageCount == 1
                     )
@@ -94,8 +99,27 @@ class MangaAdapter(private val context: Context) :
             }
         }
 
-        fun onBind(item: MangaContent) {
+        fun onBind(item: MangaPage) {
+            setImageColorFilter()
             loadImageWithRetry(item.mImageUrl, isHorizontal, item.imageCount == 1)
+        }
+
+        fun setImageColorFilter() {
+            require(
+                mConfig.r in 0..255 &&
+                        mConfig.g in 0..255 &&
+                        mConfig.b in 0..255 &&
+                        mConfig.a in 0..255
+            ) {
+                "ARGB values must be between 0-255"
+            }
+            val matrix = floatArrayOf(
+                (255 - mConfig.r) / 255f, 0f, 0f, 0f, 0f,
+                0f, (255 - mConfig.g) / 255f, 0f, 0f, 0f,
+                0f, 0f, (255 - mConfig.b) / 255f, 0f, 0f,
+                0f, 0f, 0f, (255 - mConfig.a) / 255f, 0f
+            )
+            binding.image.colorFilter = ColorMatrixColorFilter(ColorMatrix(matrix))
         }
     }
 
@@ -131,7 +155,7 @@ class MangaAdapter(private val context: Context) :
     override fun getItemViewType(position: Int): Int {
         return when {
             isFooter(position) -> TYPE_FOOTER_VIEW + position - getActualItemCount()
-            getItem(position) is MangaContent -> CONTENT_VIEW
+            getItem(position) is MangaPage -> CONTENT_VIEW
             getItem(position) is ReaderLoading -> LOADING_VIEW
             else -> error("Unknown view type!")
         }
@@ -158,7 +182,7 @@ class MangaAdapter(private val context: Context) :
 
     override fun onBindViewHolder(vh: RecyclerView.ViewHolder, position: Int) {
         when (vh) {
-            is PageViewHolder -> vh.onBind(getItem(position) as MangaContent)
+            is PageViewHolder -> vh.onBind(getItem(position) as MangaPage)
             is PageMoreViewHolder -> vh.onBind(getItem(position) as ReaderLoading)
         }
     }
@@ -178,7 +202,7 @@ class MangaAdapter(private val context: Context) :
     /**
      * 除去header和footer
      */
-    fun getActualItemCount() = getCurrentList().size
+    fun getActualItemCount() = getItems().size
 
     @Synchronized
     fun removeFooterView(footer: ((parent: ViewGroup) -> ViewBinding)) {
@@ -192,13 +216,13 @@ class MangaAdapter(private val context: Context) :
     }
 
     override fun getPreloadItems(position: Int): MutableList<Any> {
-        if (getCurrentList().isEmpty()) return Collections.emptyList()
-        if (position >= getCurrentList().size) return Collections.emptyList()
-        return getCurrentList().subList(position, position + 1)
+        if (getItems().isEmpty()) return Collections.emptyList()
+        if (position >= getItems().size) return Collections.emptyList()
+        return getItems().subList(position, position + 1)
     }
 
     override fun getPreloadRequestBuilder(item: Any): RequestBuilder<*>? {
-        if (item is MangaContent) {
+        if (item is MangaPage) {
             return BookCover.loadManga(
                 context,
                 item.mImageUrl,
@@ -208,5 +232,11 @@ class MangaAdapter(private val context: Context) :
             )
         }
         return null
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setMangaImageColorFilter(config: MangaColorFilterConfig) {
+        mConfig = config
+        notifyItemRangeChanged(0, itemCount)
     }
 }

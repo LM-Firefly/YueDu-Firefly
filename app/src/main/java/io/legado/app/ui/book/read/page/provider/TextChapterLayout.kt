@@ -814,7 +814,7 @@ class TextChapterLayout(
 
     private fun isZeroWidthChar(char: Char): Boolean {
         val code = char.code
-        return code == 8203 || code == 8204 || code == 8288
+        return code == 8203 || code == 8204 || code == 8205 || code == 8288
     }
 
 }

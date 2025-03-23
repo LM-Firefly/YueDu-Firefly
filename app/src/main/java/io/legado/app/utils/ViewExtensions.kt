@@ -299,3 +299,8 @@ fun View.setBackgroundKeepPadding(@DrawableRes backgroundResId: Int) {
     setBackgroundResource(backgroundResId)
     setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
 }
+
+fun View.canScroll(direction: Int): Boolean {
+    return canScrollVertically(direction) || canScrollHorizontally(direction)
+}
+

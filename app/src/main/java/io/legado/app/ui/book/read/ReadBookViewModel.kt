@@ -82,7 +82,6 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
     fun initData(intent: Intent, success: (() -> Unit)? = null) {
         execute {
             ReadBook.inBookshelf = intent.getBooleanExtra("inBookshelf", true)
-            ReadBook.tocChanged = intent.getBooleanExtra("tocChanged", false)
             ReadBook.chapterChanged = intent.getBooleanExtra("chapterChanged", false)
             val bookUrl = intent.getStringExtra("bookUrl")
             val book = when {
@@ -177,7 +176,6 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
         execute {
             if (loadChapterListAwait(book)) {
                 ReadBook.upMsg(null)
-                ReadBook.loadContent(resetPageOffset = true)
             }
         }
     }

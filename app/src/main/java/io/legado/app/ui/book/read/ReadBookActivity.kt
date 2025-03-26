@@ -1281,7 +1281,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         alert(R.string.chapter_pay) {
             setMessage(chapter.title)
             yesButton {
-                Coroutine.async {
+                Coroutine.async(lifecycleScope) {
                     val source =
                         ReadBook.bookSource ?: throw NoStackTraceException("no book source")
                     val payAction = source.getContentRule().payAction
@@ -1289,15 +1289,18 @@ class ReadBookActivity : BaseReadBookActivity(),
                         throw NoStackTraceException("no pay action")
                     }
                     val analyzeRule = AnalyzeRule(book, source)
+                    analyzeRule.setCoroutineContext(coroutineContext)
                     analyzeRule.setBaseUrl(chapter.url)
                     analyzeRule.chapter = chapter
                     analyzeRule.evalJS(payAction).toString()
                 }.onSuccess(IO) {
                     if (it.isAbsUrl()) {
                         startActivity<WebViewActivity> {
+                            val bookSource = ReadBook.bookSource
                             putExtra("title", getString(R.string.chapter_pay))
                             putExtra("url", it)
-                            IntentData.put(it, ReadBook.bookSource?.getHeaderMap(true))
+                            putExtra("sourceOrigin", bookSource?.bookSourceUrl)
+                            putExtra("sourceName", bookSource?.bookSourceName)
                         }
                     } else if (it.isTrue()) {
                         //购买成功后刷新目录

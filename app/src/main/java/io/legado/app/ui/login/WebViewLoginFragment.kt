@@ -55,11 +55,8 @@ class WebViewLoginFragment : BaseFragment(R.layout.fragment_web_view_login) {
                 if (!checking) {
                     checking = true
                     binding.titleBar.snackbar(R.string.check_host_cookie)
-                    viewModel.source?.let { source ->
-                        source.loginUrl?.let {
-                            val absoluteUrl = NetworkUtils.getAbsoluteURL(source.getKey(), it)
-                            binding.webView.loadUrl(absoluteUrl, source.getHeaderMap(true))
-                        }
+                    viewModel.source?.let {
+                        loadUrl(it)
                     }
                 }
             }
@@ -77,7 +74,7 @@ class WebViewLoginFragment : BaseFragment(R.layout.fragment_web_view_login) {
             builtInZoomControls = true
             javaScriptEnabled = true
             displayZoomControls = false
-            source.getHeaderMap()[AppConst.UA_NAME]?.let {
+            viewModel.headerMap[AppConst.UA_NAME]?.let {
                 userAgentString = it
             }
         }
@@ -143,10 +140,13 @@ class WebViewLoginFragment : BaseFragment(R.layout.fragment_web_view_login) {
             }
 
         }
-        source.loginUrl?.let {
-            val absoluteUrl = NetworkUtils.getAbsoluteURL(source.getKey(), it)
-            binding.webView.loadUrl(absoluteUrl, source.getHeaderMap(true))
-        }
+        loadUrl(source)
+    }
+
+    private fun loadUrl(source: BaseSource) {
+        val loginUrl = source.loginUrl ?: return
+        val absoluteUrl = NetworkUtils.getAbsoluteURL(source.getKey(), loginUrl)
+        binding.webView.loadUrl(absoluteUrl, viewModel.headerMap)
     }
 
     override fun onDestroy() {

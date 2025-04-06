@@ -48,6 +48,7 @@
 # 这个过滤器是谷歌推荐的算法，一般不做更改
 -optimizations !code/simplification/cast,!field/*,!class/merging/*
 
+-flattenpackagehierarchy
 
 #############################################
 #
@@ -67,12 +68,6 @@
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
 -keep public class * extends android.view.View
-
-# 保留androidx下的所有类及其内部类
--keep class androidx.** {*;}
-
-# 保留继承的
--keep public class * extends androidx.**
 
 # 保留R下面的资源
 -keep class **.R$* {*;}
@@ -147,14 +142,40 @@
 
 # 保持js引擎调用的java类
 -keep class * extends io.legado.app.help.JsExtensions{*;}
-# 保持js引擎调用的java类
--keep class **.analyzeRule.**{*;}
-# 保持web类
--keep class **.web.**{*;}
 # 数据类
--keep class **.data.**{*;}
+-keep class **.data.entities.**{*;}
 # hutool-core hutool-crypto
--keep class cn.hutool.core.**{*;}
+-keep class
+!cn.hutool.core.io.**,
+!cn.hutool.core.img.**,
+!cn.hutool.core.map.**,
+!cn.hutool.core.date.**,
+!cn.hutool.core.bean.**,
+!cn.hutool.core.text.**,
+!cn.hutool.core.swing.**,
+!cn.hutool.core.clone.**,
+!cn.hutool.core.thread.**,
+!cn.hutool.core.stream.**,
+!cn.hutool.core.builder.**,
+!cn.hutool.core.convert.**,
+!cn.hutool.core.compiler.**,
+!cn.hutool.core.annotation.**,
+!cn.hutool.core.comparator.**,
+!cn.hutool.core.lang.ansi.**,
+!cn.hutool.core.lang.reflect.**,
+!cn.hutool.core.lang.intern.**,
+!cn.hutool.core.lang.loader.**,
+!cn.hutool.core.lang.mutable.**,
+!cn.hutool.core.lang.tree.**,
+!cn.hutool.core.lang.JarClassLoader,
+!cn.hutool.core.lang.ResourceClassLoader,
+!cn.hutool.core.lang.Singleton,
+!cn.hutool.core.util.RuntimeUtil,
+!cn.hutool.core.util.ClassLoaderUtil,
+!cn.hutool.core.util.ReflectUtil,
+!cn.hutool.core.util.SerializeUtil,
+!cn.hutool.core.util.ClassUtil,
+cn.hutool.core.**{*;}
 -keep class cn.hutool.crypto.**{*;}
 -dontwarn cn.hutool.**
 # 缓存 Cookie
@@ -173,24 +194,31 @@
 -dontwarn com.hwangjr.rxbus.**
 -dontwarn okhttp3.**
 -dontwarn org.conscrypt.**
--dontwarn com.jeremyliao.liveeventbus.**
 -dontwarn org.commonmark.ext.gfm.**
 
 -keep,allowobfuscation,allowshrinking class com.google.gson.** { *; }
 -keep,allowobfuscation,allowshrinking class com.ke.gson.** { *; }
 -keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
--keep class com.jeremyliao.liveeventbus.** { *; }
 -keep class okhttp3.**{*;}
 -keep class okio.**{*;}
 -keep class com.hwangjr.rxbus.**{*;}
 -keep class org.conscrypt.**{*;}
--keep class android.support.**{*;}
 -keep class me.grantland.widget.**{*;}
 -keep class de.hdodenhof.circleimageview.**{*;}
 -keep class tyrant.explosionfield.**{*;}
 -keep class tyrantgit.explosionfield.**{*;}
 -keep class freemarker.**{*;}
 -keep class com.gyf.barlibrary.** {*;}
+
+# LiveEventBus
+-keep class androidx.lifecycle.LiveData {
+    *** mObservers;
+    *** mActiveCount;
+}
+-keep class androidx.arch.core.internal.SafeIterableMap {
+    *** size();
+    *** putIfAbsent(...);
+}
 
 ## JSOUP
 -keep class org.jsoup.**{*;}
@@ -215,47 +243,6 @@
 -keep class sun.reflect.**{*;}
 -dontwarn sun.reflect.**
 
-## Rhino
--keep class com.script.** { *; }
--keep class javax.script.** { *; }
--keep class java.lang.** { *; }
--keep class java.util.function.** { *; }
--keep class com.sun.script.javascript.** { *; }
--keep class org.mozilla.** { *; }
--dontwarn org.mozilla.javascript.engine.RhinoScriptEngineFactory
-### 以下内容是更新rhino1.7.14.jar后IDE提示添加的
--dontwarn java.beans.**
--dontwarn javax.script.**
-### 以下内容是更新rhino1.8.0.jar后IDE提示添加的
--dontwarn jdk.dynalink.CallSiteDescriptor
--dontwarn jdk.dynalink.DynamicLinker
--dontwarn jdk.dynalink.DynamicLinkerFactory
--dontwarn jdk.dynalink.NamedOperation
--dontwarn jdk.dynalink.Namespace
--dontwarn jdk.dynalink.NamespaceOperation
--dontwarn jdk.dynalink.Operation
--dontwarn jdk.dynalink.RelinkableCallSite
--dontwarn jdk.dynalink.StandardNamespace
--dontwarn jdk.dynalink.StandardOperation
--dontwarn jdk.dynalink.linker.GuardedInvocation
--dontwarn jdk.dynalink.linker.GuardingDynamicLinker
--dontwarn jdk.dynalink.linker.LinkRequest
--dontwarn jdk.dynalink.linker.LinkerServices
--dontwarn jdk.dynalink.linker.TypeBasedGuardingDynamicLinker
--dontwarn jdk.dynalink.linker.support.CompositeTypeBasedGuardingDynamicLinker
--dontwarn jdk.dynalink.linker.support.Guards
--dontwarn jdk.dynalink.support.ChainedCallSite
-
-## EPUB
--dontwarn nl.siegmann.epublib.**
--dontwarn org.xmlpull.**
--keep class nl.siegmann.epublib.**{*;}
--keep class javax.xml.**{*;}
--keep class org.xmlpull.**{*;}
-
--keep class org.simpleframework.**{*;}
--dontwarn org.simpleframework.xml.**
-
 -keepclassmembers class * {
     public <init> (org.json.JSONObject);
 }
@@ -273,9 +260,6 @@
 
 ## 对外提供api
 -keep class io.legado.app.api.ReturnData{*;}
-
-# 繁简转换
--keep class com.github.liuyueyi.quick.transfer.** {*;}
 
 # Cronet
 -keepclassmembers class org.chromium.net.X509Util {

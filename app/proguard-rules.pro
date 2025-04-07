@@ -115,31 +115,10 @@ cn.hutool.core.util.**{*;}
 # StrResponse
 -keep class **.help.http.StrResponse{*;}
 
--dontwarn rx.**
--dontwarn okio.**
--dontwarn javax.annotation.**
--dontwarn org.apache.log4j.lf5.viewer.**
--dontnote org.apache.log4j.lf5.viewer.**
--dontwarn freemarker.**
--dontnote org.python.core.**
--dontwarn com.hwangjr.rxbus.**
--dontwarn okhttp3.**
--dontwarn org.conscrypt.**
 -dontwarn org.commonmark.ext.gfm.**
 
--keep,allowobfuscation,allowshrinking class com.google.gson.** { *; }
--keep,allowobfuscation,allowshrinking class com.ke.gson.** { *; }
--keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
--keep class okhttp3.**{*;}
--keep class okio.**{*;}
--keep class com.hwangjr.rxbus.**{*;}
--keep class org.conscrypt.**{*;}
--keep class me.grantland.widget.**{*;}
--keep class de.hdodenhof.circleimageview.**{*;}
--keep class tyrant.explosionfield.**{*;}
--keep class tyrantgit.explosionfield.**{*;}
--keep class freemarker.**{*;}
--keep class com.gyf.barlibrary.** {*;}
+-keep class !okhttp3.internal.**,okhttp3.**{*;}
+-keep class !okio.internal.**,okio.**{*;}
 
 # LiveEventBus
 -keepclassmembers class androidx.lifecycle.LiveData {
@@ -158,26 +137,7 @@ cn.hutool.core.util.**{*;}
 
 ## JSOUP
 -keep class org.jsoup.**{*;}
--keep class **.xpath.**{*;}
 -dontwarn org.jspecify.annotations.NullMarked
-
--keep class org.slf4j.**{*;}
--dontwarn org.slf4j.**
-
--keep class org.codehaus.**{*;}
--dontwarn org.codehaus.**
--keep class com.jayway.**{*;}
--dontwarn com.jayway.**
--keep class com.fasterxml.**{*;}
-
--keep class javax.swing.**{*;}
--dontwarn javax.swing.**
--keep class java.awt.**{*;}
--dontwarn java.awt.**
--keep class sun.misc.**{*;}
--dontwarn sun.misc.**
--keep class sun.reflect.**{*;}
--dontwarn sun.reflect.**
 
 -keepclassmembers class * {
     public <init> (org.json.JSONObject);
@@ -209,6 +169,6 @@ cn.hutool.core.util.**{*;}
 -keep class io.legado.app.help.update.AppUpdateGitHub{*;}
 -keep class io.legado.app.help.AppIntentType{*;}
 # Error Exception 
--keep class * extends java.lang.Exception
--keep class * extends java.lang.Error
--keep class **Exception
+-keepnames class * extends java.lang.Exception
+-keepnames class * extends java.lang.Error
+-keepnames class **Exception

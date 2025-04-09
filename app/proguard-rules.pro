@@ -22,27 +22,15 @@
 # 混合时不使用大小写混合，混合后的类名为小写
 -dontusemixedcaseclassnames
 
-# 指定不去忽略非公共库的类
--dontskipnonpubliclibraryclasses
-
 # 这句话能够使我们的项目混淆后产生映射文件
 # 包含有类名->混淆后类名的映射关系
 -verbose
-
-# 指定不去忽略非公共库的类成员
--dontskipnonpubliclibraryclassmembers
-
-# 不做预校验，preverify是proguard的四个步骤之一，Android不需要preverify，去掉这一步能够加快混淆速度。
--dontpreverify
 
 # 保留Annotation不混淆
 -keepattributes *Annotation*,InnerClasses
 
 # 避免混淆泛型
 -keepattributes Signature
-
-# 抛出异常时保留代码行号
--keepattributes SourceFile,LineNumberTable
 
 # 指定混淆是采用的算法，后面的参数是一个过滤器
 # 这个过滤器是谷歌推荐的算法，一般不做更改
@@ -57,31 +45,6 @@
 #############################################
 # 屏蔽错误Unresolved class name
 #noinspection ShrinkerUnresolvedReference
-
-# 保留枚举类不被混淆
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
-# 保留Serializable序列化的类不被混淆
--keepclassmembers class * implements java.io.Serializable {
-    static final long serialVersionUID;
-    private static final java.io.ObjectStreamField[] serialPersistentFields;
-    !static !transient <fields>;
-    !private <fields>;
-    !private <methods>;
-    private void writeObject(java.io.ObjectOutputStream);
-    private void readObject(java.io.ObjectInputStream);
-    java.lang.Object writeReplace();
-    java.lang.Object readResolve();
-}
-
-# 对于带有回调函数的onXXEvent、**On*Listener的，不能被混淆
--keepclassmembers class * {
-    void *(**On*Event);
-    void *(**On*Listener);
-}
 
 # 移除Log类打印各个等级日志的代码，打正式包的时候可以做为禁log使用，这里可以作为禁止log打印的功能使用
 # 记得proguard-android.txt中一定不要加-dontoptimize才起作用
@@ -115,6 +78,7 @@ cn.hutool.core.util.**{*;}
 # StrResponse
 -keep class **.help.http.StrResponse{*;}
 
+# markwon
 -dontwarn org.commonmark.ext.gfm.**
 
 -keep class okhttp3.*{*;}
@@ -136,17 +100,14 @@ cn.hutool.core.util.**{*;}
     *** mNavButtonView;
 }
 
+# JsoupXpath
+-keep,allowobfuscation class * implements org.seimicrawler.xpath.core.AxisSelector{*;}
+-keep,allowobfuscation class * implements org.seimicrawler.xpath.core.NodeTest{*;}
+-keep,allowobfuscation class * implements org.seimicrawler.xpath.core.Function{*;}
+
 ## JSOUP
 -keep class org.jsoup.**{*;}
 -dontwarn org.jspecify.annotations.NullMarked
-
--keepclassmembers class * {
-    public <init> (org.json.JSONObject);
-}
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
 
 ## ExoPlayer 反射设置ua 保证该私有变量不被混淆
 -keepclassmembers class androidx.media3.datasource.cache.CacheDataSource$Factory {
@@ -164,12 +125,6 @@ cn.hutool.core.util.**{*;}
     *** sTestTrustManager;
 }
 
-# Class.forName调用
--keep class io.legado.app.lib.cronet.CronetInterceptor{*;}
--keep class io.legado.app.lib.cronet.CronetLoader{*;}
--keep class io.legado.app.help.update.AppUpdateGitHub{*;}
--keep class io.legado.app.help.AppIntentType{*;}
-# Error Exception 
--keepnames class * extends java.lang.Exception
--keepnames class * extends java.lang.Error
--keepnames class **Exception
+# Throwable
+-keepnames class * extends java.lang.Throwable
+-keepclassmembernames,allowobfuscation class * extends java.lang.Throwable{*;}

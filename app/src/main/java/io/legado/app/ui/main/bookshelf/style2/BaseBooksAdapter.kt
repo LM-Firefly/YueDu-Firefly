@@ -95,7 +95,6 @@ abstract class BaseBooksAdapter<VH : RecyclerView.ViewHolder>(
             if (bundle.isEmpty) return null
             return bundle
         }
-
     }
 
     private val asyncListDiffer by lazy {
@@ -126,17 +125,19 @@ abstract class BaseBooksAdapter<VH : RecyclerView.ViewHolder>(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return callBack.getItemType(position)
+        if (getItem(position) is BookGroup) {
+            return 1
+        }
+        return 0
     }
 
     final override fun onBindViewHolder(holder: VH, position: Int) {}
 
 
     interface CallBack {
-        fun onItemClick(position: Int)
-        fun onItemLongClick(position: Int)
+        fun onItemClick(item: Any)
+        fun onItemLongClick(item: Any)
         fun isUpdate(bookUrl: String): Boolean
-        fun getItemType(position: Int): Int
         fun getItems(): List<Any>
     }
 }

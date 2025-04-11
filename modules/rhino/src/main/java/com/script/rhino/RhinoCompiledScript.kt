@@ -56,7 +56,6 @@ internal class RhinoCompiledScript(
 
     override fun eval(scope: Scriptable, coroutineContext: CoroutineContext?): Any? {
         val cx = Context.enter() as RhinoContext
-        cx.checkRecursive()
         val previousCoroutineContext = cx.coroutineContext
         if (coroutineContext != null && coroutineContext[Job] != null) {
             cx.coroutineContext = coroutineContext
@@ -65,6 +64,7 @@ internal class RhinoCompiledScript(
         cx.recursiveCount++
         val result: Any?
         try {
+            cx.checkRecursive()
             val ret = script.exec(cx, scope)
             result = engine.unwrapReturnValue(ret)
         } catch (re: RhinoException) {
@@ -93,6 +93,7 @@ internal class RhinoCompiledScript(
             cx.allowScriptRun = true
             cx.recursiveCount++
             try {
+                cx.checkRecursive()
                 try {
                     ret = cx.executeScriptWithContinuations(script, scope)
                 } catch (e: ContinuationPending) {

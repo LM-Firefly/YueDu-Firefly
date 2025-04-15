@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  UPSTREAM_REPOSITORY: gedoor/legado
+  UPSTREAM_REPOSITORY: LM-Firefly/YueDu-Firefly
 
 jobs:
   build:
@@ -62,4 +62,3 @@ jobs:
         with:
           commit_message: Bump web ${{ env.APP_VER}}
           file_pattern: app/src/main/assets/web/vue/
-

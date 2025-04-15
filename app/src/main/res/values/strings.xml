@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--App-->
-    <string name="app_name">Legado</string>
-    <string name="app_name_a">Legado·A</string>
-    <string name="receiving_shared_label">Legado·search</string>
-    <string name="tip_perm_request_storage">Legado needs storage access to find and read books. please go "App Settings" to allow "Storage permission".</string>
+    <string name="app_name">YueDu</string>
+    <!--string name="app_name_a">YueDu</string-->
+    <string name="receiving_shared_label">YueDu·search</string>
+    <string name="tip_perm_request_storage">YueDu needs storage access to find and read books.
+        please go "App Settings" to allow "Storage permission".</string>
 
     <!--Other-->
     <string name="menu_backup">Home</string>
     <string name="menu_restore">Restore</string>
-    <string name="menu_import_old">Import Legado data</string>
+    <string name="menu_import_old">Import YueDu data</string>
     <string name="webdav_cache_backup">Offline cache book backup</string>
-    <string name="webdav_cache_backup_s">Export to local and back up to the exports directory under the legado folder</string>
+    <string name="webdav_cache_backup_s">Export to local and back up to the exports directory under
+        the YueDu-Firefly folder</string>
     <string name="backup_path">Backup to</string>
     <string name="select_backup_path">Please select a backup path.</string>
     <string name="menu_import_old_version">Import legacy data</string>
@@ -49,7 +51,8 @@
     <string name="recent_reading">Recent reading</string>
     <string name="last_read">Last reading</string>
     <string name="update_log">What\'s new</string>
-    <string name="bookshelf_empty">The bookshelf is still empty. Search for books or add them from discovery!</string>
+    <string name="bookshelf_empty">The bookshelf is still empty. Search for books or add them from
+        discovery!</string>
     <string name="action_search">Search</string>
     <string name="action_download">Download</string>
     <string name="layout_list">List</string>
@@ -93,10 +96,11 @@
     <string name="offline_cache_s">cache the selected chapter(s) to Storage</string>
     <string name="change_origin">Change Origin</string>
     <string name="about_description">
-        \u3000\u3000 This is an open source reading software newly developed by Kotlin, welcome to join us.
+        \u3000\u3000 This is an open source reading software newly developed by Kotlin, welcome to
+        join us.
     </string>
     <string name="app_share_description">
-        Legado (YueDu 3.0) download link：\n https://github.com/gedoor/legado/releases
+        YueDu (YueDu 3.0) download link：\n https://github.com/gedoor/legado/releases
     </string>
     <string name="version_name">Version %s</string>
     <string name="pt_background_verification">Background-verification</string>
@@ -104,7 +108,7 @@
     <string name="pt_auto_refresh">Auto-refresh</string>
     <string name="ps_auto_refresh">Update books automatically when opening the software</string>
     <string name="pt_auto_download">Auto-download</string>
-    <string name="ps_auto_download">Download the latest chapters automatically  when updating books</string>
+    <string name="ps_auto_download">Download the latest chapters automatically when updating books</string>
     <string name="backup_restore">Backup and restore</string>
     <string name="web_dav_set">WebDav settings</string>
     <string name="web_dav_set_import_old">WebDav settings/Import legacy data</string>
@@ -115,9 +119,11 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="backup_confirmation">Backup confirmation</string>
-    <string name="backup_message">The new backup files will replace the original.\n Backup folder: YueDu</string>
+    <string name="backup_message">The new backup files will replace the original.\n Backup folder:
+        YueDu</string>
     <string name="restore_confirmation">Restore confirmation</string>
-    <string name="restore_message">Restoring the bookshelf data will overwrite the current Bookshelf.</string>
+    <string name="restore_message">Restoring the bookshelf data will overwrite the current
+        Bookshelf.</string>
     <string name="backup_success">Backup succeed</string>
     <string name="backup_fail">Backup failed\n%s</string>
     <string name="on_restore">Restoring</string>
@@ -208,10 +214,12 @@
     <string name="menu">Menu</string>
     <string name="adjust">Adjust</string>
     <string name="scroll_bar">Scroll bar</string>
-    <string name="clear_all_content">Clearing the cache will delete all saved chapters. Are you sure to delete it?</string>
+    <string name="clear_all_content">Clearing the cache will delete all saved chapters. Are you sure
+        to delete it?</string>
     <string name="book_source_share_url">Book sources sharing</string>
     <string name="replace_rule_summary">Rule name</string>
-    <string name="replace_rule_invalid">Pattern rule is empty or does not conform the regex specification.</string>
+    <string name="replace_rule_invalid">Pattern rule is empty or does not conform the regex
+        specification.</string>
     <string name="select_action">Selection action</string>
     <string name="select_all">Select all</string>
     <string name="select_all_count">Select all(%1$d/%2$d)</string>
@@ -296,7 +304,7 @@
     <string name="padding_right">Right</string>
     <string name="check_book_source">Check book sources</string>
     <string name="check_select_source">Check the selected source</string>
-    <string name="progress_show">%1$s      Progress %2$d/%3$d</string>
+    <string name="progress_show">%1$s Progress %2$d/%3$d</string>
     <string name="tts_fix">Please install and select Chinese TTS!</string>
     <string name="tts_init_failed">TTS initialization failed!</string>
     <string name="jf_convert">Simplified conversion</string>
@@ -309,7 +317,8 @@
     <string name="nb_file_add_shelf">Add to Bookshelf</string>
     <string name="nb_file_add_shelves">Add to Bookshelf(%1$d)</string>
     <string name="nb_file_add_succeed">%1$d books added successfully</string>
-    <string name="fonts_folder">Please put the font files in the Fonts folder of the storage root directory and reselect</string>
+    <string name="fonts_folder">Please put the font files in the Fonts folder of the storage root
+        directory and reselect</string>
     <string name="default_font">Default font</string>
     <string name="select_font">Select fonts</string>
     <string name="text_size">Text size</string>
@@ -341,7 +350,8 @@
     <string name="allow_update">Enable update</string>
     <string name="disable_update">Disable update</string>
     <string name="split_long_chapter">Split extra-long chapters</string>
-    <string name="need_more_time_load_content">When the body length is too long, it may take more time to load the text.</string>
+    <string name="need_more_time_load_content">When the body length is too long, it may take more
+        time to load the text.</string>
     <string name="revert_selection">Inverse</string>
     <string name="search_book_key">Search book name/author</string>
     <string name="debug_hint">Book name,Author,URL</string>
@@ -380,10 +390,13 @@
     <string name="page_anim_simulation">Simulation</string>
     <string name="page_anim_scroll">Scroll</string>
     <string name="page_anim_none">None</string>
-    <string name="up_change_source_last_chapter_t">Update the latest chapter after changed origin in the background</string>
-    <string name="up_change_source_last_chapter_s">if enabled,the update will start 1 minute later when the software is run</string>
+    <string name="up_change_source_last_chapter_t">Update the latest chapter after changed origin in
+        the background</string>
+    <string name="up_change_source_last_chapter_s">if enabled,the update will start 1 minute later
+        when the software is run</string>
     <string name="behavior_main_t">Auto hide ToolBar</string>
-    <string name="behavior_main_s">The toolbar will be hidden automatically when scroll the Bookshelf</string>
+    <string name="behavior_main_s">The toolbar will be hidden automatically when scroll the
+        Bookshelf</string>
     <string name="login">Login</string>
     <string name="login_source">Login%s</string>
     <string name="success">Success</string>
@@ -452,7 +465,8 @@
     <string name="rule_is_pay">Is pay(isPay)</string>
     <!-- source end-->
 
-    <!--error string start-->
+    <!--error
+    string start-->
     <string name="error_no_source">No source</string>
     <string name="error_get_book_info">Failed to obtain book information</string>
     <string name="error_get_content">Failed to obtain content</string>
@@ -465,14 +479,15 @@
     <string name="net_error_10001">No network</string>
     <string name="net_error_10002">Network connection timeout</string>
     <string name="net_error_10003">Data parsing failed</string>
-    <!--error string end-->
+    <!--error
+    string end-->
 
     <string name="source_http_header">HTTP Header</string>
     <string name="debug_source">Debug source</string>
     <string name="import_by_qr_code">Import from QR code</string>
     <string name="share_selected_source">Share selected sources</string>
     <string name="scan_qr_code">Scan QR code</string>
-    <string name="click_on_selected_show_menu">Tap to display Menu when selected </string>
+    <string name="click_on_selected_show_menu">Tap to display Menu when selected</string>
     <string name="theme">Theme</string>
     <string name="theme_mode">Theme mode</string>
     <string name="theme_mode_desc">Select a theme you want</string>
@@ -500,7 +515,8 @@
     <string name="sure_del">Are you sure to delete it?</string>
     <string name="sure_del_any">Are you sure to delete %s?</string>
     <string name="sure_del_all_book">Are you sure to delete all books？</string>
-    <string name="sure_del_download_book">Do you want to delete the downloaded book chapters at the same time?</string>
+    <string name="sure_del_download_book">Do you want to delete the downloaded book chapters at the
+        same time?</string>
     <string name="qr_per">Scan QR code requires Camera permissions</string>
     <string name="aloud_can_not_auto_page">Speech is running, cannot turn pages automatically</string>
     <string name="input_charset">Input encoding</string>
@@ -513,8 +529,10 @@
     <string name="gallery">Gallery</string>
     <string name="get_ali_pay_hb">get AliPay red envelopes</string>
     <string name="non_update_url">No update address</string>
-    <string name="check_host_cookie">Opening the homepage, it will return to start page automatically after success</string>
-    <string name="click_check_after_success">After successful login, please tap the icon on the upper right corner to test the homepage access</string>
+    <string name="check_host_cookie">Opening the homepage, it will return to start page
+        automatically after success</string>
+    <string name="click_check_after_success">After successful login, please tap the icon on the
+        upper right corner to test the homepage access</string>
     <string name="chapter">Chapter</string>
     <string name="to">To</string>
     <string name="use_regex">Using Regex</string>
@@ -543,7 +561,8 @@
     <string name="source_tab_content">Content</string>
 
     <string name="e_ink_mode">E-Ink mode</string>
-    <string name="e_ink_mode_detail">Remove animations and optimize the experience of using E-paper books</string>
+    <string name="e_ink_mode_detail">Remove animations and optimize the experience of using E-paper
+        books</string>
     <string name="web_menu">Web service</string>
     <string name="web_port_title">Web port</string>
     <string name="web_port_summary">Current port %s</string>
@@ -643,13 +662,15 @@
     <string name="sys_folder_picker">System folder picker</string>
     <string name="app_folder_picker">App folder picker</string>
     <string name="app_file_picker">App file picker</string>
-    <string name="a10_permission_toast">Android 10+ unable to read and write file due to permission restrictions</string>
-    <string name="add_to_text_context_menu_s">Long tap to display Legado·Search in the operation menu</string>
+    <string name="a10_permission_toast">Android 10+ unable to read and write file due to permission
+        restrictions</string>
+    <string name="add_to_text_context_menu_s">Long tap to display YueDu·Search in the operation menu</string>
     <string name="add_to_text_context_menu_t">Text operation display Search</string>
     <string name="record_log">Record log</string>
     <string name="log">Log</string>
     <string name="chinese_converter">Simplified conversion</string>
-    <string name="change_icon_error">The icon is a vector icon, which was not supported before Android 8.0</string>
+    <string name="change_icon_error">The icon is a vector icon, which was not supported before
+        Android 8.0</string>
     <string name="aloud_config">Speech settings</string>
     <string name="main_activity">Start page</string>
     <string name="selectText">Long Tap to select text</string>
@@ -687,7 +708,10 @@
     <string name="btn_default_s">Default</string>
     <string name="main_menu">Main menu</string>
     <string name="request_permission">Tap to grant permission</string>
-    <string name="tip_local_perm_request_storage">Legado needs Storage permission, please tap the "Grant Permission" button below, or go to "Settings"-"Application Permissions"-to open the required permission. If the permission is still not work, please tap "Select Folder" in the upper right corner to use the system folder picker.</string>
+    <string name="tip_local_perm_request_storage">YueDu needs Storage permission, please tap the
+        "Grant Permission" button below, or go to "Settings"-"Application Permissions"-to open the
+        required permission. If the permission is still not work, please tap "Select Folder" in the
+        upper right corner to use the system folder picker.</string>
     <string name="alouding_disable">The selected text cannot be spoken in full text speech</string>
     <string name="read_body_to_lh">Extend to cutout</string>
     <string name="toc_updateing">Updating Chapters</string>
@@ -732,7 +756,8 @@
     <string name="auto_page_speed">Auto scroll speed</string>
     <string name="sort_by_url">Sort by URL</string>
     <string name="backup_summary">Backup the local and WebDav simultaneously</string>
-    <string name="restore_summary">Restore from WebDAV first, Restore form the local backup on long click</string>
+    <string name="restore_summary">Restore from WebDAV first, Restore form the local backup on long
+        click</string>
     <string name="import_old_summary">Select a legacy backup folder</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
@@ -749,7 +774,8 @@
     <string name="alipay_red_envelope_qr_code">AliPay red envelope QR code</string>
     <string name="alipay_payment_qr_code">AliPay QR code</string>
     <string name="qq_collection_qr_code">QQ Collection QR code</string>
-    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Checking in github for details</string>
+    <string name="contributors_summary">gedoor,Invinciblelee,Xwite etc. Checking in github for
+        details</string>
     <string name="clear_cache_summary">Clear the cache of the downloaded books and fonts</string>
     <string name="default_cover">Default cover</string>
     <string name="restore_ignore">Bypass list</string>
@@ -764,7 +790,7 @@
     <string name="day_bottom_bar_too_dark">Day bottom can not be too dark!</string>
     <string name="night_background_too_light">Night background can not be too bright!</string>
     <string name="night_bottom_bar_too_light">Night bottom can not be too bright!</string>
-    <string name="accent_background_diff">Need Difference between accent and background color </string>
+    <string name="accent_background_diff">Need Difference between accent and background color</string>
     <string name="accent_text_diff">Need Difference between accent and text color</string>
     <string name="wrong_format">Wrong format</string>
     <string name="error">Error</string>
@@ -793,13 +819,16 @@
     <string name="search_content">Search content</string>
     <string name="rss_source_empty">Empty now!</string>
     <string name="explore_empty">Empty now!</string>
-    <string name="page_key_set_help">Focusing on the input box and pressing a physical key will automatically enter the value of the key, and multiple keys will be automatically separated by commas.</string>
+    <string name="page_key_set_help">Focusing on the input box and pressing a physical key will
+        automatically enter the value of the key, and multiple keys will be automatically separated
+        by commas.</string>
     <string name="theme_name">Theme name</string>
     <string name="auto_clear_expired">"Clear expired search histories automatically "</string>
     <string name="auto_clear_expired_summary">Search histories more than one day</string>
     <string name="re_segment">Re-segment</string>
     <string name="style_name">Style name:</string>
-    <string name="empty_msg_import_book">Click the folder icon in the upper right corner and select the folder</string>
+    <string name="empty_msg_import_book">Click the folder icon in the upper right corner and select
+        the folder</string>
     <string name="scan_folder">Intelligent scanning</string>
     <string name="import_file_name">Imported-file name</string>
     <string name="no_book">No books</string>
@@ -813,15 +842,20 @@
     <string name="show_hide">Show/Hide</string>
     <string name="header_footer">Footer <![CDATA[&]]> Header</string>
     <string name="rule_subscription">Rule Subscription</string>
-    <string name="rule_sub_empty_msg">Add the rule import address provided by the bosses\nClick to import rules after adding</string>
-    <string name="get_book_progress">Pull the cloud  progress</string>
+    <string name="rule_sub_empty_msg">Add the rule import address provided by the bosses\nClick to
+        import rules after adding</string>
+    <string name="get_book_progress">Pull the cloud progress</string>
     <string name="cover_book_progress">Overlay Cloud Progress</string>
-    <string name="current_progress_exceeds_cloud">The current progress exceeds the cloud progress. Do you want to synchronize?</string>
-    <string name="cloud_progress_exceeds_current">The cloud progress exceeds the current progress. Do you want to synchronize?</string>
+    <string name="current_progress_exceeds_cloud">The current progress exceeds the cloud progress.
+        Do you want to synchronize?</string>
+    <string name="cloud_progress_exceeds_current">The cloud progress exceeds the current progress.
+        Do you want to synchronize?</string>
     <string name="sync_book_progress_t">Synchronous reading progress</string>
-    <string name="sync_book_progress_s">Synchronize reading progress when entering / exiting the reading interface</string>
+    <string name="sync_book_progress_s">Synchronize reading progress when entering / exiting the
+        reading interface</string>
     <string name="sync_book_progress_plus_t">Sync Enhancement</string>
-    <string name="sync_book_progress_plus_s">Sync cloud progress when re-entering the page (e.g., after screen off, returning from background, etc.) or when the network becomes available</string>
+    <string name="sync_book_progress_plus_s">Sync cloud progress when re-entering the page (e.g.,
+        after screen off, returning from background, etc.) or when the network becomes available</string>
     <string name="sync_book_progress_success">Sync progress success</string>
     <string name="create_bookmark_error">Failed to create bookmark</string>
     <string name="single_url">Single URL</string>
@@ -834,7 +868,8 @@
     <string name="background_image">Background image</string>
     <string name="background_image_blurring">Background image blurring</string>
     <string name="background_image_blurring_radius">Blurring radius</string>
-    <string name="background_image_hint">Disabled when 0, enable range from 1 to 25\nThe greater the radius, the stronger the effect of blurring</string>
+    <string name="background_image_hint">Disabled when 0, enable range from 1 to 25\nThe greater the
+        radius, the stronger the effect of blurring</string>
     <string name="copy_book_url">Copy book URL</string>
     <string name="copy_toc_url">Copy chapters URL</string>
     <string name="export_folder">Export folder</string>
@@ -881,10 +916,13 @@
     <string name="end">end</string>
     <string name="custom_group_summary">Turn off Replace Group / Turn on Add Group</string>
     <string name="pref_media_button_per_next">Media Buttons • Previous | Next</string>
-    <string name="pref_media_button_per_next_summary">Previous Paragraph|Next Paragraph/Previous Chapter|Next Chapter</string>
-    <string name="read_aloud_by_page_summary">Turning pages in time, with a pause when the page is turned</string>
+    <string name="pref_media_button_per_next_summary">Previous Paragraph|Next Paragraph/Previous
+        Chapter|Next Chapter</string>
+    <string name="read_aloud_by_page_summary">Turning pages in time, with a pause when the page is
+        turned</string>
     <string name="check_source_show_debug_message">Check book source shows debug message</string>
-    <string name="check_source_show_debug_message_summary">Show network status and timestamp during source checking</string>
+    <string name="check_source_show_debug_message_summary">Show network status and timestamp during
+        source checking</string>
     <string name="need_login">need login</string>
     <string name="pref_cronet_summary">use Cronet access network</string>
     <string name="anti_alias">Anti-Aliasing</string>
@@ -894,7 +932,8 @@
     <string name="export_success">export success</string>
     <string name="path">path</string>
     <string name="direct_link_upload_rule">Straight chain upload rule</string>
-    <string name="direct_link_upload_rule_summary">Used to generate direct link url when exporting book source, book list</string>
+    <string name="direct_link_upload_rule_summary">Used to generate direct link url when exporting
+        book source, book list</string>
     <string name="direct_link_upload_config">Direct link upload configuration</string>
     <string name="copy_play_url">Copy Play Url</string>
     <string name="set_source_variable">Set source variable</string>
@@ -933,8 +972,10 @@
     <string name="search_content_empty">Empty search result, check conversation settings</string>
     <string name="tts_speech_reduce">Decrease speech speed</string>
     <string name="tts_speech_add">Increase speech speed</string>
-    <string name="open_sys_dir_picker_error">Error opening system folder selector, automatically open application folder selector</string>
-    <string name="open_sys_doc_picker_error">Error opening system file selector, automatically open application file selector</string>
+    <string name="open_sys_dir_picker_error">Error opening system folder selector, automatically
+        open application folder selector</string>
+    <string name="open_sys_doc_picker_error">Error opening system file selector, automatically open
+        application file selector</string>
     <string name="expand_text_menu">Expand text selection menu</string>
     <string name="book_tree_uri_t">Book Save Location</string>
     <string name="book_tree_uri_s">Save location for books opened from other apps</string>
@@ -983,7 +1024,8 @@
     <string name="only_wifi">WIFI only</string>
     <string name="only_wifi_summary">Load network cover only under wifi</string>
     <string name="cover_rule">Cover rule</string>
-    <string name="cover_rule_summary">Use the cover rule to retrieve the cover when entering the details page</string>
+    <string name="cover_rule_summary">Use the cover rule to retrieve the cover when entering the
+        details page</string>
     <string name="scroll_to_dur_source">Navigate to the current book source</string>
     <string name="sys_tts_config">System tts Settings</string>
     <string name="sys_tts_config_summary">Open the system tts settings interface</string>
@@ -1024,10 +1066,12 @@
     <string name="last_read_time_tag">Last read time:</string>
     <string name="page_touch_slop_title">Sliding Page Threshold</string>
     <string name="page_touch_slop_dialog_title">Sliding page turn threshold (0 = system default)</string>
-    <string name="page_touch_slop_summary">How far to slide to trigger a page slide (system default %s px)</string>
+    <string name="page_touch_slop_summary">How far to slide to trigger a page slide (system default
+        %s px)</string>
     <string name="check_selected_interval">Select zones</string>
     <string name="show_add_to_shelf_alert_title">Prompt to add to bookshelf when return</string>
-    <string name="show_add_to_shelf_alert_summary">Prompt to add to bookshelf when return from reading books that are not on the bookshelf</string>
+    <string name="show_add_to_shelf_alert_summary">Prompt to add to bookshelf when return from
+        reading books that are not on the bookshelf</string>
     <string name="review">Review</string>
     <string name="rule_avatar">段评发布者头像（avatarRule）</string>
     <string name="rule_review_url">段评URL（reviewUrl）</string>
@@ -1048,7 +1092,8 @@
     <string name="not_like_source">Not like</string>
     <string name="async_load_image">Load pictures asynchronously</string>
     <string name="ignore_audio_focus_title">Ignore audio focus</string>
-    <string name="ignore_audio_focus_summary">Allow audio to be played at the same time as other applications</string>
+    <string name="ignore_audio_focus_summary">Allow audio to be played at the same time as other
+        applications</string>
     <string name="refresh_sort">Refresh sort</string>
     <string name="cover_decode_js">Decode Cover Js(coverDecodeJs)</string>
     <string name="net_no_group">Network ungrouped</string>
@@ -1056,19 +1101,25 @@
     <string name="parallel_export_book">Multithreaded export</string>
     <string name="progress_bar_behavior">Progress bar behavior</string>
     <string name="source_edit_text_max_line">Maximum number of rows in the source edit box</string>
-    <string name="source_edit_max_line_summary">%s,Setting the number of rows less than the maximum number of rows that can be displayed on the screen makes it easier to slide to other fields for editing.</string>
-    <string name="restore_last_book_process">Whether to return to the reading progress before the jump？</string>
+    <string name="source_edit_max_line_summary">%s,Setting the number of rows less than the maximum
+        number of rows that can be displayed on the screen makes it easier to slide to other fields
+        for editing.</string>
+    <string name="restore_last_book_process">Whether to return to the reading progress before the
+        jump？</string>
     <string name="search_scope">Search scope</string>
     <string name="toggle_search_scope">Handover</string>
     <string name="sure_clear_search_history">Are you sure to clear all search history</string>
     <string name="no_anim_scroll_page">Disable scroll click animation</string>
     <string name="webdav_device_name">Device name</string>
     <string name="web_service_wake_lock">WebService Wake up Lock</string>
-    <string name="web_service_wake_lock_summary">The wake-up lock is enabled when the web service is enabled, and some phones will be killed when the wake-up lock is enabled.</string>
+    <string name="web_service_wake_lock_summary">The wake-up lock is enabled when the web service is
+        enabled, and some phones will be killed when the wake-up lock is enabled.</string>
     <string name="read_aloud_wake_lock">Read aloud service wake-up lock</string>
-    <string name="read_aloud_wake_lock_summary">The wake-up lock is enabled when reading aloud is enabled, and the wake-up lock on some mobile phones will be killed in the background.</string>
+    <string name="read_aloud_wake_lock_summary">The wake-up lock is enabled when reading aloud is
+        enabled, and the wake-up lock on some mobile phones will be killed in the background.</string>
     <string name="audio_play_wake_lock">Audio service wake-up lock</string>
-    <string name="audio_play_wake_lock_summary">The wake-up lock is enabled when playing audio, and some phones will be killed when the wake-up lock is turned on.</string>
+    <string name="audio_play_wake_lock_summary">The wake-up lock is enabled when playing audio, and
+        some phones will be killed when the wake-up lock is turned on.</string>
     <string name="change_search_scope">Toggle search scope</string>
     <string name="copy_rule">Copy Rule</string>
     <string name="paste_rule">Paste Rule</string>
@@ -1079,8 +1130,10 @@
     <string name="tip_divider_color">Divider color</string>
     <string name="same_title_removed">Remove duplicate title</string>
     <string name="update_book_fail">Update failed</string>
-    <string name="notification_permission_rationale">Reading requires sending notifications to show reading control and download progress</string>
-    <string name="webdav_after_local_restore_confirm">The webDav book source is newer than the local one, whether to restore it or not</string>
+    <string name="notification_permission_rationale">Reading requires sending notifications to show
+        reading control and download progress</string>
+    <string name="webdav_after_local_restore_confirm">The webDav book source is newer than the local
+        one, whether to restore it or not</string>
     <string name="c_whitelist">白名单(contentWhitelist)</string>
     <string name="c_blacklist">黑名单(contentBlacklist)</string>
     <string name="confirm">Confirm</string>
@@ -1114,7 +1167,9 @@
     <string name="select_new_source">Select new source</string>
     <string name="select_update_source">Select update source</string>
     <string name="set_local_password">Setting the local password</string>
-    <string name="set_local_password_summary">The local password is used to encrypt and decrypt the sensitive information of the backup, if you need to synchronize between different devices, the local password should be the same.</string>
+    <string name="set_local_password_summary">The local password is used to encrypt and decrypt the
+        sensitive information of the backup, if you need to synchronize between different devices,
+        the local password should be the same.</string>
     <string name="only_latest_backup_t">Keep only the latest backup</string>
     <string name="only_latest_backup_s">Local backup keeps only the latest backup file</string>
     <string name="webdav_application_authorization_error">Fail to authorize WebDav application</string>
@@ -1155,7 +1210,8 @@
     <string name="del_h_tag">Delete h tag</string>
     <string name="adjust_chapter_page">Adjust of chapter page</string>
     <string name="adjust_chapter_index">Adjust of chapter index</string>
-    <string name="clear_webview_data_success">Cleared successfully, automatically restarts the application after 3 seconds</string>
+    <string name="clear_webview_data_success">Cleared successfully, automatically restarts the
+        application after 3 seconds</string>
     <string name="key_page_on_long_press">Press and hold the key to turn the page</string>
     <string name="save_log">Save logs</string>
     <string name="create_heap_dump">Create heap dump</string>

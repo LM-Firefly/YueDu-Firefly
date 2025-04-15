@@ -7,16 +7,16 @@ appcompat = "1.7.0"
 colorpicker = "1.1.0"
 commonsText = "1.13.0"
 constraintlayout = "2.2.1"
-core = "1.15.0"
-firebaseBom = "33.2.0"
+core = "1.16.0"
+firebaseBom = "33.14.0"
 flexbox = "3.0.0"
-fragment = "1.8.6"
+fragment = "1.8.7"
 
 #不要更新版本
 hutool = "5.8.22"
 
 libarchive = "1.1.4"
-lifecycle = "2.8.7"
+lifecycle = "2.9.0"
 glide = "4.16.0"
 gson = "2.12.1"
 jsonPath = "2.9.0"
@@ -29,7 +29,7 @@ liveeventbus = "1.8.14"
 markwon = "4.6.2"
 material = "1.12.0"
 media = "1.7.0"
-media3 = "1.6.0"
+media3 = "1.7.1"
 nanoHttpd = "2.3.1"
 okhttp = "4.12.0"
 preference = "1.2.1"
@@ -115,10 +115,10 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 
 glide-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
-glide-okhttp= { module = "com.github.bumptech.glide:okhttp3-integration", version.ref ="glide" }
-glide-recyclerview={module="com.github.bumptech.glide:recyclerview-integration",version.ref="glide"}
+glide-okhttp = { module = "com.github.bumptech.glide:okhttp3-integration", version.ref = "glide" }
+glide-recyclerview = { module = "com.github.bumptech.glide:recyclerview-integration", version.ref = "glide" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
-glide-compose = { module = "com.github.bumptech.glide:compose", version = "1.0.0-beta01" }
+glide-compose = { module = "com.github.bumptech.glide:compose", version = "4.14.0" }
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
 glide-avif = { module = "com.github.bumptech.glide:avif-integration", version.ref = "glide" }
 avif = { module = "org.aomedia.avif.android:avif", version = "1.1.1.14d8e3c4" }

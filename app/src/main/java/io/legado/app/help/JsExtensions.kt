@@ -57,7 +57,6 @@ import splitties.init.appCtx
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import java.security.MessageDigest
@@ -310,16 +309,24 @@ interface JsExtensions : JsEncodeUtils {
      * @return 下载的文件相对路径
      */
     fun downloadFile(url: String): String {
+        rhinoContext.ensureActive()
         val analyzeUrl = AnalyzeUrl(url, source = getSource(), coroutineContext = context)
         val type = UrlUtil.getSuffix(url, analyzeUrl.type)
         val path = FileUtils.getPath(
             File(FileUtils.getCachePath()),
             "${MD5Utils.md5Encode16(url)}.${type}"
         )
-        val file = File(path).createFileReplace()
+        val file = File(path)
+        file.delete()
         analyzeUrl.getInputStream().use { iStream ->
-            FileOutputStream(file).use { oStream ->
-                iStream.copyTo(oStream)
+            file.createFileReplace()
+            try {
+                file.outputStream().buffered().use { oStream ->
+                    iStream.copyTo(oStream)
+                }
+            } catch (e: Throwable) {
+                file.delete()
+                throw e
             }
         }
         return path.substring(FileUtils.getCachePath().length)
@@ -337,6 +344,7 @@ interface JsExtensions : JsEncodeUtils {
         ReplaceWith("downloadFile(url)")
     )
     fun downloadFile(content: String, url: String): String {
+        rhinoContext.ensureActive()
         val type = AnalyzeUrl(url, source = getSource(), coroutineContext = context).type
             ?: return ""
         val path = FileUtils.getPath(
@@ -503,15 +511,6 @@ interface JsExtensions : JsEncodeUtils {
      */
     fun timeFormat(time: Long): String {
         return dateFormat.format(Date(time))
-    }
-
-    /**
-     * utf8编码转gbk编码
-     */
-    fun utf8ToGbk(str: String): String {
-        val utf8 = String(str.toByteArray(charset("UTF-8")))
-        val unicode = String(utf8.toByteArray(), charset("UTF-8"))
-        return String(unicode.toByteArray(charset("GBK")))
     }
 
     fun encodeURI(str: String): String {
@@ -862,6 +861,7 @@ interface JsExtensions : JsEncodeUtils {
     ): String {
         if (errorQueryTTF == null || correctQueryTTF == null) return text
         val contentArray = text.toStringArray() //这里不能用toCharArray,因为有些文字占多个字节
+        val intArray = IntArray(1)
         contentArray.forEachIndexed { index, s ->
             val oldCode = s.codePointAt(0)
             // 忽略正常的空白字符
@@ -878,7 +878,8 @@ interface JsExtensions : JsEncodeUtils {
             // 使用轮廓数据反查Unicode
             val code = correctQueryTTF.getUnicodeByGlyf(glyf)
             if (code != 0) {
-                contentArray[index] = code.toChar().toString()
+                intArray[0] = code
+                contentArray[index] = String(intArray, 0, 1)
             }
         }
         return contentArray.joinToString("")

@@ -19,6 +19,7 @@ import io.legado.app.help.http.CookieStore
 import io.legado.app.help.http.SSLHelper
 import io.legado.app.help.http.StrResponse
 import io.legado.app.help.source.SourceVerificationHelp
+import io.legado.app.help.source.getSourceType
 import io.legado.app.model.Debug
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.model.analyzeRule.QueryTTF
@@ -39,6 +40,7 @@ import io.legado.app.utils.createFileReplace
 import io.legado.app.utils.externalCache
 import io.legado.app.utils.fromJsonObject
 import io.legado.app.utils.isAbsUrl
+import io.legado.app.utils.isMainThread
 import io.legado.app.utils.longToastOnUi
 import io.legado.app.utils.mapAsync
 import io.legado.app.utils.stackTraceStr
@@ -166,6 +168,9 @@ interface JsExtensions : JsEncodeUtils {
      * @return 返回js获取的内容
      */
     fun webView(html: String?, url: String?, js: String?): String? {
+        if (isMainThread) {
+            error("webView must be called on a background thread")
+        }
         return runBlocking(context) {
             BackstageWebView(
                 url = url,
@@ -181,6 +186,9 @@ interface JsExtensions : JsEncodeUtils {
      * 使用webView获取资源url
      */
     fun webViewGetSource(html: String?, url: String?, js: String?, sourceRegex: String): String? {
+        if (isMainThread) {
+            error("webViewGetSource must be called on a background thread")
+        }
         return runBlocking(context) {
             BackstageWebView(
                 url = url,
@@ -202,6 +210,9 @@ interface JsExtensions : JsEncodeUtils {
         js: String?,
         overrideUrlRegex: String
     ): String? {
+        if (isMainThread) {
+            error("webViewGetOverrideUrl must be called on a background thread")
+        }
         return runBlocking(context) {
             BackstageWebView(
                 url = url,
@@ -984,6 +995,7 @@ interface JsExtensions : JsEncodeUtils {
             putExtra("mimeType", mimeType)
             putExtra("sourceOrigin", source.getKey())
             putExtra("sourceName", source.getTag())
+            putExtra("sourceType", source.getSourceType())
         }
     }
 

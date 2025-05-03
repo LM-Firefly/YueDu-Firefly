@@ -39,6 +39,7 @@
 ### [RssJsExtensions](https://github.com/gedoor/legado/blob/master/app/src/main/java/io/legado/app/ui/rss/read/RssJsExtensions.kt)
 > 只能在订阅源`shouldOverrideUrlLoading`规则中使用  
 > 订阅添加跳转url拦截, js, 返回true拦截,js变量url,可以通过js打开url  
+> url跳转拦截规则不能执行耗时操作
 > 例子https://github.com/gedoor/legado/discussions/3259
 
 * 调用阅读搜索
@@ -87,7 +88,7 @@ java.getElements(ruleStr: String)
 
 * 重新搜索书籍/重新获取目录url
 
-> 可以在刷新目录之前使用,有些书源书籍地址和目录url会变
+> 只能在刷新目录之前使用,有些书源书籍地址和目录url会变
 
 ```js
 java.reGetBook()

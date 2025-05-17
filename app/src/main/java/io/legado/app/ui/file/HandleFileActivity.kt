@@ -3,6 +3,7 @@ package io.legado.app.ui.file
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -11,16 +12,20 @@ import io.legado.app.R
 import io.legado.app.base.VMBaseActivity
 import io.legado.app.constant.AppLog
 import io.legado.app.databinding.ActivityTranslucenceBinding
+import io.legado.app.databinding.DialogEditTextBinding
 import io.legado.app.help.IntentData
 import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.permission.Permissions
 import io.legado.app.lib.permission.PermissionsCompat
+import io.legado.app.utils.checkWrite
+import io.legado.app.utils.externalFiles
 import io.legado.app.utils.getJsonArray
 import io.legado.app.utils.isContentScheme
 import io.legado.app.utils.launch
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import splitties.init.appCtx
 import java.io.File
 
 class HandleFileActivity :
@@ -140,6 +145,10 @@ class HandleFileActivity :
                         }
                     }
 
+                    112 -> checkPermissions { // 手动输入目录路径
+                        showInputDirectoryDialog()
+                    }
+
                     else -> {
                         val path = item.title
                         val uri = if (path.isContentScheme()) {
@@ -157,6 +166,56 @@ class HandleFileActivity :
         }
     }
 
+    private fun showInputDirectoryDialog() {
+        val alertBinding = DialogEditTextBinding.inflate(layoutInflater).apply {
+            editView.hint = getString(R.string.enter_directory_path)
+        }
+
+        alert(getString(R.string.manual_input)) {
+            customView { alertBinding.root }
+            okButton {
+                val inputPath = alertBinding.editView.text.toString()
+                if (inputPath.isBlank()) {
+                    toastOnUi(getString(R.string.empty_directory_input))
+                    return@okButton
+                }
+                val file = File(inputPath)
+                if (file.exists() &&
+                    file.isDirectory &&
+                    isExternalStorage(file) &&
+                    file.checkWrite()
+                ) {
+                    onResult(Intent().setData(Uri.fromFile(file)))
+                } else {
+                    toastOnUi(getString(R.string.invalid_directory))
+                }
+            }
+            onDismiss {
+                finish()
+            }
+            cancelButton()
+        }
+    }
+
+    private fun isExternalStorage(path: File): Boolean {
+        if (path.canonicalPath.startsWith(appCtx.externalFiles.parent!!)) {
+            return false
+        }
+        try {
+            if (Environment.isExternalStorageEmulated(path)) {
+                return true
+            }
+        } catch (_: IllegalArgumentException) {
+        }
+        try {
+            if (Environment.isExternalStorageRemovable(path)) {
+                return true
+            }
+        } catch (_: IllegalArgumentException) {
+        }
+        return false
+    }
+
     private fun getFileData(): Triple<String, Any, String>? {
         val fileName = intent.getStringExtra("fileName")
         val file = intent.getStringExtra("fileKey")?.let {
@@ -171,11 +230,15 @@ class HandleFileActivity :
 
     private fun getDirActions(onlySys: Boolean = false): ArrayList<SelectItem<Int>> {
         return if (onlySys) {
-            arrayListOf(SelectItem(getString(R.string.sys_folder_picker), HandleFileContract.DIR))
+            arrayListOf(
+                SelectItem(getString(R.string.sys_folder_picker), HandleFileContract.DIR),
+                SelectItem(getString(R.string.manual_input), 112) // 添加手动输入选项
+            )
         } else {
             arrayListOf(
                 SelectItem(getString(R.string.sys_folder_picker), HandleFileContract.DIR),
-                SelectItem(getString(R.string.app_folder_picker), 10)
+                SelectItem(getString(R.string.app_folder_picker), 10),
+                SelectItem(getString(R.string.manual_input), 112) // 添加手动输入选项
             )
         }
     }
@@ -243,5 +306,4 @@ class HandleFileActivity :
             finish()
         }
     }
-
 }

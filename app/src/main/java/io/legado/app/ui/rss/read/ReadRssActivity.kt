@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,7 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
-import com.script.rhino.RhinoScriptEngine
+import com.script.rhino.runScriptWithContext
 import io.legado.app.R
 import io.legado.app.base.VMBaseActivity
 import io.legado.app.constant.AppConst
@@ -175,7 +176,7 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
             R.id.menu_aloud -> readAloud()
             R.id.menu_login -> startActivity<SourceLoginActivity> {
                 putExtra("type", "rssSource")
-                putExtra("key", viewModel.rssSource?.loginUrl)
+                putExtra("key", viewModel.rssSource?.sourceUrl)
             }
 
             R.id.menu_browser_open -> binding.webView.url?.let {
@@ -473,14 +474,20 @@ class ReadRssActivity : VMBaseActivity<ActivityRssReadBinding, ReadRssViewModel>
             val source = viewModel.rssSource
             val js = source?.shouldOverrideUrlLoading
             if (!js.isNullOrBlank()) {
-                val result = RhinoScriptEngine.runCatching {
-                    eval(js) {
-                        put("java", rssJsExtensions)
-                        put("url", url.toString())
-                    }.toString()
+                val t = SystemClock.uptimeMillis()
+                val result = kotlin.runCatching {
+                    runScriptWithContext(lifecycleScope.coroutineContext) {
+                        source.evalJS(js) {
+                            put("java", rssJsExtensions)
+                            put("url", url.toString())
+                        }.toString()
+                    }
                 }.onFailure {
-                    AppLog.put("url跳转拦截js出错", it)
+                    AppLog.put("${source.getTag()}: url跳转拦截js出错", it)
                 }.getOrNull()
+                if (SystemClock.uptimeMillis() - t > 30) {
+                    AppLog.put("${source.getTag()}: url跳转拦截js执行耗时过长")
+                }
                 if (result.isTrue()) {
                     return true
                 }

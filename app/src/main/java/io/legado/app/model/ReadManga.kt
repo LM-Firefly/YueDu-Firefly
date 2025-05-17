@@ -220,7 +220,7 @@ object ReadManga : CoroutineScope by MainScope() {
             }
 
             -1, 1 -> {
-                if (content == null || content.isEmpty()) {
+                if (content == null || (!chapter.isVolume && content.isEmpty())) {
                     return
                 }
                 val mangaChapter = getManageChapter(chapter, content)
@@ -250,9 +250,13 @@ object ReadManga : CoroutineScope by MainScope() {
         curMangaChapter?.let {
             curFinish = true
             items.addAll(it.pages)
-            durChapterPos = durChapterPos.coerceIn(0, it.imageCount - 1)
+            durChapterPos = if (it.imageCount > 0) {
+                durChapterPos.coerceIn(0, it.imageCount - 1)
+            } else {
+                0
+            }
             pos += durChapterPos
-            if (!AppConfig.hideMangaTitle) {
+            if (!AppConfig.hideMangaTitle && it.imageCount > 0) {
                 pos++
             }
         }
@@ -593,14 +597,14 @@ object ReadManga : CoroutineScope by MainScope() {
             it.imageCount = imageCount
         }
 
-        if (AppConfig.hideMangaTitle) {
+        if (AppConfig.hideMangaTitle && imageCount > 0) {
             return MangaChapter(chapter, list, imageCount)
         }
 
         val pages = mutableListOf<BaseMangaPage>()
 
         if (imageCount == 0 && chapter.isVolume) {
-            pages.add(ReaderLoading(chapter.index, -1, chapter.title))
+            pages.add(ReaderLoading(chapter.index, -1, chapter.title, true))
         } else {
             pages.add(ReaderLoading(chapter.index, -1, "阅读 ${chapter.title}"))
             pages.addAll(list)

@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.get
-import androidx.core.view.isVisible
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -61,6 +60,8 @@ import io.legado.app.lib.theme.accentColor
 import io.legado.app.model.ReadAloud
 import io.legado.app.model.ReadBook
 import io.legado.app.model.analyzeRule.AnalyzeRule
+import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setChapter
+import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
 import io.legado.app.model.localBook.EpubFile
 import io.legado.app.model.localBook.MobiFile
 import io.legado.app.receiver.NetworkChangedListener
@@ -105,6 +106,7 @@ import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.StartActivityContract
 import io.legado.app.utils.applyOpenTint
 import io.legado.app.utils.buildMainHandler
+import io.legado.app.utils.dismissDialogFragment
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.getPrefString
 import io.legado.app.utils.hexString
@@ -174,23 +176,22 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
         }
     private val searchContentActivity =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            it.data?.let { data ->
-                val key = data.getLongExtra("key", System.currentTimeMillis())
-                val index = data.getIntExtra("index", 0)
-                val searchResult = IntentData.get<SearchResult>("searchResult$key")
-                val searchResultList = IntentData.get<List<SearchResult>>("searchResultList$key")
-                if (searchResult != null && searchResultList != null) {
-                    viewModel.searchContentQuery = searchResult.query
-                    binding.searchMenu.upSearchResultList(searchResultList)
-                    isShowingSearchResult = true
-                    viewModel.searchResultIndex = index
-                    binding.searchMenu.updateSearchResultIndex(index)
-                    binding.searchMenu.selectedSearchResult?.let { currentResult ->
-                        ReadBook.saveCurrentBookProgress() //退出全文搜索恢复此时进度
-                        skipToSearch(currentResult)
-                        showActionMenu()
-                    }
+        registerForActivityResult(StartActivityContract(SearchContentActivity::class.java)) {
+            val data = it.data ?: return@registerForActivityResult
+            val key = data.getLongExtra("key", System.currentTimeMillis())
+            val index = data.getIntExtra("index", 0)
+            val searchResult = IntentData.get<SearchResult>("searchResult$key")
+            val searchResultList = IntentData.get<List<SearchResult>>("searchResultList$key")
+            if (searchResult != null && searchResultList != null) {
+                viewModel.searchContentQuery = searchResult.query
+                binding.searchMenu.upSearchResultList(searchResultList)
+                isShowingSearchResult = true
+                viewModel.searchResultIndex = index
+                binding.searchMenu.updateSearchResultIndex(index)
+                binding.searchMenu.selectedSearchResult?.let { currentResult ->
+                    ReadBook.saveCurrentBookProgress() //退出全文搜索恢复此时进度
+                    skipToSearch(currentResult)
+                    showActionMenu()
                 }
             }
         }
@@ -232,7 +233,6 @@ class ReadBookActivity : BaseReadBookActivity(),
     override val pageFactory get() = binding.readView.pageFactory
     override val pageDelegate get() = binding.readView.pageDelegate
     override val headerHeight: Int get() = binding.readView.curPage.headerHeight
-    private val menuLayoutIsVisible get() = bottomDialog > 0 || binding.readMenu.isVisible || binding.searchMenu.bottomMenuVisible
     private val nextPageDebounce by lazy { Debounce { keyPage(PageDirection.NEXT) } }
     private val prevPageDebounce by lazy { Debounce { keyPage(PageDirection.PREV) } }
     private var bookChanged = false
@@ -1138,6 +1138,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         if (isAutoPage) {
             binding.readView.autoPager.stop()
             binding.readMenu.setAutoPage(false)
+            dismissDialogFragment<AutoReadDialog>()
             upScreenTimeOut()
         }
     }
@@ -1179,17 +1180,16 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 打开搜索界面
      */
     override fun openSearchActivity(searchWord: String?) {
-        ReadBook.book?.let {
-            searchContentActivity.launch(Intent(this, SearchContentActivity::class.java).apply {
-                putExtra("bookUrl", it.bookUrl)
-                putExtra("searchWord", searchWord ?: viewModel.searchContentQuery)
-                putExtra("searchResultIndex", viewModel.searchResultIndex)
-                viewModel.searchResultList?.first()?.let {
-                    if (it.query == viewModel.searchContentQuery) {
-                        IntentData.put("searchResultList", viewModel.searchResultList)
-                    }
+        val book = ReadBook.book ?: return
+        searchContentActivity.launch {
+            putExtra("bookUrl", book.bookUrl)
+            putExtra("searchWord", searchWord ?: viewModel.searchContentQuery)
+            putExtra("searchResultIndex", viewModel.searchResultIndex)
+            viewModel.searchResultList?.first()?.let {
+                if (it.query == viewModel.searchContentQuery) {
+                    IntentData.put("searchResultList", viewModel.searchResultList)
                 }
-            })
+            }
         }
     }
 
@@ -1290,7 +1290,7 @@ class ReadBookActivity : BaseReadBookActivity(),
                     val analyzeRule = AnalyzeRule(book, source)
                     analyzeRule.setCoroutineContext(coroutineContext)
                     analyzeRule.setBaseUrl(chapter.url)
-                    analyzeRule.chapter = chapter
+                    analyzeRule.setChapter(chapter)
                     analyzeRule.evalJS(payAction).toString()
                 }.onSuccess(IO) {
                     if (it.isAbsUrl()) {
@@ -1558,7 +1558,6 @@ class ReadBookActivity : BaseReadBookActivity(),
             setMessage(R.string.cloud_progress_exceeds_current)
             okButton {
                 ReadBook.setProgress(progress)
-                ReadBook.saveRead()
             }
             noButton()
         }

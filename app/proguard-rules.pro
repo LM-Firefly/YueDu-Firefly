@@ -100,6 +100,11 @@ cn.hutool.core.util.**{*;}
     *** mNavButtonView;
 }
 
+# FileDocExtensions.kt treeDocumentFileConstructor
+-keep class androidx.documentfile.provider.TreeDocumentFile {
+    <init>(...);
+}
+
 # JsoupXpath
 -keep,allowobfuscation class * implements org.seimicrawler.xpath.core.AxisSelector{*;}
 -keep,allowobfuscation class * implements org.seimicrawler.xpath.core.NodeTest{*;}

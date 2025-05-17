@@ -1,5 +1,6 @@
 package io.legado.app.model
 
+import androidx.collection.LruCache
 import com.google.gson.reflect.TypeToken
 import com.script.ScriptBindings
 import com.script.rhino.RhinoScriptEngine
@@ -13,6 +14,7 @@ import io.legado.app.utils.isAbsUrl
 import io.legado.app.utils.isJsonObject
 import kotlinx.coroutines.runBlocking
 import org.mozilla.javascript.Scriptable
+import org.mozilla.javascript.ScriptableObject
 import splitties.init.appCtx
 import java.io.File
 import java.lang.ref.WeakReference
@@ -23,7 +25,7 @@ object SharedJsScope {
     private val cacheFolder = File(appCtx.cacheDir, "shareJs")
     private val aCache = ACache.get(cacheFolder)
 
-    private val scopeMap = hashMapOf<String, WeakReference<Scriptable>>()
+    private val scopeMap = LruCache<String, WeakReference<Scriptable>>(16)
 
     fun getScope(jsLib: String?, coroutineContext: CoroutineContext?): Scriptable? {
         if (jsLib.isNullOrBlank()) {
@@ -54,7 +56,7 @@ object SharedJsScope {
                                     url(value)
                                 }.body
                             }
-                            if (js !== null) {
+                            if (js != null) {
                                 aCache.put(fileName, js)
                             } else {
                                 throw NoStackTraceException("下载jsLib-${value}失败")
@@ -66,9 +68,20 @@ object SharedJsScope {
             } else {
                 RhinoScriptEngine.eval(jsLib, scope, coroutineContext)
             }
-            scopeMap[key] = WeakReference(scope)
+            if (scope is ScriptableObject) {
+                scope.sealObject()
+            }
+            scopeMap.put(key, WeakReference(scope))
         }
         return scope
+    }
+
+    fun remove(jsLib: String?) {
+        if (jsLib.isNullOrBlank()) {
+            return
+        }
+        val key = MD5Utils.md5Encode(jsLib)
+        scopeMap.remove(key)
     }
 
 }

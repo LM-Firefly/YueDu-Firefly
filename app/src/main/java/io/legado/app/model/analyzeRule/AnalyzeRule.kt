@@ -12,12 +12,16 @@ import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.RssArticle
+import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.CacheManager
 import io.legado.app.help.JsExtensions
 import io.legado.app.help.http.CookieStore
+import io.legado.app.help.source.copy
 import io.legado.app.help.source.getShareScope
+import io.legado.app.model.Debug
 import io.legado.app.model.webBook.WebBook
 import io.legado.app.utils.GSON
+import io.legado.app.utils.GSONStrict
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.fromJsonObject
 import io.legado.app.utils.getOrPutLimit
@@ -26,12 +30,15 @@ import io.legado.app.utils.isJson
 import io.legado.app.utils.printOnDebug
 import io.legado.app.utils.splitNotBlank
 import io.legado.app.utils.stackTraceStr
+import io.legado.app.utils.updateVariableTo
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.nodes.Node
 import org.mozilla.javascript.NativeObject
+import org.mozilla.javascript.Scriptable
+import java.lang.ref.WeakReference
 import java.net.URL
 import java.util.Locale
 import java.util.regex.Pattern
@@ -45,21 +52,19 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Keep
 @Suppress("unused", "RegExpRedundantEscape", "MemberVisibilityCanBePrivate")
 class AnalyzeRule(
-    var ruleData: RuleDataInterface? = null,
-    private val source: BaseSource? = null
+    private var ruleData: RuleDataInterface? = null,
+    private val source: BaseSource? = null,
+    private val preUpdateJs: Boolean = false
 ) : JsExtensions {
 
-    val book get() = ruleData as? BaseBook
-    val rssArticle get() = ruleData as? RssArticle
+    private val book get() = ruleData as? BaseBook
+    private val rssArticle get() = ruleData as? RssArticle
 
-    var chapter: BookChapter? = null
-    var nextChapterUrl: String? = null
-    var content: Any? = null
-        private set
-    var baseUrl: String? = null
-        private set
-    var redirectUrl: URL? = null
-        private set
+    private var chapter: BookChapter? = null
+    private var nextChapterUrl: String? = null
+    private var content: Any? = null
+    private var baseUrl: String? = null
+    private var redirectUrl: URL? = null
     private var isJSON: Boolean = false
     private var isRegex: Boolean = false
 
@@ -70,8 +75,12 @@ class AnalyzeRule(
     private val stringRuleCache = hashMapOf<String, List<SourceRule>>()
     private val regexCache = hashMapOf<String, Regex?>()
     private val scriptCache = hashMapOf<String, CompiledScript>()
+    private var topScopeRef: WeakReference<Scriptable>? = null
+    private var evalJSCallCount = 0
 
     private var coroutineContext: CoroutineContext = EmptyCoroutineContext
+
+    private var loggedNonStandardJSON = false
 
     @JvmOverloads
     fun setContent(content: Any?, baseUrl: String? = null): AnalyzeRule {
@@ -85,11 +94,6 @@ class AnalyzeRule(
         analyzeByXPath = null
         analyzeByJSoup = null
         analyzeByJSonPath = null
-        return this
-    }
-
-    fun setCoroutineContext(context: CoroutineContext): AnalyzeRule {
-        coroutineContext = context.minusKey(ContinuationInterceptor)
         return this
     }
 
@@ -408,9 +412,20 @@ class AnalyzeRule(
         val putMatcher = putPattern.matcher(vRuleStr)
         while (putMatcher.find()) {
             vRuleStr = vRuleStr.replace(putMatcher.group(), "")
-            GSON.fromJsonObject<Map<String, String>>(putMatcher.group(1))
+            val putJsonStr = putMatcher.group(1)
+            val putJson = GSONStrict.fromJsonObject<Map<String, String>>(putJsonStr)
+                .getOrNull()
+            if (putJson != null) {
+                putMap.putAll(putJson)
+                continue
+            }
+            GSON.fromJsonObject<Map<String, String>>(putJsonStr)
                 .getOrNull()
                 ?.let {
+                    if (!loggedNonStandardJSON) {
+                        Debug.log("≡@put 规则 JSON 格式不规范，请改为规范格式")
+                        loggedNonStandardJSON = true
+                    }
                     putMap.putAll(it)
                 }
         }
@@ -749,26 +764,47 @@ class AnalyzeRule(
      * 执行JS
      */
     fun evalJS(jsStr: String, result: Any? = null): Any? {
+        val chapterCopy = chapter?.copy()
+        val rssArticleCopy = rssArticle?.copy()
         val bindings = buildScriptBindings { bindings ->
             bindings["java"] = this
             bindings["cookie"] = CookieStore
             bindings["cache"] = CacheManager
-            bindings["source"] = source
+            bindings["source"] = source?.copy()
             bindings["book"] = book
             bindings["result"] = result
             bindings["baseUrl"] = baseUrl
-            bindings["chapter"] = chapter
-            bindings["title"] = chapter?.title
+            bindings["chapter"] = chapterCopy
+            bindings["title"] = chapterCopy?.title
             bindings["src"] = content
             bindings["nextChapterUrl"] = nextChapterUrl
-            bindings["rssArticle"] = rssArticle
+            bindings["rssArticle"] = rssArticleCopy
         }
-        val scope = RhinoScriptEngine.getRuntimeScope(bindings)
-        source?.getShareScope(coroutineContext)?.let {
-            scope.prototype = it
+        val topScope = source?.getShareScope(coroutineContext) ?: topScopeRef?.get()
+        val scope = if (topScope == null) {
+            RhinoScriptEngine.getRuntimeScope(bindings).apply {
+                if (evalJSCallCount++ > 16) {
+                    topScopeRef = WeakReference(prototype)
+                }
+            }
+        } else {
+            bindings.apply {
+                prototype = topScope
+            }
         }
         val script = compileScriptCache(jsStr)
-        return script.eval(scope, coroutineContext)
+        val result = script.eval(scope, coroutineContext)
+        updateVariable(chapterCopy, rssArticleCopy)
+        return result
+    }
+
+    private fun updateVariable(chapterCopy: BookChapter?, rssArticleCopy: RssArticle?) {
+        chapter?.let {
+            chapterCopy?.updateVariableTo(it)
+        }
+        rssArticle?.let {
+            rssArticleCopy?.updateVariableTo(it)
+        }
     }
 
     private fun compileScriptCache(jsStr: String): CompiledScript {
@@ -778,7 +814,7 @@ class AnalyzeRule(
     }
 
     override fun getSource(): BaseSource? {
-        return source
+        return source?.copy()
     }
 
     /**
@@ -811,6 +847,7 @@ class AnalyzeRule(
      * 重新获取book
      */
     fun reGetBook() {
+        if (!preUpdateJs) throw NoStackTraceException("只能在 preUpdateJs 中调用")
         val bookSource = source as? BookSource
         val book = book as? Book
         if (bookSource == null || book == null) return
@@ -829,23 +866,10 @@ class AnalyzeRule(
     }
 
     /**
-     * 刷新详情页
-     */
-    fun refreshBook() {
-        val bookSource = source as? BookSource
-        val book = book as? Book
-        if (bookSource == null || book == null) return
-        runBlocking(coroutineContext) {
-            withTimeout(1800000) {
-                WebBook.getBookInfoAwait(bookSource, book, false)
-            }
-        }
-    }
-
-    /**
      * 更新tocUrl,有些书源目录url定期更新,可以在js调用更新
      */
     fun refreshTocUrl() {
+        if (!preUpdateJs) throw NoStackTraceException("只能在 preUpdateJs 中调用")
         val bookSource = source as? BookSource
         val book = book as? Book
         if (bookSource == null || book == null) return
@@ -861,6 +885,27 @@ class AnalyzeRule(
         private val evalPattern =
             Pattern.compile("@get:\\{[^}]+?\\}|\\{\\{[\\w\\W]*?\\}\\}", Pattern.CASE_INSENSITIVE)
         private val regexPattern = Pattern.compile("\\$\\d{1,2}")
+
+        fun AnalyzeRule.setCoroutineContext(context: CoroutineContext): AnalyzeRule {
+            coroutineContext = context.minusKey(ContinuationInterceptor)
+            return this
+        }
+
+        fun AnalyzeRule.setRuleData(ruleData: RuleDataInterface?): AnalyzeRule {
+            this.ruleData = ruleData
+            return this
+        }
+
+        fun AnalyzeRule.setNextChapterUrl(nextChapterUrl: String?): AnalyzeRule {
+            this.nextChapterUrl = nextChapterUrl
+            return this
+        }
+
+        fun AnalyzeRule.setChapter(chapter: BookChapter?): AnalyzeRule {
+            this.chapter = chapter
+            return this
+        }
+
     }
 
 }

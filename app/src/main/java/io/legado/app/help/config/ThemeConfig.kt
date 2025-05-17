@@ -57,6 +57,11 @@ object ThemeConfig {
         postEvent(EventBus.RECREATE, "")
     }
 
+    fun applyDayNightInit(context: Context) {
+        applyTheme(context)
+        initNightMode()
+    }
+
     private fun initNightMode() {
         val targetMode =
             if (AppConfig.isNightTheme) {

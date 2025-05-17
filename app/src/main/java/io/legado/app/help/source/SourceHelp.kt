@@ -5,7 +5,11 @@ import io.legado.app.data.appDb
 import io.legado.app.data.entities.BaseSource
 import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.RssSource
+import io.legado.app.help.config.SourceConfig
 import io.legado.app.help.coroutine.Coroutine
+import io.legado.app.model.AudioPlay
+import io.legado.app.model.ReadBook
+import io.legado.app.model.ReadManga
 import io.legado.app.utils.EncoderUtils
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.splitNotBlank
@@ -27,6 +31,13 @@ object SourceHelp {
 
     fun getSource(key: String?): BaseSource? {
         key ?: return null
+        if (ReadBook.bookSource?.bookSourceUrl == key) {
+            return ReadBook.bookSource
+        } else if (AudioPlay.bookSource?.bookSourceUrl == key) {
+            return AudioPlay.bookSource
+        } else if (ReadManga.bookSource?.bookSourceUrl == key) {
+            return ReadManga.bookSource
+        }
         return appDb.bookSourceDao.getBookSource(key)
             ?: appDb.rssSourceDao.getByKey(key)
     }
@@ -42,9 +53,14 @@ object SourceHelp {
 
     fun deleteSource(key: String, @SourceType.Type type: Int) {
         when (type) {
-            SourceType.book -> appDb.bookSourceDao.delete(key)
+            SourceType.book -> deleteBookSource(key)
             SourceType.rss -> appDb.rssSourceDao.delete(key)
         }
+    }
+
+    fun deleteBookSource(key: String) {
+        appDb.bookSourceDao.delete(key)
+        SourceConfig.removeSource(key)
     }
 
     fun enableSource(key: String, @SourceType.Type type: Int, enable: Boolean) {

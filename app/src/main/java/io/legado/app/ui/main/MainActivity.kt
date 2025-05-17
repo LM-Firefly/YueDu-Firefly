@@ -119,8 +119,10 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         if (ev.action == MotionEvent.ACTION_DOWN) {
             currentFocus?.let {
                 if (it.shouldHideSoftInput(ev)) {
-                    it.clearFocus()
-                    it.hideSoftInput()
+                    it.post {
+                        it.clearFocus()
+                        it.hideSoftInput()
+                    }
                 }
             }
         }
@@ -217,10 +219,6 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         }
         val privacyPolicy = String(assets.open("privacyPolicy.md").readBytes())
         alert(getString(R.string.privacy_policy), privacyPolicy) {
-            noButton {
-                finish()
-                block.resume(false)
-            }
             positiveButton(R.string.agree) {
                 LocalConfig.privacyPolicyOk = true
                 block.resume(true)

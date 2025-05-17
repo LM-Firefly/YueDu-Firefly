@@ -17,6 +17,8 @@
 > `JavaScript Code` 直接填写JavaScript片段  
 > `{"example":"https://www.example.com/js/example.js", ...}` 自动复用已经下载的js文件
 
+> 注意此处定义的函数可能会被多个线程同时调用，在函数里的全局变量内容将会共享使用，对其进行修改可能会出现竞争问题
+
 * 并发率
 > 并发限制，单位ms，可填写两种格式
 
@@ -186,7 +188,7 @@ let options = {
 (function(){
   var b64=String(src).match(/ttf;base64,([^\)]+)/);
   if(b64){
-    var f1 = java.queryBase64TTF(b64[1]);
+    var f1 = java.queryTTF(b64[1]);
     var f2 = java.queryTTF("https://alanskycn.gitee.io/teachme/assets/font/Source Han Sans CN Regular.ttf");
     // return java.replaceFont(result, f1, f2);
     return java.replaceFont(result, f1, f2, true); // 过滤掉f1中不存在的字形
@@ -203,5 +205,42 @@ let options = {
 > 适用于图片需要二次解密的情况，直接填写JavaScript，返回解密后的`ByteArray`  
 > 部分变量说明：java（仅支持[js扩展类](https://github.com/gedoor/legado/blob/master/app/src/main/java/io/legado/app/help/JsExtensions.kt)），result为待解密图片的`ByteArray`，src为图片链接
 
+```js
+java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
+```
+
+```js
+function decodeImage(data, key) {
+  var input = new Packages.java.io.ByteArrayInputStream(data)
+  var out = new Packages.java.io.ByteArrayOutputStream()
+  var byte
+  while ((byte = input.read()) != -1) {
+    out.write(byte ^ key)
+  }
+  return out.toByteArray()
+}
+
+decodeImage(result, key)
+```
+
 * 封面解密
 > 同图片解密 其中result为待解密封面的`inputStream`
+
+```js
+var out = new Packages.java.io.ByteArrayOutputStream()
+java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result, out, true)
+out.toByteArray()
+```
+
+```js
+function decodeImage(data, key) {
+  var out = new Packages.java.io.ByteArrayOutputStream()
+  var byte
+  while ((byte = data.read()) != -1) {
+    out.write(byte ^ key)
+  }
+  return out.toByteArray()
+}
+
+decodeImage(result, key)
+```

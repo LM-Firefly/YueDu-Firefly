@@ -8,6 +8,7 @@ import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import androidx.core.os.postDelayed
 import io.legado.app.constant.AppPattern
 import io.legado.app.constant.EventBus
 import io.legado.app.data.entities.Book
@@ -24,6 +25,7 @@ import io.legado.app.ui.book.read.page.entities.column.ImageColumn
 import io.legado.app.ui.book.read.page.entities.column.ReviewColumn
 import io.legado.app.ui.book.read.page.entities.column.TextColumn
 import io.legado.app.utils.RealPathUtil
+import io.legado.app.utils.buildMainHandler
 import io.legado.app.utils.dpToPx
 import io.legado.app.utils.fastSum
 import io.legado.app.utils.isContentScheme
@@ -143,6 +145,12 @@ object ChapterProvider {
 
     @JvmStatic
     var visibleRect = RectF()
+
+    private val handler by lazy {
+        buildMainHandler()
+    }
+
+    private var upViewSizeRunnable: Runnable? = null
 
     init {
         upStyle()
@@ -856,11 +864,15 @@ object ChapterProvider {
         titleTopSpacing = ReadBookConfig.titleTopSpacing.dpToPx()
         titleBottomSpacing = ReadBookConfig.titleBottomSpacing.dpToPx()
         val bodyIndent = ReadBookConfig.paragraphIndent
-        var indentWidth = StaticLayout.getDesiredWidth(bodyIndent, contentPaint)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            indentWidth += contentPaint.letterSpacing * contentPaint.textSize
+        indentCharWidth = if (bodyIndent.isNotEmpty()) {
+            var indentWidth = StaticLayout.getDesiredWidth(bodyIndent, contentPaint)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                indentWidth += contentPaint.letterSpacing * contentPaint.textSize
+            }
+            indentWidth / bodyIndent.length
+        } else {
+            0f
         }
-        indentCharWidth = indentWidth / bodyIndent.length
         titlePaintTextHeight = titlePaint.textHeight
         contentPaintTextHeight = contentPaint.textHeight
         titlePaintFontMetrics = titlePaint.fontMetrics
@@ -946,12 +958,29 @@ object ChapterProvider {
      * 更新View尺寸
      */
     fun upViewSize(width: Int, height: Int) {
-        if (width > 0 && height > 0 && (width != viewWidth || height != viewHeight)) {
-            viewWidth = width
-            viewHeight = height
-            upLayout()
-            postEvent(EventBus.UP_CONFIG, arrayListOf(5))
+        if (width <= 0 || height <= 0) {
+            return
         }
+        if (width != viewWidth || height != viewHeight) {
+            if (width == viewWidth) {
+                upViewSizeRunnable = handler.postDelayed(300) {
+                    upViewSizeRunnable = null
+                    notifyViewSizeChange(width, height)
+                }
+            } else {
+                notifyViewSizeChange(width, height)
+            }
+        } else if (upViewSizeRunnable != null) {
+            handler.removeCallbacks(upViewSizeRunnable!!)
+            upViewSizeRunnable = null
+        }
+    }
+
+    private fun notifyViewSizeChange(width: Int, height: Int) {
+        viewWidth = width
+        viewHeight = height
+        upLayout()
+        postEvent(EventBus.UP_CONFIG, arrayListOf(5))
     }
 
     /**

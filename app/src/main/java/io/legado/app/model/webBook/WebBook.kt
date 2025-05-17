@@ -14,6 +14,7 @@ import io.legado.app.help.http.StrResponse
 import io.legado.app.help.source.getBookType
 import io.legado.app.model.Debug
 import io.legado.app.model.analyzeRule.AnalyzeRule
+import io.legado.app.model.analyzeRule.AnalyzeRule.Companion.setCoroutineContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.model.analyzeRule.RuleData
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
@@ -212,11 +212,12 @@ object WebBook {
         return kotlin.runCatching {
             val preUpdateJs = bookSource.ruleToc?.preUpdateJs
             if (!preUpdateJs.isNullOrBlank()) {
-                AnalyzeRule(book, bookSource)
+                AnalyzeRule(book, bookSource, true)
                     .setCoroutineContext(coroutineContext)
                     .evalJS(preUpdateJs)
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("执行preUpdateJs规则失败 书源:${bookSource.bookSourceName}", it)
         }
     }
@@ -264,6 +265,8 @@ object WebBook {
                     body = res.body
                 )
             }
+        }.onFailure {
+            coroutineContext.ensureActive()
         }
     }
 
@@ -282,12 +285,14 @@ object WebBook {
         executeContext: CoroutineContext = Dispatchers.Main,
         semaphore: Semaphore? = null,
     ): Coroutine<String> {
-        return Coroutine.async(scope, context, start = start, executeContext = executeContext) {
-            semaphore?.withPermit {
-                getContentAwait(bookSource, book, bookChapter, nextChapterUrl, needSave)
-            } ?: run {
-                getContentAwait(bookSource, book, bookChapter, nextChapterUrl, needSave)
-            }
+        return Coroutine.async(
+            scope,
+            context,
+            start = start,
+            executeContext = executeContext,
+            semaphore = semaphore
+        ) {
+            getContentAwait(bookSource, book, bookChapter, nextChapterUrl, needSave)
         }
     }
 
@@ -359,8 +364,9 @@ object WebBook {
         name: String,
         author: String,
         context: CoroutineContext = Dispatchers.IO,
+        semaphore: Semaphore? = null,
     ): Coroutine<Pair<Book, BookSource>> {
-        return Coroutine.async(scope, context) {
+        return Coroutine.async(scope, context, semaphore = semaphore) {
             for (s in bookSourceParts) {
                 val source = s.getBookSource() ?: continue
                 val book = preciseSearchAwait(source, name, author).getOrNull()
@@ -388,6 +394,8 @@ object WebBook {
                 return@runCatching searchBook.toBook()
             }
             throw NoStackTraceException("未搜索到 $name($author) 书籍")
+        }.onFailure {
+            coroutineContext.ensureActive()
         }
     }
 

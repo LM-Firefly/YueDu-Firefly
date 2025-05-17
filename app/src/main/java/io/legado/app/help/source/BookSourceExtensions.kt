@@ -1,5 +1,6 @@
 package io.legado.app.help.source
 
+import com.script.rhino.runScriptWithContext
 import io.legado.app.constant.BookSourceType
 import io.legado.app.constant.BookType
 import io.legado.app.data.entities.BookSource
@@ -11,7 +12,6 @@ import io.legado.app.utils.MD5Utils
 import io.legado.app.utils.fromJsonArray
 import io.legado.app.utils.isJsonArray
 import io.legado.app.utils.printOnDebug
-import com.script.rhino.runScriptWithContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -94,6 +94,21 @@ suspend fun BookSourcePart.clearExploreKindsCache() {
         aCache.remove(exploreKindsKey)
         exploreKindsMap.remove(exploreKindsKey)
     }
+}
+
+suspend fun BookSource.clearExploreKindsCache() {
+    withContext(Dispatchers.IO) {
+        val exploreKindsKey = getExploreKindsKey()
+        aCache.remove(exploreKindsKey)
+        exploreKindsMap.remove(exploreKindsKey)
+    }
+}
+
+fun BookSource.exploreKindsJson(): String {
+    val exploreKindsKey = getExploreKindsKey()
+    return aCache.getAsString(exploreKindsKey)?.takeIf { it.isJsonArray() }
+        ?: exploreUrl.takeIf { it.isJsonArray() }
+        ?: ""
 }
 
 fun BookSource.getBookType(): Int {

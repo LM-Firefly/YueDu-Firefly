@@ -2,6 +2,7 @@ package io.legado.app.lib.webdav
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import cn.hutool.core.net.URLDecoder
 import io.legado.app.constant.AppLog
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.http.newCallResponse
@@ -15,6 +16,7 @@ import io.legado.app.utils.findNSPrefix
 import io.legado.app.utils.printOnDebug
 import io.legado.app.utils.toRequestBody
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -29,12 +31,12 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.MalformedURLException
 import java.net.URL
-import java.net.URLDecoder
 import java.net.URLEncoder
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 open class WebDav(
@@ -182,8 +184,8 @@ open class WebDav(
         val baseUrl = NetworkUtils.getBaseUrl(urlStr)
         for (element in elements) {
             //依然是优化支持 caddy 自建的 WebDav ，其目录后缀都为“/”, 所以删除“/”的判定，不然无法获取该目录项
-            val href = element.findNS("href", ns)[0].text().replace("+", "%2B")
-            val hrefDecode = URLDecoder.decode(href, "UTF-8")
+            val href = element.findNS("href", ns)[0].text()
+            val hrefDecode = URLDecoder.decodeForPath(href, Charsets.UTF_8)
             val fileName = hrefDecode.removeSuffix("/").substringAfterLast("/")
             val webDavFile: WebDav
             try {
@@ -193,7 +195,7 @@ open class WebDav(
                 val displayName = element
                     .findNS("displayname", ns)
                     .firstOrNull()?.text()?.takeIf { it.isNotEmpty() }
-                    ?.let { URLDecoder.decode(it.replace("+", "%2B"), "UTF-8") } ?: fileName
+                    ?.let { URLDecoder.decodeForPath(it, Charsets.UTF_8) } ?: fileName
                 val contentType = element
                     .findNS("getcontenttype", ns)
                     .firstOrNull()?.text().orEmpty()
@@ -245,6 +247,8 @@ open class WebDav(
                 val requestBody = EXISTS.toRequestBody("application/xml".toMediaType())
                 method("PROPFIND", requestBody)
             }.use { it.isSuccessful }
+        }.onFailure {
+            coroutineContext.ensureActive()
         }.getOrDefault(false)
     }
 
@@ -259,6 +263,8 @@ open class WebDav(
                 val requestBody = EXISTS.toRequestBody("application/xml".toMediaType())
                 method("PROPFIND", requestBody)
             }.use { it.code != 401 }
+        }.onFailure {
+            coroutineContext.ensureActive()
         }.getOrDefault(true)
     }
 
@@ -279,6 +285,7 @@ open class WebDav(
                 }
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("WebDav创建目录失败\n${it.localizedMessage}", it)
         }.isSuccess
     }
@@ -335,6 +342,7 @@ open class WebDav(
                 }
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("WebDav上传失败\n${it.localizedMessage}", it)
             throw WebDavException("WebDav上传失败\n${it.localizedMessage}")
         }
@@ -355,6 +363,7 @@ open class WebDav(
                 }
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("WebDav上传失败\n${it.localizedMessage}", it)
             throw WebDavException("WebDav上传失败\n${it.localizedMessage}")
         }
@@ -375,6 +384,7 @@ open class WebDav(
                 }
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("WebDav上传失败\n${it.localizedMessage}", it)
             throw WebDavException("WebDav上传失败\n${it.localizedMessage}")
         }
@@ -405,6 +415,7 @@ open class WebDav(
                 checkResult(it)
             }
         }.onFailure {
+            coroutineContext.ensureActive()
             AppLog.put("WebDav删除失败\n${it.localizedMessage}", it)
         }.isSuccess
     }

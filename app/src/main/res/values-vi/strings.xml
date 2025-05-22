@@ -1,14 +1,15 @@
 <resources>
 <!--App-->
-    <string name="app_name">Legado</string>
-    <string name="app_name_a">Legado·A</string>
-    <string name="receiving_shared_label">Legado·tìm kiếm</string>
-    <string name="tip_perm_request_storage">Legado cần quyền truy cập bộ nhớ để tìm và đọc sách. vui lòng vào &amp;quot;Cài đặt ứng dụng&amp;quot; để cho phép &amp;quot;Quyền lưu trữ&amp;quot;.</string>
+    <string name="app_name">YueDu</string>
+    <!--string name="app_name_a">YueDu</string-->
+    <string name="receiving_shared_label">YueDu·tìm kiếm</string>
+    <string name="tip_perm_request_storage">YueDu cần quyền truy cập bộ nhớ để tìm và đọc sách. vui
+        lòng vào &amp;quot;Cài đặt ứng dụng&amp;quot; để cho phép &amp;quot;Quyền lưu trữ&amp;quot;.</string>
 
     <!--Other-->
     <string name="menu_backup">Trang chủ</string>
     <string name="menu_restore">Khôi phục</string>
-    <string name="menu_import_old">Nhập dữ liệu Legado</string>
+    <string name="menu_import_old">Nhập dữ liệu YueDu</string>
     <string name="webdav_cache_backup">Sao lưu sổ bộ nhớ cache ngoại tuyến</string>
     <string name="webdav_cache_backup_s">Xuất sang cục bộ và sao lưu vào thư mục xuất trong thư mục legado</string>
     <string name="backup_path">Sao lưu vào</string>
@@ -97,7 +98,8 @@
     <string name="offline_cache_s">cache (các) chương đã chọn vào bộ lưu trữ</string>
     <string name="change_origin">Thay đổi nguồn gốc</string>
     <string name="about_description">Đây là phần mềm đọc mã nguồn mở mới được phát triển bởi Kotlin, chào mừng bạn tham gia cùng chúng tôi. </string>
-    <string name="app_share_description">\n Liên kết tải xuống Legado (YueDu 3.0):\\n https://github.com/gedoor/legado/releases\n</string>
+    <string name="app_share_description">\n Liên kết tải xuống YueDu (YueDu 3.0):\\n
+        https://github.com/gedoor/legado/releases\n</string>
     <string name="version_name">Phiên bản %s</string>
     <string name="pt_background_verification">Xác minh lý lịch</string>
     <string name="ps_background_verification">bạn có thể tự do thao tác khi xác thực nguồn sách</string>
@@ -688,7 +690,11 @@ Còn </string>
     <string name="btn_default_s">Mặc định</string>
     <string name="main_menu">Menu chính</string>
     <string name="request_permission">Nhấn để cấp quyền</string>
-    <string name="tip_local_perm_request_storage">Legado cần quyền Lưu trữ, vui lòng nhấn vào nút &amp;quot;Cấp quyền&amp;quot; bên dưới hoặc đi tới &amp;quot;Cài đặt&amp;quot;-&amp;quot;Quyền ứng dụng&amp;quot;-để mở quyền được yêu cầu. Nếu quyền vẫn không hoạt động, vui lòng nhấn &amp;quot;Chọn thư mục&amp;quot; ở góc trên bên phải để sử dụng bộ chọn thư mục hệ thống.</string>
+    <string name="tip_local_perm_request_storage">YueDu cần quyền Lưu trữ, vui lòng nhấn vào nút
+        &amp;quot;Cấp quyền&amp;quot; bên dưới hoặc đi tới &amp;quot;Cài
+        đặt&amp;quot;-&amp;quot;Quyền ứng dụng&amp;quot;-để mở quyền được yêu cầu. Nếu quyền vẫn
+        không hoạt động, vui lòng nhấn &amp;quot;Chọn thư mục&amp;quot; ở góc trên bên phải để sử
+        dụng bộ chọn thư mục hệ thống.</string>
     <string name="alouding_disable">Không thể đọc văn bản đã chọn ở dạng toàn văn</string>
     <string name="read_body_to_lh">Mở rộng đến phần bị cắt</string>
     <string name="toc_updateing">Đang cập nhật chương</string>

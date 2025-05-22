@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  UPSTREAM_REPOSITORY: gedoor/legado
+  UPSTREAM_REPOSITORY: LM-Firefly/YueDu-Firefly
 
 jobs:
   build:
@@ -58,8 +58,7 @@ jobs:
 
       - name: push changes
         if: ${{ github.event_name != 'pull_request' && github.repository == env.UPSTREAM_REPOSITORY }}
-        uses: stefanzweifel/git-auto-commit-action@v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Bump web ${{ env.APP_VER}}
           file_pattern: app/src/main/assets/web/vue/
-

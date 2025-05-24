@@ -7,6 +7,7 @@ import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.TxtTocRule
 import io.legado.app.exception.EmptyFileException
 import io.legado.app.help.DefaultData
+import io.legado.app.help.book.isLocalModified
 import io.legado.app.utils.EncodingDetect
 import io.legado.app.utils.MD5Utils
 import io.legado.app.utils.StringUtils
@@ -28,7 +29,7 @@ class TextFile(private var book: Book) {
 
         @Synchronized
         private fun getTextFile(book: Book): TextFile {
-            if (textFile == null || textFile?.book?.bookUrl != book.bookUrl) {
+            if (textFile == null || textFile?.book?.bookUrl != book.bookUrl || book.isLocalModified()) {
                 textFile = TextFile(book)
                 return textFile!!
             }
@@ -75,16 +76,17 @@ class TextFile(private var book: Book) {
      */
     @Throws(FileNotFoundException::class, SecurityException::class, EmptyFileException::class)
     fun getChapterList(): ArrayList<BookChapter> {
-        if (book.charset == null || book.tocUrl.isBlank()) {
+        val modified = book.isLocalModified()
+        if (book.charset == null || book.tocUrl.isBlank() || modified) {
             LocalBook.getBookInputStream(book).use { bis ->
                 val buffer = ByteArray(bufferSize)
                 val length = bis.read(buffer)
                 if (length == -1) throw EmptyFileException("Unexpected Empty Txt File")
-                if (book.charset.isNullOrBlank()) {
+                if (book.charset.isNullOrBlank() || modified) {
                     book.charset = EncodingDetect.getEncode(buffer.copyOf(length))
                 }
                 charset = book.fileCharset()
-                if (book.tocUrl.isBlank()) {
+                if (book.tocUrl.isBlank() || modified) {
                     val blockContent = String(buffer, 0, length, charset)
                     book.tocUrl = getTocRule(blockContent)?.pattern() ?: ""
                 }
@@ -222,12 +224,13 @@ class TextFile(private var book: Book) {
                          */
                         if (toc.isEmpty()) { //如果当前没有章节，那么就是序章
                             //加入简介
-                            if (StringUtils.trim(chapterContent).isNotEmpty()) {
+                            if (chapterContent.isNotBlank()) {
                                 val qyChapter = BookChapter()
                                 qyChapter.title = "前言"
                                 qyChapter.start = curOffset
                                 qyChapter.end = curOffset + chapterLength
-                                qyChapter.wordCount = StringUtils.wordCountFormat(chapterContent.length)
+                                qyChapter.wordCount =
+                                    StringUtils.wordCountFormat(chapterContent.length)
                                 toc.add(qyChapter)
                                 book.intro = if (chapterContent.length <= 500) {
                                     chapterContent
@@ -248,7 +251,8 @@ class TextFile(private var book: Book) {
                             //将当前段落添加上一章去
                             lastChapter.end = lastChapter.end!! + chapterLength
                             lastChapterWordCount += chapterContent.length
-                            lastChapter.wordCount = StringUtils.wordCountFormat(lastChapterWordCount)
+                            lastChapter.wordCount =
+                                StringUtils.wordCountFormat(lastChapterWordCount)
                             //创建当前章节
                             val curChapter = BookChapter()
                             curChapter.title = matcher.group()
@@ -265,7 +269,8 @@ class TextFile(private var book: Book) {
                                 chapterContent.substringAfter(lastChapter.title).isBlank()
                             lastChapter.end =
                                 lastChapter.start!! + chapterLength
-                            lastChapter.wordCount = StringUtils.wordCountFormat(chapterContent.length)
+                            lastChapter.wordCount =
+                                StringUtils.wordCountFormat(chapterContent.length)
                             //创建当前章节
                             val curChapter = BookChapter()
                             curChapter.title = matcher.group()
@@ -276,7 +281,8 @@ class TextFile(private var book: Book) {
                             curChapter.title = matcher.group()
                             curChapter.start = curOffset
                             curChapter.end = curOffset
-                            curChapter.wordCount = StringUtils.wordCountFormat(chapterContent.length)
+                            curChapter.wordCount =
+                                StringUtils.wordCountFormat(chapterContent.length)
                             toc.add(curChapter)
                         }
                         bookWordCount += chapterContent.length

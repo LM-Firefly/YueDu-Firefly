@@ -54,7 +54,6 @@ import io.legado.app.utils.defaultSharedPreferences
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.isDebuggable
 import kotlinx.coroutines.launch
-import org.chromium.base.ThreadUtils
 import splitties.init.appCtx
 import splitties.systemservices.notificationManager
 import java.net.URL
@@ -68,9 +67,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         CrashHandler(this)
-        if (isDebuggable) {
-            ThreadUtils.setThreadAssertsDisabledForTesting(true)
-        }
         oldConfig = Configuration(resources.configuration)
         applyDayNightInit(this)
         registerActivityLifecycleCallbacks(LifecycleHelp)

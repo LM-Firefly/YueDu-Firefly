@@ -17,7 +17,6 @@ import org.chromium.net.CronetEngine.Builder.HTTP_CACHE_DISK
 import org.chromium.net.ExperimentalCronetEngine
 import org.chromium.net.UploadDataProvider
 import org.chromium.net.UrlRequest
-import org.chromium.net.X509Util
 import org.json.JSONObject
 import splitties.init.appCtx
 
@@ -25,7 +24,6 @@ internal const val BUFFER_SIZE = 32 * 1024
 
 val cronetEngine: ExperimentalCronetEngine? by lazy {
     CronetLoader.preDownload()
-    disableCertificateVerify()
     val builder = ExperimentalCronetEngine.Builder(appCtx).apply {
         if (CronetLoader.install()) {
             setLibraryLoader(CronetLoader)//设置自定义so库加载
@@ -107,15 +105,3 @@ fun buildRequest(request: Request, callback: UrlRequest.Callback): UrlRequest? {
 
 }
 
-private fun disableCertificateVerify() {
-    runCatching {
-        val sDefaultTrustManager = X509Util::class.java.getDeclaredField("sDefaultTrustManager")
-        sDefaultTrustManager.isAccessible = true
-        sDefaultTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
-    runCatching {
-        val sTestTrustManager = X509Util::class.java.getDeclaredField("sTestTrustManager")
-        sTestTrustManager.isAccessible = true
-        sTestTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
-}

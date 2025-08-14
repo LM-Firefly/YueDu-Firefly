@@ -16,10 +16,10 @@ plugins {
 apply from: 'download.gradle'
 
 static def releaseTime() {
-    return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
+    return new Date().format("yy.MMddHHmm", TimeZone.getTimeZone("GMT+8"))
 }
 
-def name = "legado"
+def name = "YueDu"
 def version = "3." + releaseTime()
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
 
@@ -77,12 +77,12 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.myConfig
             }
-            applicationIdSuffix '.release'
-            if (getApplicationIdSuffix() == '.releaseA') {
-                manifestPlaceholders.put("app_name", "@string/app_name_a")
-            } else {
+            applicationIdSuffix '.Firefly'
+//            if (getApplicationIdSuffix() == '.Firefly') {
+//               manifestPlaceholders.put("app_name", "@string/app_name_a")
+//            }else {
                 manifestPlaceholders.put("app_name", "@string/app_name")
-            }
+//            }
 
             minifyEnabled true
             shrinkResources true
@@ -103,9 +103,10 @@ android {
     //noinspection GrDeprecatedAPIUsage
     flavorDimensions = ['mode']
     productFlavors {
-        app {
+        google {
             dimension "mode"
-            manifestPlaceholders.put("APP_CHANNEL_VALUE", "app")
+            manifestPlaceholders.put("APP_CHANNEL_VALUE", "Google")
+            applicationId "io.legado.play"
         }
     }
 

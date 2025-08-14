@@ -1,26 +1,36 @@
-#更新fork
-name: update fork
+name: Upstream Sync
 
-on: 
+permissions:
+  contents: write
+
+on:
   schedule:
-    - cron: '0 16 * * *' #0点定时任务
+    - cron: "0 4 * * *" # At 12PM UTC+8
+  workflow_dispatch:
 
 jobs:
-  build:
+  sync_latest_from_upstream:
+    name: Sync latest commits from upstream repo
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.owner.id == github.event.sender.id && github.actor != 'gedoor' }}
+    if: ${{ github.event.repository.fork }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Set env
-      run: |
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "github-actions"
-    - name: Update fork
-      run: |
-        git remote add upstream https://github.com/gedoor/legado.git
-        git remote -v
-        git fetch upstream
-        git checkout master
-        git merge upstream/master
-        git push origin master
+      # Step 1: run a standard checkout action
+      - name: Checkout target repo
+        uses: actions/checkout@v5
+
+      # Step 2: run the sync action
+      - name: Sync upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
+        with:
+          target_sync_branch: main
+          target_repo_token: ${{ secrets.ACTIONS_TOKEN }}
+          upstream_sync_repo: gedoor/legado
+          upstream_sync_branch: master
+
+      - name: Sync check
+        if: failure()
+        run: |
+          echo "[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork."
+          exit 1

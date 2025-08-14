@@ -68,7 +68,8 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler', // or 'modern'
+          // 可以在这里添加全局 SCSS 变量或其他配置
+          // 例如: additionalData: `@import "@/styles/variables.scss";`
         },
       },
     },

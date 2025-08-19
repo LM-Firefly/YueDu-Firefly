@@ -28,7 +28,7 @@ android {
     namespace 'io.legado.app'
     kotlin {
         jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 
@@ -134,8 +134,8 @@ android {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
         // Sets Java compatibility
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+    sourceCompatibility JavaVersion.VERSION_21
+    targetCompatibility JavaVersion.VERSION_21
     }
     packaging {
         resources.excludes.add('META-INF/*')
@@ -234,7 +234,9 @@ dependencies {
 
     //网络
     implementation(libs.okhttp)
-    implementation(fileTree(dir: 'cronetlib', include: ['*.jar', '*.aar']))
+    // Exclude cronet_impl_native_java.jar to avoid duplicate class definitions with cronet_shared_java.jar
+    // Keep cronet_shared_java.jar (shared implementation) so implementation classes remain available
+    implementation(fileTree(dir: 'cronetlib', include: ['*.jar', '*.aar'], exclude: ['cronet_impl_native_java.jar']))
     implementation(libs.protobuf.javalite)
 
     //Glide

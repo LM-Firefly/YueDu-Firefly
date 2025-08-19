@@ -41,55 +41,9 @@ tasks.register('downloadJar', Download) {
     onlyIfModified false
 }
 
-// Remove duplicate classes from native impl jar if both native and shared jars exist
-tasks.register('dedupeCronetJars') {
-    doLast {
-        def libDir = new File(libPath)
-        def shared = new File(libDir, 'cronet_shared_java.jar')
-        def nativeJar = new File(libDir, 'cronet_impl_native_java.jar')
-        if (shared.exists() && nativeJar.exists()) {
-            println "Both cronet_shared_java.jar and cronet_impl_native_java.jar present. Deduping native jar..."
-            // List of entries we want to remove from native jar because shared jar provides them
-            def toRemove = [
-                'org/chromium/base/metrics/ScopedSysTraceEvent.class'
-                // Add more paths here if needed
-            ] as Set
-
-            def tmpFile = new File(libDir, 'cronet_impl_native_java.tmp')
-            java.util.jar.JarFile jarFile = new java.util.jar.JarFile(nativeJar)
-            def jos = new java.util.jar.JarOutputStream(new java.io.FileOutputStream(tmpFile))
-            try {
-                jarFile.stream().each { entry ->
-                    if (!toRemove.contains(entry.name)) {
-                        jos.putNextEntry(new java.util.jar.JarEntry(entry.name))
-                        jarFile.getInputStream(entry).withStream { is ->
-                            is.transferTo(jos)
-                        }
-                        jos.closeEntry()
-                    } else {
-                        println "Removing entry from native jar: ${entry.name}"
-                    }
-                }
-            } finally {
-                jos.close()
-                jarFile.close()
-            }
-            // Replace original jar
-            if (nativeJar.delete()) {
-                tmpFile.renameTo(nativeJar)
-                println "Deduped cronet_impl_native_java.jar"
-            } else {
-                println "Failed to replace native jar; keeping original"
-                tmpFile.delete()
-            }
-        } else {
-            println "No need to dedupe cronet jars"
-        }
-    }
-}
-
-// Ensure dedupe task runs before preBuild
-tasks.matching { it.name == 'preBuild' }.all { it.dependsOn tasks.named('dedupeCronetJars') }
+// Note: Cronet jars are downloaded into cronetlib. If you prefer to keep only one
+// implementation jar (shared or native), modify the downloadJar src list above or
+// remove the unwanted jar from cronetlib to avoid duplicate classes.
 /**
  * 下载Cronet的arm64-v8a so
  */

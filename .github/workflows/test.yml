@@ -43,7 +43,7 @@ jobs:
         uses: hoang-rio/set-timezone@v1.4
         with:
           timezoneLinux: 'Asia/Shanghai'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{env.GIT_TOKEN}}
@@ -74,7 +74,7 @@ jobs:
       type: ${{ matrix.type }}
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Set up JDK 21
@@ -198,7 +198,7 @@ jobs:
 #        uses: hoang-rio/set-timezone@v1.4
 #        with:
 #          timezoneLinux: "Asia/Shanghai"
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v5
 #      - uses: actions/download-artifact@v4
 #        with:
 #          path: apk/
@@ -218,7 +218,7 @@ jobs:
 #    env:
 #      VERSION: ${{ needs.prepare.outputs.ver }}
 #    steps:
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v5
 #      - uses: actions/download-artifact@v4
 #        with:
 #          path: apk/
@@ -244,7 +244,7 @@ jobs:
 #      CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 #      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 #    steps:
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v5
 #      - uses: actions/download-artifact@v4
 #        with:
 #          path: apk/

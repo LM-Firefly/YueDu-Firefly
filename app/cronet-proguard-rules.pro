@@ -98,16 +98,16 @@
 # Use assumevalues in addition to assumenosideeffects block because Google3 proguard cannot parse
 # assumenosideeffects blocks which overwrite return value.
 -assumevalues class ** {
-  @org.chromium.build.annotations.AssumeNonNull *** *(...) return _NONNULL_;
+  @org.chromium.build.annotations.OptimizeAsNonNull *** *(...) return _NONNULL_;
 }
 -assumenosideeffects class ** {
-  @org.chromium.build.annotations.AssumeNonNull *** *(...);
+  @org.chromium.build.annotations.OptimizeAsNonNull *** *(...);
 }
 -assumevalues class ** {
-  @org.chromium.build.annotations.AssumeNonNull *** * return _NONNULL_;
+  @org.chromium.build.annotations.OptimizeAsNonNull *** * return _NONNULL_;
 }
 -assumenosideeffects class ** {
-  @org.chromium.build.annotations.AssumeNonNull *** *;
+  @org.chromium.build.annotations.OptimizeAsNonNull *** *;
 }
 # -------- Config Path: components/cronet/android/cronet_impl_common_proguard.cfg --------
 # Proguard config for apps that depend on cronet_impl_common_java.jar.
@@ -133,20 +133,19 @@
 -keep @interface org.chromium.build.annotations.DoNotInline
 -keep @interface org.chromium.build.annotations.UsedByReflection
 -keep @interface org.chromium.build.annotations.IdentifierNameString
--keep @interface org.jni_zero.AccessedByNative
--keep @interface org.jni_zero.CalledByNative
--keep @interface org.jni_zero.CalledByNativeUnchecked
+# ** prefixed since JNI Zero classes included in cronet are jarjared to prevent
+# clashes with the real JNI Zero. See https://crbug.com/353534209
+-keep @interface **org.jni_zero.AccessedByNative
+-keep @interface **org.jni_zero.CalledByNative
+-keep @interface **org.jni_zero.CalledByNativeUnchecked
 
 # Suppress unnecessary warnings.
 -dontnote org.chromium.net.ProxyChangeListener$ProxyReceiver
 -dontnote org.chromium.net.AndroidKeyStore
-# Needs 'void setTextAppearance(int)' (API level 23).
--dontwarn org.chromium.base.ApiCompatibilityUtils
 # Needs 'boolean onSearchRequested(android.view.SearchEvent)' (API level 23).
 -dontwarn org.chromium.base.WindowCallbackWrapper
 
 # Generated for chrome apk and not included into cronet.
--dontwarn org.chromium.base.multidex.ChromiumMultiDexInstaller
 -dontwarn org.chromium.base.library_loader.LibraryLoader
 -dontwarn org.chromium.base.SysUtils
 -dontwarn org.chromium.build.NativeLibraries
@@ -158,10 +157,6 @@
 # https://android.googlesource.com/platform/sdk/+/marshmallow-mr1-release/files/proguard-android.txt#54
 -dontwarn android.support.**
 
-# This class should be explicitly kept to avoid failure if
-# class/merging/horizontal proguard optimization is enabled.
--keep class org.chromium.base.CollectionUtil
-
 # Skip protobuf runtime check for isOnAndroidDevice().
 # A nice-to-have optimization shamelessly stolen from //third_party/protobuf/java/lite/proguard.pgcfg.
 -assumevalues class com.google.protobuf.Android {
@@ -171,7 +166,9 @@
 # See crbug.com/1440987. We must keep every native that we are manually
 # registering. If Cronet bumps its min-sdk past 21, we may be able to move to
 # automatic JNI registration.
--keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class org.chromium.**,J.N {
+# ** prefixed since JNI Zero classes included in cronet are jarjared to prevent
+# clashes with the real JNI Zero. See https://crbug.com/353534209
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class org.chromium.**,**J.N {
   native <methods>;
 }
 
@@ -184,6 +181,10 @@
 -keepclassmembers class org.chromium.** extends com.google.protobuf.GeneratedMessageLite {
   <fields>;
 }
+
+# Part of the Android System SDK; false positive when pointing ProGuard to the
+# public SDK.
+-dontwarn android.os.SystemProperties
 # -------- Config Path: components/cronet/android/cronet_shared_proguard.cfg --------
 # Proguard config for apps that depend on cronet_shared_java.jar (which should
 # be all apps that depend on any part of Cronet)
@@ -215,13 +216,13 @@
 
 # Keeps for method level annotations.
 -keepclasseswithmembers,allowaccessmodification class ** {
-  @org.jni_zero.AccessedByNative <fields>;
+  @**org.jni_zero.AccessedByNative <fields>;
 }
--keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class ** {
-  @org.jni_zero.CalledByNative <methods>;
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification,allowoptimization class ** {
+  @**org.jni_zero.CalledByNative <methods>;
 }
--keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class ** {
-  @org.jni_zero.CalledByNativeUnchecked <methods>;
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification,allowoptimization class ** {
+  @**org.jni_zero.CalledByNativeUnchecked <methods>;
 }
 
 # Allow unused native methods to be removed, but prevent renaming on those that
@@ -229,4 +230,67 @@
 # TODO(crbug.com/315973491): Restrict the broad scope of this rule.
 -keepclasseswithmembernames,includedescriptorclasses,allowaccessmodification class ** {
   native <methods>;
+}
+
+# Used when multiplexing. We don't package our own @UsedByReflection, so using this instead.
+-keepclasseswithmembers class !cr_allowunused,**J.N {
+  public long *_HASH;
+}
+# -------- Config Path: obj/third_party/androidx/androidx_annotation_annotation_experimental_java/proguard.txt --------
+# Intentionally empty proguard rules to indicate this library is safe to shrink
+
+# 添加缺失类的警告抑制规则
+-dontwarn internal.org.chromium.build.NullUtil
+-dontwarn internal.org.chromium.build.annotations.AlwaysInline
+-dontwarn internal.org.chromium.build.annotations.CheckDiscard
+-dontwarn internal.org.chromium.build.annotations.EnsuresNonNull
+-dontwarn internal.org.chromium.build.annotations.EnsuresNonNullIf
+-dontwarn internal.org.chromium.build.annotations.NullMarked
+-dontwarn internal.org.chromium.build.annotations.NullUnmarked
+-dontwarn internal.org.chromium.build.annotations.RequiresNonNull
+-dontwarn internal.org.chromium.build.annotations.UsedByReflection
+
+# 抑制 Cronet HTTP Flags 相关类的 ProGuard 警告
+-dontwarn org.chromium.net.httpflags.BaseFeature
+-dontwarn org.chromium.net.httpflags.BaseFeatureOverrides
+-dontwarn org.chromium.net.httpflags.HttpFlagsLoader
+-dontwarn org.chromium.net.httpflags.ResolvedFlags$Value
+-dontwarn org.chromium.net.httpflags.ResolvedFlags
+
+# 抑制 Cronet 日志和网络实现相关类的 ProGuard 警告
+-dontwarn org.chromium.net.impl.CronetLogger$CronetEngineBuilderInfo
+-dontwarn org.chromium.net.impl.CronetLogger$CronetEngineBuilderInitializedInfo$Author
+-dontwarn org.chromium.net.impl.CronetLogger$CronetEngineBuilderInitializedInfo
+-dontwarn org.chromium.net.impl.CronetLogger$CronetInitializedInfo
+-dontwarn org.chromium.net.impl.CronetLogger$CronetSource
+-dontwarn org.chromium.net.impl.CronetLogger$CronetTrafficInfo$RequestFailureReason
+-dontwarn org.chromium.net.impl.CronetLogger$CronetTrafficInfo$RequestTerminalState
+-dontwarn org.chromium.net.impl.CronetLogger$CronetTrafficInfo
+-dontwarn org.chromium.net.impl.CronetLogger$CronetVersion
+-dontwarn org.chromium.net.impl.CronetLogger
+-dontwarn org.chromium.net.impl.CronetLoggerFactory
+-dontwarn org.chromium.net.impl.CronetManifest
+-dontwarn org.chromium.net.impl.HttpEngineNativeProvider
+
+# 保护 Cronet 相关类不被混淆或删除
+-keep class org.chromium.net.impl.CronetLogger { *; }
+-keep class org.chromium.net.impl.CronetLogger$** { *; }
+-keep class org.chromium.net.impl.CronetLoggerFactory { *; }
+-keep class org.chromium.net.impl.CronetManifest { *; }
+-keep class org.chromium.net.impl.HttpEngineNativeProvider { *; }
+-keep class org.chromium.net.httpflags.** { *; }
+
+# 保护所有 Cronet 实现类
+-keep class org.chromium.net.impl.** { *; }
+
+# 确保 Cronet 内部类不被混淆
+-keepclassmembers class org.chromium.net.** {
+    public *;
+    protected *;
+}
+
+# 保护 Cronet 枚举类
+-keepclassmembers enum org.chromium.net.** {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
 }

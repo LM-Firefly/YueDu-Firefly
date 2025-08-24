@@ -271,3 +271,26 @@
 -dontwarn org.chromium.net.impl.CronetLoggerFactory
 -dontwarn org.chromium.net.impl.CronetManifest
 -dontwarn org.chromium.net.impl.HttpEngineNativeProvider
+
+# 保护 Cronet 相关类不被混淆或删除
+-keep class org.chromium.net.impl.CronetLogger { *; }
+-keep class org.chromium.net.impl.CronetLogger$** { *; }
+-keep class org.chromium.net.impl.CronetLoggerFactory { *; }
+-keep class org.chromium.net.impl.CronetManifest { *; }
+-keep class org.chromium.net.impl.HttpEngineNativeProvider { *; }
+-keep class org.chromium.net.httpflags.** { *; }
+
+# 保护所有 Cronet 实现类
+-keep class org.chromium.net.impl.** { *; }
+
+# 确保 Cronet 内部类不被混淆
+-keepclassmembers class org.chromium.net.** {
+    public *;
+    protected *;
+}
+
+# 保护 Cronet 枚举类
+-keepclassmembers enum org.chromium.net.** {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

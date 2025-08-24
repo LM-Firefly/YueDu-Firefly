@@ -130,6 +130,18 @@ cn.hutool.core.util.**{*;}
     *** sTestTrustManager;
 }
 
+# 保护 Cronet 核心类和接口
+-keep class org.chromium.net.** { *; }
+-keep interface org.chromium.net.** { *; }
+
+# 保护 Cronet 实现类，防止混淆导致的 ClassNotFoundException
+-keep class org.chromium.net.impl.** { *; }
+-keepclassmembers class org.chromium.net.impl.** { *; }
+
+# 保护 Cronet 日志相关类
+-keep class org.chromium.net.impl.CronetLogger** { *; }
+-keep class org.chromium.net.impl.CronetLoggerFactory { *; }
+
 # Throwable
 -keepnames class * extends java.lang.Throwable
 -keepclassmembernames,allowobfuscation class * extends java.lang.Throwable{*;}

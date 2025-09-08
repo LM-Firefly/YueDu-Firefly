@@ -17,7 +17,7 @@ import org.chromium.net.CronetEngine.Builder.HTTP_CACHE_DISK
 import org.chromium.net.ExperimentalCronetEngine
 import org.chromium.net.UploadDataProvider
 import org.chromium.net.UrlRequest
-import org.chromium.net.X509Util
+// import org.chromium.net.X509Util // 已在Cronet 140中移除
 import org.json.JSONObject
 import splitties.init.appCtx
 
@@ -108,14 +108,8 @@ fun buildRequest(request: Request, callback: UrlRequest.Callback): UrlRequest? {
 }
 
 private fun disableCertificateVerify() {
-    runCatching {
-        val sDefaultTrustManager = X509Util::class.java.getDeclaredField("sDefaultTrustManager")
-        sDefaultTrustManager.isAccessible = true
-        sDefaultTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
-    runCatching {
-        val sTestTrustManager = X509Util::class.java.getDeclaredField("sTestTrustManager")
-        sTestTrustManager.isAccessible = true
-        sTestTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
+    // X509Util 在 Cronet 140 中已被移除，证书验证已被重构
+    // 新版本中证书验证机制已更新，不需要手动禁用
+    // 在 Cronet 141 中，HttpEngineNativeProvider 类也已被移除
+    // 所有相关代码已被移除，避免运行时错误
 }

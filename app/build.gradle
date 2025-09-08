@@ -270,7 +270,7 @@ dependencies {
 
     //网络
     implementation(libs.okhttp)
-    implementation(fileTree(dir: 'cronetlib', include: ['*.jar', '*.aar']))
+    implementation(fileTree(dir: 'cronetlib', include: ['cronet_api.jar', 'cronet_impl_common_java.jar', 'cronet_impl_platform_java.jar', 'cronet_shared_java.jar', '*.aar']))
     implementation(libs.protobuf.javalite)
 
     //Glide

@@ -167,6 +167,14 @@ object PreferKey {
     const val showMangaUi = "showMangaUi"
     const val disableMangaScale = "disableMangaScale"
     const val paddingDisplayCutouts = "paddingDisplayCutouts"
+    
+    // 媒体控制相关配置
+    const val enableSystemMediaControl = "enableSystemMediaControl"
+    const val showLockScreenControl = "showLockScreenControl"
+    const val enableBluetoothControl = "enableBluetoothControl"
+    const val enableHeadsetControl = "enableHeadsetControl"
+    const val showNotificationProgress = "showNotificationProgress"
+    const val mediaButtonSensitivity = "mediaButtonSensitivity"
 
     const val cPrimary = "colorPrimary"
     const val cAccent = "colorAccent"

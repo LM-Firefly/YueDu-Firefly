@@ -14,6 +14,7 @@ import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.PowerManager
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.telephony.PhoneStateListener
@@ -283,6 +284,7 @@ abstract class BaseReadAloudService : BaseService(),
         pause = false
         needResumeOnAudioFocusGain = false
         needResumeOnCallStateIdle = false
+        upMediaSessionMetadata()
         upReadAloudNotification()
         upMediaSessionPlaybackState(PlaybackStateCompat.STATE_PLAYING)
         postEvent(EventBus.ALOUD_STATE, Status.PLAY)
@@ -300,6 +302,7 @@ abstract class BaseReadAloudService : BaseService(),
         if (abandonFocus) {
             abandonFocus()
         }
+        upMediaSessionMetadata()
         upReadAloudNotification()
         upMediaSessionPlaybackState(PlaybackStateCompat.STATE_PAUSED)
         postEvent(EventBus.ALOUD_STATE, Status.PAUSE)
@@ -313,6 +316,7 @@ abstract class BaseReadAloudService : BaseService(),
         pause = false
         needResumeOnAudioFocusGain = false
         needResumeOnCallStateIdle = false
+        upMediaSessionMetadata()
         upReadAloudNotification()
         upMediaSessionPlaybackState(PlaybackStateCompat.STATE_PLAYING)
         postEvent(EventBus.ALOUD_STATE, Status.PLAY)
@@ -441,19 +445,66 @@ abstract class BaseReadAloudService : BaseService(),
     }
 
     /**
-     * 更新媒体状态
+     * 更新媒体元数据
      */
+    private fun upMediaSessionMetadata() {
+        val book = ReadBook.book
+        val chapter = ReadBook.curTextChapter?.chapter
+        val title = book?.name ?: getString(R.string.read_aloud)
+        val subtitle = chapter?.title ?: getString(R.string.read_aloud_s)
+        val artist = book?.author ?: getString(R.string.app_name)
+        
+        val metadataBuilder = MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, subtitle)
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subtitle)
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, artist)
+            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, cover)
+            .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, cover)
+            
+        // 设置页面总数和当前页面（作为曲目编号）
+        textChapter?.let {
+            metadataBuilder
+                .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, (pageIndex + 1).toLong())
+                .putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, it.pageSize.toLong())
+        }
+        
+        mediaSessionCompat.setMetadata(metadataBuilder.build())
+    }
     private fun upMediaSessionPlaybackState(state: Int) {
         mediaSessionCompat.setPlaybackState(
             PlaybackStateCompat.Builder()
                 .setActions(MediaHelp.MEDIA_SESSION_ACTIONS)
                 .setState(state, nowSpeak.toLong(), 1f)
-                // 为系统媒体控件添加定时按钮
+                // 为系统媒体控件添加自定义按钮
+                .addCustomAction(
+                    PlaybackStateCompat.CustomAction.Builder(
+                        "ACTION_STOP",
+                        getString(R.string.stop),
+                        R.drawable.ic_stop_black_24dp
+                    ).build()
+                )
                 .addCustomAction(
                     PlaybackStateCompat.CustomAction.Builder(
                         "ACTION_ADD_TIMER",
                         getString(R.string.set_timer),
                         R.drawable.ic_time_add_24dp
+                    ).build()
+                )
+                .addCustomAction(
+                    PlaybackStateCompat.CustomAction.Builder(
+                        "ACTION_NEXT_CHAPTER",
+                        getString(R.string.next_chapter),
+                        R.drawable.ic_skip_next
+                    ).build()
+                )
+                .addCustomAction(
+                    PlaybackStateCompat.CustomAction.Builder(
+                        "ACTION_PREV_CHAPTER",
+                        getString(R.string.previous_chapter),
+                        R.drawable.ic_skip_previous
                     ).build()
                 )
                 .build()
@@ -496,7 +547,12 @@ abstract class BaseReadAloudService : BaseService(),
                 }
 
                 override fun onCustomAction(action: String, extras: Bundle?) {
-                    if (action == "ACTION_ADD_TIMER") addTimer()
+                    when (action) {
+                        "ACTION_ADD_TIMER" -> addTimer()
+                        "ACTION_STOP" -> stopSelf()
+                        "ACTION_NEXT_CHAPTER" -> nextChapter()
+                        "ACTION_PREV_CHAPTER" -> prevChapter()
+                    }
                 }
 
                 override fun onMediaButtonEvent(mediaButtonEvent: Intent): Boolean {
@@ -579,8 +635,9 @@ abstract class BaseReadAloudService : BaseService(),
 
     private fun choiceMediaStyle(): androidx.media.app.NotificationCompat.MediaStyle {
         val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
-            .setShowActionsInCompactView(1, 2, 4)
-        if (getPrefBoolean("systemMediaControlCompatibilityChange")) {
+            .setShowActionsInCompactView(0, 1, 2, 3, 4) // 显示所有按钮
+        if (getPrefBoolean(PreferKey.enableSystemMediaControl, true) && 
+            getPrefBoolean("systemMediaControlCompatibilityChange")) {
             //fix #4090 android 14 can not show play control in lock screen
             mediaStyle.setMediaSession(mediaSessionCompat.sessionToken)
         }
@@ -601,13 +658,19 @@ abstract class BaseReadAloudService : BaseService(),
         var nSubtitle = ReadBook.curTextChapter?.title
         if (nSubtitle.isNullOrBlank())
             nSubtitle = getString(R.string.read_aloud_s)
+            
+        // 计算阅读进度
+        val progressMax = textChapter?.pageSize ?: 1
+        val progressCurrent = pageIndex + 1
+        val progressText = "$progressCurrent/$progressMax"
+        
         val builder = NotificationCompat
             .Builder(this, AppConst.channelIdReadAloud)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
             .setSmallIcon(R.drawable.ic_volume_up)
-            .setSubText(getString(R.string.read_aloud))
+            .setSubText("${getString(R.string.read_aloud)} - $progressText")
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentTitle(nTitle)
@@ -618,6 +681,12 @@ abstract class BaseReadAloudService : BaseService(),
             .setVibrate(null)
             .setSound(null)
             .setLights(0, 0, 0)
+            
+        // 添加进度条（只在支持的Android版本上显示）
+        if (getPrefBoolean(PreferKey.showNotificationProgress, true) && progressMax > 1) {
+            builder.setProgress(progressMax, progressCurrent, false)
+        }
+            
         builder.setLargeIcon(cover)
         // 按钮定义：上一章、播放、停止、下一章、定时
         builder.addAction(

@@ -199,4 +199,61 @@
         android:defaultValue="false"
         android:key="readBarStyleFollowPage"
         android:title="@string/read_bar_style_follow_page" />
+    
+    <!-- 媒体控制相关设置 -->
+    <androidx.preference.PreferenceCategory
+        android:title="媒体控制设置"
+        app:iconSpaceReserved="false" >
+        
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="enableSystemMediaControl"
+            android:title="启用系统媒体控件"
+            android:summary="在通知栏和锁屏显示媒体控制按钮"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="showLockScreenControl"
+            android:title="锁屏控制显示"
+            android:summary="在锁屏界面显示服读控制按钮"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="enableBluetoothControl"
+            android:title="蓝牙设备控制"
+            android:summary="支持蓝牙耳机等设备的媒体按钮控制"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="enableHeadsetControl"
+            android:title="有线耳机控制"
+            android:summary="支持有线耳机按钮控制服读"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:key="showNotificationProgress"
+            android:title="通知进度显示"
+            android:summary="在通知中显示服读进度条"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+        <io.legado.app.lib.prefs.NameListPreference
+            android:defaultValue="中等"
+            android:entries="@array/media_button_sensitivity_title"
+            android:entryValues="@array/media_button_sensitivity_value"
+            android:key="mediaButtonSensitivity"
+            android:title="媒体按钮灵敏度"
+            android:summary="外部按键响应的灵敏度设置"
+            app:iconSpaceReserved="false"
+            app:isBottomBackground="true" />
+            
+    </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

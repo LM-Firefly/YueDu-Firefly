@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
 import io.legado.app.constant.EventBus
+import io.legado.app.constant.PreferKey
 import io.legado.app.data.appDb
 import io.legado.app.help.LifecycleHelp
 import io.legado.app.help.config.AppConfig
@@ -62,6 +63,21 @@ class MediaButtonReceiver : BroadcastReceiver() {
                                 ReadAloud.nextParagraph(context)
                             }
                         }
+                        
+                        KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                            // 快退：上一章
+                            ReadBook.moveToPrevChapter(true)
+                        }
+                        
+                        KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                            // 快进：下一章
+                            ReadBook.moveToNextChapter(true)
+                        }
+                        
+                        KeyEvent.KEYCODE_MEDIA_STOP -> {
+                            // 停止按钮
+                            ReadAloud.stop(context)
+                        }
 
                         else -> readAloud(context)
                     }
@@ -71,6 +87,11 @@ class MediaButtonReceiver : BroadcastReceiver() {
         }
 
         fun readAloud(context: Context, isMediaKey: Boolean = true) {
+            // 检查媒体按钮控制是否启用
+            if (isMediaKey && !context.getPrefBoolean(PreferKey.enableHeadsetControl, true)) {
+                return
+            }
+            
             when {
                 BaseReadAloudService.isRun -> {
                     if (BaseReadAloudService.isPlay()) {

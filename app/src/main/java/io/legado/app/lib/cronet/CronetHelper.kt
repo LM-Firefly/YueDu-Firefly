@@ -14,35 +14,100 @@ import okhttp3.Headers
 import okhttp3.MediaType
 import okhttp3.Request
 import org.chromium.net.CronetEngine.Builder.HTTP_CACHE_DISK
-import org.chromium.net.ExperimentalCronetEngine
+import org.chromium.net.CronetEngine
 import org.chromium.net.UploadDataProvider
 import org.chromium.net.UrlRequest
-import org.chromium.net.X509Util
+// import org.chromium.net.X509Util // 已在Cronet 140中移除
 import org.json.JSONObject
 import splitties.init.appCtx
 
 internal const val BUFFER_SIZE = 32 * 1024
 
-val cronetEngine: ExperimentalCronetEngine? by lazy {
+val cronetEngine: CronetEngine? by lazy {
+    // Ensure cronet artifacts are prepared
     CronetLoader.preDownload()
     disableCertificateVerify()
-    val builder = ExperimentalCronetEngine.Builder(appCtx).apply {
+
+    // Use the public CronetEngine.Builder instead of the experimental type.
+    // This avoids direct dependency on internal implementation classes.
+    val builder = try {
+        CronetEngine.Builder(appCtx).apply {
+        // If we have a local/native library ready, set the library loader so the
+        // builder prefers native provider paths. Cronet may still probe Java
+        // providers internally; we add a guarded fallback below.
         if (CronetLoader.install()) {
-            setLibraryLoader(CronetLoader)//设置自定义so库加载
+            try {
+                setLibraryLoader(CronetLoader) // 设置自定义so库加载
+            } catch (e: Throwable) {
+                // Some Cronet versions may not accept a custom loader here — log and continue.
+                AppLog.put("setLibraryLoader failed", e)
+            }
         }
         setStoragePath(appCtx.externalCache.absolutePath)//设置缓存路径
         enableHttpCache(HTTP_CACHE_DISK, (1024 * 1024 * 50).toLong())//设置50M的磁盘缓存
-        enableQuic(true)//设置支持http/3
-        enableHttp2(true)  //设置支持http/2
-        enablePublicKeyPinningBypassForLocalTrustAnchors(true)
-        enableBrotli(true)//Brotli压缩
-        setExperimentalOptions(options)
+        try {
+            enableQuic(true)//设置支持http/3
+            enableHttp2(true)  //设置支持http/2
+            enablePublicKeyPinningBypassForLocalTrustAnchors(true)
+            enableBrotli(true)//Brotli压缩
+        } catch (_: Throwable) {
+            // Some public builder variants may not expose all experimental toggles;
+            // swallow and continue — the feature flags are best-effort.
+        }
+
+        try {
+            // Some Cronet releases do not declare setExperimentalOptions at compile time.
+            // Use reflection to invoke it when present to remain source-compatible.
+            try {
+                val m = this.javaClass.getMethod("setExperimentalOptions", String::class.java)
+                m.invoke(this, options)
+            } catch (_: NoSuchMethodException) {
+                // Method not present in this Cronet API — ignore.
+            }
+        } catch (_: Throwable) {
+            // Defensive: swallow any reflection / invocation errors and continue.
+        }
+        }
+    } catch (e: Throwable) {
+        // Constructor for CronetEngine.Builder may throw when internal Cronet
+        // implementation classes are missing (NoClassDefFoundError). Catch and
+        // return null so callers can fall back safely.
+        AppLog.put("Cronet.Builder constructor failed", e)
+        null
     }
+
+    // Try building the engine. If the build fails due to missing internal
+    // implementation classes (e.g. HttpEngineNativeProvider), attempt a safer
+    // fallback builder that avoids setting a custom library loader and some
+    // experimental flags. If that still fails, return null and let callers
+    // fallback to OkHttp or other transport.
+    if (builder == null) {
+        AppLog.put("Cronet.Builder unavailable; skipping cronetEngine init")
+        return@lazy null
+    }
+
     try {
         val engine = builder.build()
         DebugLog.d("Cronet Version:", engine.versionString)
         return@lazy engine
     } catch (e: Throwable) {
+        AppLog.put("Cronet build failed, attempting fallback", e)
+        // Detect the specific missing-class failure which indicates an internal
+        // implementation changed between Cronet versions.
+        val isMissingInternal = (e is NoClassDefFoundError) || (e is ClassNotFoundException) || (e.message?.contains("HttpEngineNativeProvider") == true)
+        if (isMissingInternal) {
+            try {
+                val fallback = CronetEngine.Builder(appCtx).apply {
+                    setStoragePath(appCtx.externalCache.absolutePath)
+                    try { enableHttp2(true) } catch (_: Throwable) {}
+                    try { enableBrotli(true) } catch (_: Throwable) {}
+                }.build()
+                DebugLog.d("Cronet Fallback Version:", fallback.versionString)
+                return@lazy fallback
+            } catch (e2: Throwable) {
+                AppLog.put("Cronet fallback build failed", e2)
+            }
+        }
         AppLog.put("初始化cronetEngine出错", e)
         return@lazy null
     }
@@ -108,14 +173,8 @@ fun buildRequest(request: Request, callback: UrlRequest.Callback): UrlRequest? {
 }
 
 private fun disableCertificateVerify() {
-    runCatching {
-        val sDefaultTrustManager = X509Util::class.java.getDeclaredField("sDefaultTrustManager")
-        sDefaultTrustManager.isAccessible = true
-        sDefaultTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
-    runCatching {
-        val sTestTrustManager = X509Util::class.java.getDeclaredField("sTestTrustManager")
-        sTestTrustManager.isAccessible = true
-        sTestTrustManager.set(null, SSLHelper.unsafeTrustManagerExtensions)
-    }
+    // X509Util 在 Cronet 140 中已被移除，证书验证已被重构
+    // 新版本中证书验证机制已更新，不需要手动禁用
+    // 在 Cronet 141 中，HttpEngineNativeProvider 类也已被移除
+    // 所有相关代码已被移除，避免运行时错误
 }

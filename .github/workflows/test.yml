@@ -102,7 +102,7 @@ jobs:
         run: |
           typeName="Firefly"
             sed "s/'.release'/'.Firefly'/" $GITHUB_WORKSPACE/app/build.gradle  -i
-            sed 's/.release/.Firefly/'     $GITHUB_WORKSPACE/app/google-services.json -i
+            # google-services.json is no longer used; removed modifications
           echo "统一版本号"
           sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle  -i
           echo "开始进行${{ env.product }}.$typeName构建"

@@ -11,7 +11,8 @@ plugins {
     alias libs.plugins.kotlin.parcelize
     alias libs.plugins.room
     alias libs.plugins.ksp
-    alias libs.plugins.google.services
+    // alias libs.plugins.google.services
+    // google-services plugin removed: it required google-services.json and Play services integration
 }
 apply from: 'download.gradle'
 
@@ -314,9 +315,10 @@ dependencies {
     implementation(libs.hutool.crypto)
 
     //firebase, 崩溃统计和性能统计
-    implementation platform(libs.firebase.bom)
-    implementation libs.firebase.analytics
-    implementation libs.firebase.perf
+    // implementation platform(libs.firebase.bom)
+    // implementation libs.firebase.analytics
+    // implementation libs.firebase.perf
+    // Firebase removed: analytics and perf are no longer included in the app
 
     implementation libs.glide.recyclerview
 

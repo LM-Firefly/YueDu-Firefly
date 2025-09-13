@@ -91,11 +91,11 @@ jobs:
           if [ ${{ env.type }} == 'Original' ]; then
             typeName="Original"
             sed "s/'.release'/'.Original'/" $GITHUB_WORKSPACE/app/build.gradle  -i
-            sed 's/.release/.Original/'     $GITHUB_WORKSPACE/app/google-services.json -i
+            # google-services.json is no longer used; removed modifications
           else
             typeName="Firefly"
             sed "s/'.release'/'.Firefly'/" $GITHUB_WORKSPACE/app/build.gradle  -i
-            sed 's/.release/.Firefly/'     $GITHUB_WORKSPACE/app/google-services.json -i
+            # google-services.json is no longer used; removed modifications
           fi
           echo "统一版本号"
           sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle  -i

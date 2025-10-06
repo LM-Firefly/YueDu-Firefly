@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - '**'
+      - "**"
       # - '!**/assets/**'
       # - '!**.md'
-      - '!**/ISSUE_TEMPLATE/**'
-      - '!**/modules/web/**'
+      - "!**/ISSUE_TEMPLATE/**"
+      - "!**/modules/web/**"
   pull_request:
     paths-ignore:
-      - '**/modules/web/**'
+      - "**/modules/web/**"
   workflow_run:
     workflows: [Build Web]
     branches: [main]
@@ -42,7 +42,7 @@ jobs:
       - name: Setup timezone
         uses: hoang-rio/set-timezone@v1.4
         with:
-          timezoneLinux: 'Asia/Shanghai'
+          timezoneLinux: "Asia/Shanghai"
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -80,7 +80,7 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
+          distribution: "temurin"
           java-version: 21
       - name: Clear 18PlusList.txt
         run: |
@@ -95,7 +95,7 @@ jobs:
           sed '$a\RELEASE_STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}'     $GITHUB_WORKSPACE/gradle.properties -i
           sed '$a\RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}'       $GITHUB_WORKSPACE/gradle.properties -i
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Build With Gradle
         continue-on-error: true
@@ -103,8 +103,6 @@ jobs:
           typeName="Firefly"
             sed "s/'.release'/'.Firefly'/" $GITHUB_WORKSPACE/app/build.gradle  -i
             # google-services.json is no longer used; removed modifications
-          echo "统一版本号"
-          sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle  -i
           echo "开始进行${{ env.product }}.$typeName构建"
           chmod +x gradlew
           ./gradlew assemble${{ env.product }}release --build-cache --parallel --daemon --warning-mode all
@@ -162,21 +160,21 @@ jobs:
       # Delete old Prerelease-alpha
       - uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
-          tag_name: 'beta'
+          tag_name: "beta"
           github_token: ${{env.GIT_TOKEN}}
           delete_release: true
       - name: Tag Repo
         uses: richardsimko/update-tag@v1
         with:
-          tag_name: 'beta'
+          tag_name: "beta"
         env:
           GITHUB_TOKEN: ${{env.GIT_TOKEN}}
       - name: Upload Alpha
         uses: softprops/action-gh-release@v2
         with:
           name: YueDu.${{ env.VERSION }}
-          tag_name: 'beta'
-          body: '此版本为测试版，签名与正式版不同，可能存在不稳定情况，升级前请务必备份好数据。'
+          tag_name: "beta"
+          body: "此版本为测试版，签名与正式版不同，可能存在不稳定情况，升级前请务必备份好数据。"
           generate_release_notes: true
           token: ${{env.GIT_TOKEN}}
           prerelease: true

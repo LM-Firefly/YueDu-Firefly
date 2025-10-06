@@ -24,9 +24,27 @@ def name = "YueDu"
 def version = "3." + releaseTime()
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
 
+// 根据 version 字符串生成 versionCode：
+// 规则：取 version 中的数字（去掉中间的 "."），尝试转换为整数；
+// 由于 Android 要求 versionCode 为 32 位有符号整数，若数字过大则取数字的后 9 位作为 versionCode 以避免溢出；
+// 若解析失败则回退到之前的基于 gitCommit 的方案（10000 + gitCommits）。
+def versionCodeFromVersion(String ver, int fallback) {
+    try {
+    def digits = ver.replaceAll("[^0-9]", "")
+        if (!digits) return fallback
+        // 若长度过长，取最后 9 位保证小于 Integer.MAX_VALUE
+        if (digits.length() > 9) {
+            digits = digits.substring(digits.length() - 9)
+        }
+        return Integer.parseInt(digits)
+    } catch (Exception e) {
+        return fallback
+    }
+}
+
 android {
     compileSdk = compile_sdk_version
-    namespace 'io.legado.app'
+    namespace = 'io.legado.app'
     kotlin {
         jvmToolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
@@ -40,20 +58,20 @@ android {
                 storePassword RELEASE_STORE_PASSWORD
                 keyAlias RELEASE_KEY_ALIAS
                 keyPassword RELEASE_KEY_PASSWORD
-                v1SigningEnabled true
-                v2SigningEnabled true
+                v1SigningEnabled = true
+                v2SigningEnabled = true
                 enableV3Signing = true
                 enableV4Signing = true
             }
         }
     }
     defaultConfig {
-        applicationId "io.legado.app"
-        minSdk 21
-        targetSdk 35
-        versionCode 10000 + gitCommits
-        versionName version
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    applicationId = "io.legado.app"
+    minSdk = 21
+    targetSdk = 35
+    versionCode = versionCodeFromVersion(version, 10000 + gitCommits)
+    versionName = version
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         project.ext.set("archivesBaseName", name + "_" + version)
 
         buildConfigField "String", "Cronet_Version", "\"$CronetVersion\""
@@ -70,23 +88,23 @@ android {
         }
     }
     buildFeatures {
-        buildConfig true
-        viewBinding true
+        buildConfig = true
+        viewBinding = true
     }
     buildTypes {
         release {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.myConfig
             }
-            applicationIdSuffix '.Firefly'
+            applicationIdSuffix = '.Firefly'
 //            if (getApplicationIdSuffix() == '.Firefly') {
 //               manifestPlaceholders.put("app_name", "@string/app_name_a")
 //            }else {
                 manifestPlaceholders.put("app_name", "@string/app_name")
 //            }
 
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
         }
         debug {
@@ -95,9 +113,9 @@ android {
             }
             manifestPlaceholders.put("app_name", "@string/app_name")
 
-            applicationIdSuffix '.debug'
-            versionNameSuffix 'debug'
-            minifyEnabled false
+            applicationIdSuffix = '.debug'
+            versionNameSuffix = 'debug'
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
         }
     }
@@ -105,9 +123,9 @@ android {
     flavorDimensions = ['mode']
     productFlavors {
         google {
-            dimension "mode"
+            dimension = "mode"
             manifestPlaceholders.put("APP_CHANNEL_VALUE", "Google")
-            applicationId "io.legado.play"
+            applicationId = "io.legado.play"
         }
     }
 
@@ -133,10 +151,10 @@ android {
 
     compileOptions {
         // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
         // Sets Java compatibility
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     packaging {
         resources.excludes.add('META-INF/*')
@@ -147,7 +165,7 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
     lint {
-        checkDependencies true
+        checkDependencies = true
     }
     tasks.withType(JavaCompile).tap {
         configureEach {

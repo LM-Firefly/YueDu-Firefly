@@ -15,6 +15,7 @@ import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
@@ -102,9 +103,7 @@ abstract class BaseReadAloudService : BaseService(),
     private val wifiLock by lazy {
         @Suppress("DEPRECATION")
         wifiManager?.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "legado:AudioPlayService")
-            ?.apply {
-                setReferenceCounted(false)
-            }
+            ?.apply { setReferenceCounted(false) }
     }
     private val mFocusRequest: AudioFocusRequestCompat by lazy {
         MediaHelp.buildAudioFocusRequestCompat(this)
@@ -125,8 +124,7 @@ abstract class BaseReadAloudService : BaseService(),
     private var registeredPhoneStateListener = false
     private var dsJob: Job? = null
     private var upNotificationJob: Coroutine<*>? = null
-    private var cover: Bitmap =
-        BitmapFactory.decodeResource(appCtx.resources, R.drawable.icon_read_book)
+    private var cover: Bitmap = BitmapFactory.decodeResource(appCtx.resources, R.drawable.icon_read_book)
     var pageChanged = false
     private var toLast = false
     var paragraphStartPos = 0
@@ -443,11 +441,24 @@ abstract class BaseReadAloudService : BaseService(),
     /**
      * 更新媒体状态
      */
-    private fun upMediaSessionPlaybackState(state: Int) {
+    protected fun upMediaSessionPlaybackState(state: Int) {
+        // compute position in ms for TTS (estimate using character offset and speech rate)
+        var positionMs = 0L
+        try {
+            val chapterLocal = textChapter
+            if (chapterLocal != null && readAloudNumber > 0) {
+                val baseCharsPerSecond = 6.0f
+                val speechRate = (AppConfig.ttsSpeechRate + 5) / 10f
+                val seconds = if (speechRate > 0f) readAloudNumber / (baseCharsPerSecond * speechRate) else 0f
+                positionMs = (seconds * 1000).toLong()
+            }
+        } catch (_: Exception) {
+        }
+
         mediaSessionCompat.setPlaybackState(
             PlaybackStateCompat.Builder()
                 .setActions(MediaHelp.MEDIA_SESSION_ACTIONS)
-                .setState(state, nowSpeak.toLong(), 1f)
+                .setState(state, positionMs, 1f)
                 // 为系统媒体控件添加定时按钮
                 .addCustomAction(
                     PlaybackStateCompat.CustomAction.Builder(
@@ -517,7 +528,18 @@ abstract class BaseReadAloudService : BaseService(),
         mediaSessionCompat.setMediaButtonReceiver(
             broadcastPendingIntent<MediaButtonReceiver>(Intent.ACTION_MEDIA_BUTTON)
         )
+        // Let system know this session handles media buttons and transport controls so
+        // external controllers (lock screen, car, bluetooth) will route events here.
+        mediaSessionCompat.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+        )
         mediaSessionCompat.isActive = true
+        // 当系统媒体控件被点击时打开阅读页面
+        try {
+            mediaSessionCompat.setSessionActivity(activityPendingIntent<ReadBookActivity>("activity"))
+        } catch (_: Exception) {
+            // ignore
+        }
     }
 
     /**
@@ -569,11 +591,64 @@ abstract class BaseReadAloudService : BaseService(),
     private fun upReadAloudNotification() {
         upNotificationJob = execute {
             try {
+                // update media metadata first so system media controller shows correct info
+                upMediaMetadata()
                 val notification = createNotification()
                 notificationManager.notify(NotificationId.ReadAloudService, notification.build())
             } catch (e: Exception) {
                 AppLog.put("创建朗读通知出错,${e.localizedMessage}", e, true)
             }
+        }
+    }
+
+    /**
+     * 更新 MediaSession 的 metadata，以便系统媒体控件（锁屏/通知/车载）显示章节与书籍信息
+     */
+    protected fun upMediaMetadata() {
+        try {
+            val chapter = ReadBook.curTextChapter
+            val title = chapter?.title ?: getString(R.string.read_aloud)
+            val artist = ReadBook.book?.name ?: ""
+            val album = ReadBook.book?.author ?: ""
+            val metadataBuilder = MediaMetadataCompat.Builder()
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, cover)
+                .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putText(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
+                // expose chapter index and chapter position as custom long keys
+                .putLong("chapter_index", ReadBook.durChapterIndex.toLong())
+                .putLong("chapter_pos", ReadBook.durChapterPos.toLong())
+
+            // If we have chapter text info, estimate total duration (ms) and set it so system
+            // media controls can compute remaining time. Use configured TTS speech rate.
+            try {
+                val chapterLocal = textChapter
+                    if (chapterLocal != null) {
+                        // Try to determine a reasonable total duration for the chapter so system
+                        // media controls can compute remaining time. Prefer the fully laid out
+                        // chapter length (lastReadLength). If that's not available yet (e.g.
+                        // pages not laid out) fall back to summing the known content we will
+                        // read from this service (readAloudNumber + remaining content length).
+                        var totalChars = chapterLocal.lastReadLength
+                        if (totalChars <= 0) {
+                            val remainingChars = contentList.fold(0) { acc, s -> acc + s.length + 1 }
+                            totalChars = (readAloudNumber + remainingChars).coerceAtLeast(0)
+                        }
+                        // base chars per second for default speech speed (approximation)
+                        val baseCharsPerSecond = 6.0f
+                        val speechRate = (AppConfig.ttsSpeechRate + 5) / 10f
+                        val totalSeconds = if (speechRate > 0f) totalChars / (baseCharsPerSecond * speechRate) else 0f
+                        val durationMs = (totalSeconds * 1000).toLong()
+                        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs)
+                    }
+            } catch (e: Exception) {
+                AppLog.put("估算朗读时长失败:${e.localizedMessage}", e, true)
+            }
+
+            val metadata = metadataBuilder.build()
+            mediaSessionCompat.setMetadata(metadata)
+        } catch (e: Exception) {
+            AppLog.put("更新 MediaMetadata 出错,${e.localizedMessage}", e, true)
         }
     }
 

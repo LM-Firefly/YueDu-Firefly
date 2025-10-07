@@ -3,6 +3,7 @@ package io.legado.app.service
 import android.app.PendingIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.support.v4.media.session.PlaybackStateCompat
 import io.legado.app.R
 import io.legado.app.constant.AppConst
 import io.legado.app.constant.AppLog
@@ -202,6 +203,9 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     ReadBook.moveToNextPage()
                 }
                 upTtsProgress(readAloudNumber + 1)
+                // 更新系统媒体控制器的播放状态与元数据
+                upMediaSessionPlaybackState(PlaybackStateCompat.STATE_PLAYING)
+                upMediaMetadata()
             }
         }
 
@@ -245,6 +249,9 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     return
                 }
             } while (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex))
+            // 更新系统媒体控制器上的进度和元数据
+            upMediaSessionPlaybackState(PlaybackStateCompat.STATE_PLAYING)
+            upMediaMetadata()
         }
 
         @Deprecated("Deprecated in Java")

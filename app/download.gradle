@@ -37,8 +37,8 @@ tasks.register('downloadJar', Download) {
             BASE_PATH + "cronet_shared_java.jar"
     ])
     dest libPath
-    overwrite = true
-    onlyIfModified = false
+    overwrite true
+    onlyIfModified false
 }
 /**
  * 下载Cronet的arm64-v8a so
@@ -46,8 +46,8 @@ tasks.register('downloadJar', Download) {
 tasks.register('downloadARM64', Download) {
     src BASE_PATH + "libs/arm64-v8a/libcronet." + CronetVersion + ".so"
     dest soPath + "/arm64-v8a.so"
-    overwrite = true
-    onlyIfModified = true
+    overwrite true
+    onlyIfModified true
 }
 /**
  * 下载Cronet的armeabi-v7a so
@@ -55,8 +55,8 @@ tasks.register('downloadARM64', Download) {
 tasks.register('downloadARMv7', Download) {
     src BASE_PATH + "libs/armeabi-v7a/libcronet." + CronetVersion + ".so"
     dest soPath + "/armeabi-v7a.so"
-    overwrite = true
-    onlyIfModified = true
+    overwrite true
+    onlyIfModified true
 }
 /**
  * 下载Cronet的x86_64 so
@@ -64,8 +64,8 @@ tasks.register('downloadARMv7', Download) {
 tasks.register('downloadX86_64', Download) {
     src BASE_PATH + "libs/x86_64/libcronet." + CronetVersion + ".so"
     dest soPath + "/x86_64.so"
-    overwrite = true
-    onlyIfModified = true
+    overwrite true
+    onlyIfModified true
 }
 /**
  * 下载Cronet的x86 so
@@ -73,8 +73,8 @@ tasks.register('downloadX86_64', Download) {
 tasks.register('downloadX86', Download) {
     src BASE_PATH + "libs/x86/libcronet." + CronetVersion + ".so"
     dest soPath + "/x86.so"
-    overwrite = true
-    onlyIfModified = true
+    overwrite true
+    onlyIfModified true
 }
 
 /**
@@ -103,10 +103,5 @@ tasks.register('downloadCronet') {
             f1.createNewFile()
         }
         f1.text = sb.toString()
-
     }
-
-
 }
-
-

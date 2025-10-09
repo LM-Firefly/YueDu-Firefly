@@ -2,7 +2,7 @@
 
 buildscript {
     ext{
-        compile_sdk_version = 35
+        compile_sdk_version = 36
         build_tool_version = '34.0.0'
 //        kotlin_version = '1.9.22'
 //        ksp_version = "1.0.17"
@@ -31,8 +31,35 @@ plugins {
     alias libs.plugins.room apply false
 
     alias libs.plugins.download apply false
+    alias libs.plugins.versions
 }
 
 tasks.register('clean', Delete) {
     delete rootProject.layout.buildDirectory
+}
+
+// 配置依赖更新任务策略：拒绝将稳定版本升级到不稳定(包含 -alpha/-beta/-rc 等)版本
+// 运行方式： ./gradlew dependencyUpdates  或  ./gradlew dependencyUpdates -Drevision=release
+// 输出报告： build/dependencyUpdates/report.txt  (HTML/JSON 同目录)
+tasks.withType(com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask).configureEach { task ->
+    // 只关注 release（不含 -SNAPSHOT 等）
+    gradleReleaseChannel = 'current'
+    checkForGradleUpdate = true
+
+    def isNonStable = { String version ->
+        if (!version) return false
+        def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { version.toUpperCase().contains(it) }
+        def regex = /^[0-9,.v-]+(-r)?$/
+        return !stableKeyword && !(version ==~ regex)
+    }
+
+    rejectVersionIf { selection ->
+        def currentNonStable = isNonStable(selection.currentVersion)
+        def candidateNonStable = isNonStable(selection.candidate.version)
+        return !currentNonStable && candidateNonStable
+    }
+
+    outputFormatter = 'plain,html,json'
+    outputDir = "$buildDir/dependencyUpdates"
+    reportfileName = 'report'
 }

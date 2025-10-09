@@ -16,12 +16,12 @@ jobs:
       - name: Check Cronet Updates
         run: source .github/scripts/cronet.sh
 
-      - name: Set up JDK 21
+      - name: Set up JDK 24
         if: ${{ env.cronet == 'ok' }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "temurin"
-          java-version: 21
+          java-version: 24
 
       - uses: gradle/actions/setup-gradle@v5
         if: ${{ env.cronet == 'ok' }}

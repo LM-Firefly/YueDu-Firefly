@@ -22,7 +22,19 @@ static def releaseTime() {
 
 def name = "YueDu"
 def version = "3." + releaseTime()
-def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
+def gitCommits = 0
+try {
+    def proc = "git rev-list HEAD --count".execute(null, rootProject.rootDir)
+    proc.waitFor()
+    if (proc.exitValue() == 0) {
+        gitCommits = Integer.parseInt(proc.in.text.trim())
+    } else {
+        def digits = (proc.err?.text ?: "").find(/\d+/) ?: "0"
+        gitCommits = Integer.parseInt(digits)
+    }
+} catch (Exception ignored) {
+    gitCommits = Integer.parseInt(System.getenv("GIT_COMMIT_COUNT") ?: "0")
+}
 
 // 根据 version 字符串生成 versionCode：
 // 规则：取 version 中的数字（去掉中间的 "."），尝试转换为整数；
@@ -47,7 +59,12 @@ android {
     namespace = 'io.legado.app'
     kotlin {
         jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion.set(JavaLanguageVersion.of(24))
+        }
+    }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = '24'
         }
     }
 
@@ -67,8 +84,8 @@ android {
     }
     defaultConfig {
     applicationId = "io.legado.app"
-    minSdk = 21
-    targetSdk = 35
+    minSdk = 23
+    targetSdk = 36
     versionCode = versionCodeFromVersion(version, 10000 + gitCommits)
     versionName = version
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -136,25 +153,11 @@ android {
         }
     }
 
-
-    room {
-        schemaDirectory "$projectDir/schemas"
-    }
-    // 设定Room的KSP参数
-    ksp {
-        arg("room.incremental", "true")
-        arg("room.expandProjection", "true")
-        arg("room.generateKotlin", "false")
-        //arg("room.schemaLocation", "$projectDir/schemas")
-
-    }
-
     compileOptions {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled = true
-        // Sets Java compatibility
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_24
+        targetCompatibility = JavaVersion.VERSION_24
     }
     packaging {
         resources.excludes.add('META-INF/*')
@@ -172,6 +175,17 @@ android {
             //options.compilerArgs << "-Xlint:unchecked"
         }
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+ksp {
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+    arg("room.generateKotlin", "false")
+    //arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -208,6 +222,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.webkit)
+    implementation(libs.androidx.documentfile)
 
     //google
     implementation(libs.material)

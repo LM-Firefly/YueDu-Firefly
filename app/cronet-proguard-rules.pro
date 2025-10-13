@@ -118,9 +118,6 @@
   public *;
 }
 
-# Keep HttpEngineNativeProvider class which may be referenced internally
--keep class org.chromium.net.impl.HttpEngineNativeProvider { *; }
-
 -dontwarn com.google.errorprone.annotations.DoNotMock
 # -------- Config Path: components/cronet/android/cronet_impl_native_proguard.cfg --------
 # Proguard config for apps that depend on cronet_impl_native_java.jar.

@@ -1,13 +1,12 @@
 package io.legado.app.help
 
 import android.util.Base64
-import cn.hutool.crypto.digest.DigestUtil
 import cn.hutool.crypto.digest.HMac
-import cn.hutool.crypto.symmetric.SymmetricCrypto
 import io.legado.app.help.crypto.AsymmetricCrypto
 import io.legado.app.help.crypto.Sign
 import io.legado.app.help.crypto.SymmetricCryptoAndroid
 import io.legado.app.utils.MD5Utils
+import java.security.MessageDigest
 
 
 /**
@@ -38,12 +37,12 @@ interface JsEncodeUtils {
      * java.createSymmetricCrypto(transformation, key, iv).encryptHex(data)
      */
 
-    /* 调用SymmetricCrypto key为null时使用随机密钥*/
+    /* key 为null时使用随机密钥 */
     fun createSymmetricCrypto(
         transformation: String,
         key: ByteArray?,
         iv: ByteArray?
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         val symmetricCrypto = SymmetricCryptoAndroid(transformation, key)
         return if (iv != null && iv.isNotEmpty()) symmetricCrypto.setIv(iv) else symmetricCrypto
     }
@@ -51,14 +50,14 @@ interface JsEncodeUtils {
     fun createSymmetricCrypto(
         transformation: String,
         key: ByteArray
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(transformation, key, null)
     }
 
     fun createSymmetricCrypto(
         transformation: String,
         key: String
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(transformation, key, null)
     }
 
@@ -66,7 +65,7 @@ interface JsEncodeUtils {
         transformation: String,
         key: String,
         iv: String?
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(
             transformation, key.encodeToByteArray(), iv?.encodeToByteArray()
         )
@@ -439,7 +438,11 @@ interface JsEncodeUtils {
         data: String,
         algorithm: String,
     ): String {
-        return DigestUtil.digester(algorithm).digestHex(data)
+        return runCatching {
+            val digest = MessageDigest.getInstance(algorithm)
+            val hash = digest.digest(data.toByteArray())
+            hash.joinToString("") { "%02x".format(it) }
+        }.getOrDefault("")
     }
 
     /**
@@ -453,7 +456,11 @@ interface JsEncodeUtils {
         data: String,
         algorithm: String,
     ): String {
-        return Base64.encodeToString(DigestUtil.digester(algorithm).digest(data), Base64.NO_WRAP)
+        return runCatching {
+            val digest = MessageDigest.getInstance(algorithm)
+            val hash = digest.digest(data.toByteArray())
+            Base64.encodeToString(hash, Base64.NO_WRAP)
+        }.getOrDefault("")
     }
 
     /**

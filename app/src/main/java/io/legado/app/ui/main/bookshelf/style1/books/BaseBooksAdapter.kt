@@ -1,7 +1,7 @@
 package io.legado.app.ui.main.bookshelf.style1.books
 
 import android.content.Context
-import androidx.core.os.bundleOf
+import io.legado.app.utils.bundleOfCompat as bundleOf
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 import io.legado.app.base.adapter.DiffRecyclerAdapter

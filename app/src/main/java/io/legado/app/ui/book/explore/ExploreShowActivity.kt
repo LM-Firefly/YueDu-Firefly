@@ -2,7 +2,7 @@ package io.legado.app.ui.book.explore
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.core.os.bundleOf
+import io.legado.app.utils.bundleOfCompat as bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.R
 import io.legado.app.base.VMBaseActivity

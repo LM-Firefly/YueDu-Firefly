@@ -3,7 +3,7 @@
 buildscript {
     ext{
         compile_sdk_version = 36
-//        build_tool_version = '34.0.0'
+//        build_tool_version = '36.0.0'
 //        kotlin_version = '1.9.22'
 //        ksp_version = "1.0.17"
 //        agp_version = '8.2.2'
@@ -26,12 +26,38 @@ plugins {
     alias libs.plugins.kotlin.android apply false
     alias libs.plugins.kotlin.parcelize apply false
     alias libs.plugins.ksp apply false
-    alias libs.plugins.google.services apply false
+    // alias libs.plugins.google.services apply false
+    // google-services plugin removed upstream to avoid requiring Google Play services
     alias libs.plugins.room apply false
 
     alias libs.plugins.download apply false
+    alias libs.plugins.version.catalog.update
 }
 
 tasks.register('clean', Delete) {
     delete rootProject.layout.buildDirectory
+}
+
+// 配置 version-catalog-update 插件：专门用于更新 libs.versions.toml
+// 预览模式（生成 libs.versions.updates.toml，不直接修改）：./gradlew versionCatalogUpdate --interactive
+// 直接更新：./gradlew versionCatalogUpdate
+// 只检查不修改：./gradlew versionCatalogUpdate --check
+versionCatalogUpdate {
+    sortByKey = true
+    // pin 住以下版本：已知存在兼容性问题，不应自动升级（参见 libs.versions.toml 中的注释）
+    pin {
+        versions = [
+            "commonsText",    // Android 6 缺少 Arrays.setAll
+            "rhino",          // Android 8 缺少 VarHandle.compareAndExchange
+            "media3",         // GradleDependency pin
+            "webkit",         // GradleDependency pin
+            "activity",       // GradleDependency pin
+            "lifecycle",      // GradleDependency pin
+            "room",           // GradleDependency pin
+            "recyclerview",   // GradleDependency pin
+            "viewpager2",     // GradleDependency pin
+            "jsoup",          // issue #3811 破坏性变更
+            "protobufJavalite" // NewerVersionAvailable pin
+        ]
+    }
 }

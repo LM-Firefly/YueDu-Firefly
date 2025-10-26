@@ -471,7 +471,7 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
 
     val replaceEnableDefault get() = appCtx.getPrefBoolean(PreferKey.replaceEnableDefault, true)
 
-    val webDavDir get() = appCtx.getPrefString(PreferKey.webDavDir, "legado")
+    val webDavDir get() = appCtx.getPrefString(PreferKey.webDavDir, "YueDu-Firefly")
 
     val webDavDeviceName get() = appCtx.getPrefString(PreferKey.webDavDeviceName, Build.MODEL)
 
@@ -733,4 +733,3 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
 
 }
-

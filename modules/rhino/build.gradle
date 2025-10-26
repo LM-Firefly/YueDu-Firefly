@@ -7,25 +7,25 @@ plugins {
 
 android {
     compileSdk = compile_sdk_version
-    namespace 'com.script'
+    namespace = 'com.script'
     kotlin {
         jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(24))
         }
     }
     defaultConfig {
-        minSdk 21
-        targetSdk 36
+        minSdk = 23
+        targetSdk = 36
 
         consumerProguardFiles "consumer-rules.pro"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_24
+        targetCompatibility = JavaVersion.VERSION_24
     }
     lint {
-        checkDependencies true
+        checkDependencies = true
     }
     tasks.withType(JavaCompile).tap {
         configureEach {

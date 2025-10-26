@@ -4,17 +4,17 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.annotation.Keep
-import cn.hutool.crypto.digest.DigestUtil
 import io.legado.app.BuildConfig
 import io.legado.app.help.update.AppVariant
 import org.apache.commons.lang3.time.FastDateFormat
 import splitties.init.appCtx
+import java.security.MessageDigest
 
 @Suppress("ConstPropertyName")
 @SuppressLint("SimpleDateFormat")
 object AppConst {
 
-    const val APP_TAG = "Legado"
+    const val APP_TAG = "YueDu"
 
     const val channelIdDownload = "channel_download"
     const val channelIdReadAloud = "channel_read_aloud"
@@ -66,8 +66,8 @@ object AppConst {
             ?.let {
                 appInfo.versionName = it.versionName!!
                 appInfo.appVariant = when {
-                    it.packageName.contains("releaseA") -> AppVariant.BETA_RELEASEA
-                    isBeta -> AppVariant.BETA_RELEASE
+                    it.packageName.contains("Firefly") -> AppVariant.BETA_FIREFLY
+                    isBeta -> AppVariant.BETA_ORIGINAL
                     isOfficial -> AppVariant.OFFICIAL
                     else -> AppVariant.UNKNOWN
                 }
@@ -86,7 +86,11 @@ object AppConst {
     private val sha256Signature: String by lazy {
         val packageInfo =
             appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_SIGNATURES)
-        DigestUtil.sha256Hex(packageInfo.signatures!![0].toByteArray()).uppercase()
+        runCatching {
+            val digest = MessageDigest.getInstance("SHA-256")
+            val hash = digest.digest(packageInfo.signatures!![0].toByteArray())
+            hash.joinToString(separator = "") { "%02X".format(it) }
+        }.getOrDefault("")
     }
 
     private val isOfficial = sha256Signature == OFFICIAL_SIGNATURE

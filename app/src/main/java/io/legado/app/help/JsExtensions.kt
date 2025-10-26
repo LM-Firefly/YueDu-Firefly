@@ -82,6 +82,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Suppress("unused")
 interface JsExtensions : JsEncodeUtils {
 
+    private fun Connection.withUnsafeSslFactory(): Connection {
+        @Suppress("DEPRECATION")
+        return sslSocketFactory(SSLHelper.unsafeSSLSocketFactory)
+    }
+
     fun getSource(): BaseSource?
 
     private val context: CoroutineContext
@@ -383,7 +388,7 @@ interface JsExtensions : JsEncodeUtils {
         val response = rateLimiter.withLimitBlocking {
             rhinoContext.ensureActive()
             Jsoup.connect(urlStr)
-                .sslSocketFactory(SSLHelper.unsafeSSLSocketFactory)
+                .withUnsafeSslFactory()
                 .ignoreContentType(true)
                 .followRedirects(false)
                 .headers(requestHeaders)
@@ -404,7 +409,7 @@ interface JsExtensions : JsEncodeUtils {
         val response = rateLimiter.withLimitBlocking {
             rhinoContext.ensureActive()
             Jsoup.connect(urlStr)
-                .sslSocketFactory(SSLHelper.unsafeSSLSocketFactory)
+                .withUnsafeSslFactory()
                 .ignoreContentType(true)
                 .followRedirects(false)
                 .headers(requestHeaders)
@@ -425,7 +430,7 @@ interface JsExtensions : JsEncodeUtils {
         val response = rateLimiter.withLimitBlocking {
             rhinoContext.ensureActive()
             Jsoup.connect(urlStr)
-                .sslSocketFactory(SSLHelper.unsafeSSLSocketFactory)
+                .withUnsafeSslFactory()
                 .ignoreContentType(true)
                 .followRedirects(false)
                 .requestBody(body)

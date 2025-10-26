@@ -70,6 +70,13 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // 禁用 Hutool 的 BouncyCastle Provider，使用 Android 系统默认加密服务
+        // 修复: java.lang.NullPointerException at cn.hutool.crypto.ProviderFactory.createBouncyCastleProvider
+        try {
+            cn.hutool.crypto.GlobalBouncyCastleProvider.setUseBouncyCastle(false)
+        } catch (e: Exception) {
+            android.util.Log.e("App", "Failed to disable BouncyCastle", e)
+        }
         CrashHandler(this)
         if (isDebuggable) {
             ThreadUtils.setThreadAssertsDisabledForTesting(true)

@@ -72,6 +72,22 @@ cn.hutool.core.codec.**,
 cn.hutool.core.util.**{*;}
 -keep class cn.hutool.crypto.**{*;}
 -dontwarn cn.hutool.**
+
+# 禁用 Hutool 的 BouncyCastle Provider，使用 Android 系统默认加密服务
+# 这可以避免 NullPointerException: ProviderFactory.createBouncyCastleProvider
+-keep class cn.hutool.crypto.GlobalBouncyCastleProvider {
+    public static *** setUseBouncyCastle(boolean);
+}
+-assumenosideeffects class cn.hutool.crypto.GlobalBouncyCastleProvider {
+    <clinit>();
+}
+-keep class cn.hutool.crypto.ProviderFactory {
+    public static *** getProvider();
+}
+# 移除 BouncyCastle Provider 创建方法，强制使用系统 Provider
+-assumenosideeffects class cn.hutool.crypto.ProviderFactory {
+    *** createBouncyCastleProvider() return null;
+}
 # 缓存 Cookie
 -keep class **.help.http.CookieStore{*;}
 -keep class **.help.CacheManager{*;}

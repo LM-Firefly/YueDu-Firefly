@@ -37,6 +37,7 @@ tasks.register('downloadJar', Download) {
             BASE_PATH + "cronet_shared_java.jar"
     ])
     dest libPath
+    // use method-style setters compatible with the download plugin
     overwrite true
     onlyIfModified false
 }

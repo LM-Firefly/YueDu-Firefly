@@ -1,10 +1,23 @@
 package com.script.rhino
 
+import org.mozilla.javascript.lc.type.TypeInfo
+import org.mozilla.javascript.lc.type.TypeInfoFactory
 import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.Scriptable
 
 class ReadOnlyJavaObject(scope: Scriptable?, javaObject: Any, staticType: Class<*>?) :
-    NativeJavaObject(scope, javaObject, staticType) {
+    NativeJavaObject(
+        scope,
+        javaObject,
+        staticType?.let {
+            val typeInfoFactory = if (scope != null) {
+                TypeInfoFactory.getOrElse(scope, TypeInfoFactory.GLOBAL)
+            } else {
+                TypeInfoFactory.GLOBAL
+            }
+            typeInfoFactory.create(it)
+        } ?: TypeInfo.NONE
+    ) {
 
     override fun has(name: String, start: Scriptable): Boolean {
         if (name.length > 3 && name.startsWith("set")) {

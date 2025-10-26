@@ -185,4 +185,17 @@
 		<item>Customize</item>
 	</string-array>
 
+	<!-- 媒体按钮灵敏度选项 -->
+	<string-array name="media_button_sensitivity_title">
+		<item>低</item>
+		<item>中等</item>
+		<item>高</item>
+	</string-array>
+
+	<string-array name="media_button_sensitivity_value">
+		<item>low</item>
+		<item>medium</item>
+		<item>high</item>
+	</string-array>
+
 </resources>

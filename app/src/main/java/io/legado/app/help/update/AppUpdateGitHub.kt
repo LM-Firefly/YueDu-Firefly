@@ -19,16 +19,16 @@ object AppUpdateGitHub : AppUpdate.AppUpdateInterface {
     private val checkVariant: AppVariant
         get() = when (AppConfig.updateToVariant) {
             "official_version" -> AppVariant.OFFICIAL
-            "beta_release_version" -> AppVariant.BETA_RELEASE
-            "beta_releaseA_version" -> AppVariant.BETA_RELEASEA
+            "beta_Original_version" -> AppVariant.BETA_ORIGINAL
+            "beta_Firefly_version" -> AppVariant.BETA_FIREFLY
             else -> AppConst.appInfo.appVariant
         }
 
     private suspend fun getLatestRelease(): List<AppReleaseInfo> {
         val lastReleaseUrl = if (checkVariant.isBeta()) {
-            "https://api.github.com/repos/gedoor/legado/releases/tags/beta"
+            "https://api.github.com/repos/LM-Firefly/YueDu-Firefly/releases/tags/beta"
         } else {
-            "https://api.github.com/repos/gedoor/legado/releases/latest"
+            "https://api.github.com/repos/LM-Firefly/YueDu-Firefly/releases/latest"
         }
         val res = okHttpClient.newCallResponse {
             url(lastReleaseUrl)

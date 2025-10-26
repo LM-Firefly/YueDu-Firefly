@@ -222,6 +222,7 @@ class App : Application() {
     }
 
     private fun initRhino() {
+        @Suppress("unused_expression")
         RhinoScriptEngine
         RhinoWrapFactory.register(BookSource::class.java, NativeBaseSource.factory)
         RhinoWrapFactory.register(RssSource::class.java, NativeBaseSource.factory)

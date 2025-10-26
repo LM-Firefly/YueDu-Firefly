@@ -46,6 +46,7 @@ import org.mozilla.javascript.JavaScriptException
 import org.mozilla.javascript.RhinoException
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
+import org.mozilla.javascript.ScriptRuntime
 import org.mozilla.javascript.Undefined
 import org.mozilla.javascript.Wrapper
 import java.io.IOException
@@ -294,7 +295,7 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
 
     fun wrapArguments(args: Array<Any?>?): Array<Any?> {
         return if (args == null) {
-            Context.emptyArgs
+            ScriptRuntime.emptyArgs
         } else {
             val res = arrayOfNulls<Any>(args.size)
             for (i in res.indices) {

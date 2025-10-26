@@ -2,28 +2,28 @@ name: Update Cronet
 
 on:
   schedule:
-  # 周一北京时间9点
+    # 周一北京时间9点
     - cron: 0 1 * * 1
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'gedoor/legado' }}
+    if: ${{ github.repository == 'LM-Firefly/YueDu-Firefly' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check Cronet Updates
         run: source .github/scripts/cronet.sh
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         if: ${{ env.cronet == 'ok' }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 17
+          distribution: "temurin"
+          java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
         if: ${{ env.cronet == 'ok' }}
 
       - name: Download Cronet
@@ -37,7 +37,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         continue-on-error: true
         with:
-          token: ${{ secrets.ACTIONS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: ${{ env.PR_TITLE }}
           commit-message: |
             ${{ env.PR_TITLE }}

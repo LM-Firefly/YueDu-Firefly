@@ -71,7 +71,42 @@
 cn.hutool.core.codec.**,
 cn.hutool.core.util.**{*;}
 -keep class cn.hutool.crypto.**{*;}
+-keep interface cn.hutool.crypto.**{*;}
+
+# 保持加密库的所有类和接口（核心修复）
+# 这是关键的 ProGuard 规则，确保 BouncyCastle 提供程序在 R8 优化中不被移除或重命名
+-keep class cn.hutool.crypto.GlobalBouncyCastleProvider{
+    public <init>();
+    public <init>(java.lang.String, int);
+    *** getInstance();
+    *** install();
+}
+-keep class cn.hutool.crypto.ProviderFactory{*;}
+-keep class cn.hutool.crypto.symmetric.SymmetricCrypto{*;}
+
+# 完全保持 BouncyCastle 库（必须）
+-keep class org.bouncycastle.** {*;}
+-keep interface org.bouncycastle.** {*;}
+-keep enum org.bouncycastle.** {*;}
+
+# 保持 Java 安全提供程序框架
+-keep class java.security.Provider {*;}
+-keep class java.security.Security {*;}
+-keep class java.security.KeyStore {*;}
+-keep class java.security.KeyFactory {*;}
+
+# 防止 Hutool 库被过度优化
+-keepclassmembers class cn.hutool.crypto.ProviderFactory {
+    public static java.security.Provider createBouncyCastleProvider();
+    public static java.security.Provider createBouncyCastleFipsProvider();
+}
+
 -dontwarn cn.hutool.**
+-dontwarn org.bouncycastle.**
+-dontwarn javax.security.**
+
+# GlobalBouncyCastleProvider 在启动阶段可能失败，确保所有相关类都被保留
+# 以便能够在运行时捕获和处理异常
 # 缓存 Cookie
 -keep class **.help.http.CookieStore{*;}
 -keep class **.help.CacheManager{*;}

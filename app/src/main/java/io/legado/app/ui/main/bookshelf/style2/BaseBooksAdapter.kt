@@ -2,7 +2,7 @@ package io.legado.app.ui.main.bookshelf.style2
 
 import android.content.Context
 import android.view.LayoutInflater
-import androidx.core.os.bundleOf
+import io.legado.app.utils.bundleOfCompat as bundleOf
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView

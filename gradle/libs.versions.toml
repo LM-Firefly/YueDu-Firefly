@@ -1,7 +1,7 @@
 [versions]
 
-kotlin = "2.2.20"          # 升级：Kotlin 2.2.0 -> 2.2.20 (bug 修复 & K2 增量改进)
-ksp = "2.2.20-2.0.4"       # 与 Kotlin 对齐
+kotlin = "2.2.21"          # 升级：Kotlin 2.2.0 -> 2.2.20 (bug 修复 & K2 增量改进)
+ksp = "2.3.1"       # 与 Kotlin 对齐
 agp = "8.13.0"
 appcompat = "1.7.1"        # 补丁升级
 colorpicker = "1.1.0"

@@ -107,6 +107,44 @@ cn.hutool.core.util.**{*;}
     *** getNonActionItems();
 }
 
+# Keep JNI Zero annotations and related classes used by Cronet
+-keep class internal.org.jni_zero.** { *; }
+-keep @interface internal.org.jni_zero.** { *; }
+-keepclasseswithmembers class * {
+    @internal.org.jni_zero.CalledByNative <methods>;
+}
+-keepclasseswithmembers class * {
+    @internal.org.jni_zero.JNINamespace <fields>;
+}
+
+# Additional rules for Cronet and JNI Zero
+-keep class org.chromium.** { *; }
+-keepclassmembers class org.chromium.** {
+    @internal.org.jni_zero.CalledByNative *;
+    @internal.org.jni_zero.JNINamespace *;
+}
+
+# Suppress warnings from missing_rules.txt
+-dontwarn internal.org.jni_zero.CalledByNative
+-dontwarn internal.org.jni_zero.JNINamespace
+
+# Keep all Chromium Cronet classes
+-keep class org.chromium.net.** { *; }
+-keep class org.chromium.net.impl.** { *; }
+
+# Historically we kept the removed internal class HttpEngineNativeProvider as a
+# temporary compatibility shim. That shim has been removed as part of the
+# Cronet migration; avoid keeping the removed class specifically so R8/ProGuard
+# can optimize normally. We still keep provider/native patterns if required.
+# (Removed specific -keep for HttpEngineNativeProvider)
+# -keep class org.chromium.net.impl.HttpEngineNativeProvider { *; }
+-keep class org.chromium.net.impl.**Provider { *; }
+-keep class org.chromium.net.impl.*Native* { *; }
+
+# Don't warn about missing Cronet classes
+-dontwarn org.chromium.net.**
+-dontwarn org.chromium.net.impl.**
+
 # FileDocExtensions.kt treeDocumentFileConstructor
 -keep class androidx.documentfile.provider.TreeDocumentFile {
     <init>(...);

@@ -230,3 +230,11 @@
 -keepclasseswithmembernames,includedescriptorclasses,allowaccessmodification class ** {
   native <methods>;
 }
+
+# Missing classes rules added to fix R8 build error
+-dontwarn internal.org.chromium.build.NativeLibraries
+-dontwarn org.chromium.base.FeatureList
+-dontwarn org.chromium.base.FeatureMap
+-dontwarn org.chromium.base.FeatureOverrides
+-dontwarn org.chromium.base.FeatureParam
+-dontwarn org.chromium.base.version_info.VersionConstantsBridgeJni

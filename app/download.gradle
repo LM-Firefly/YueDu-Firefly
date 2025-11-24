@@ -5,7 +5,7 @@ apply plugin: 'de.undercouch.download'
 def BASE_PATH = "https://storage.googleapis.com/chromium-cronet/android/" + CronetVersion + "/Release/cronet/"
 def assetsDir = projectDir.toString() + "/src/main/assets"
 def libPath = projectDir.toString() + "/cronetlib"
-def soPath = projectDir.toString() + "/so"
+def soPath = projectDir.toString() + "/src/main/jniLibs"
 
 /**
  * 从文件生成MD5
@@ -37,45 +37,54 @@ tasks.register('downloadJar', Download) {
             BASE_PATH + "cronet_shared_java.jar"
     ])
     dest libPath
-    // use method-style setters compatible with the download plugin
     overwrite true
-    onlyIfModified false
+    onlyIfModified true
+    onlyIf {
+        def required = [
+                'cronet_api.jar',
+                'cronet_impl_common_java.jar',
+                'cronet_impl_native_java.jar',
+                'cronet_impl_platform_java.jar',
+                'cronet_shared_java.jar'
+        ]
+        return required.any { !new File(libPath, it).exists() }
+    }
 }
 /**
  * 下载Cronet的arm64-v8a so
  */
 tasks.register('downloadARM64', Download) {
     src BASE_PATH + "libs/arm64-v8a/libcronet." + CronetVersion + ".so"
-    dest soPath + "/arm64-v8a.so"
+    dest soPath + "/arm64-v8a/libcronet." + CronetVersion + ".so"
     overwrite true
-    onlyIfModified true
+    onlyIf { !file(soPath + "/arm64-v8a/libcronet." + CronetVersion + ".so").exists() }
 }
 /**
  * 下载Cronet的armeabi-v7a so
  */
 tasks.register('downloadARMv7', Download) {
     src BASE_PATH + "libs/armeabi-v7a/libcronet." + CronetVersion + ".so"
-    dest soPath + "/armeabi-v7a.so"
+    dest soPath + "/armeabi-v7a/libcronet." + CronetVersion + ".so"
     overwrite true
-    onlyIfModified true
+    onlyIf { !file(soPath + "/armeabi-v7a/libcronet." + CronetVersion + ".so").exists() }
 }
 /**
  * 下载Cronet的x86_64 so
  */
 tasks.register('downloadX86_64', Download) {
     src BASE_PATH + "libs/x86_64/libcronet." + CronetVersion + ".so"
-    dest soPath + "/x86_64.so"
+    dest soPath + "/x86_64/libcronet." + CronetVersion + ".so"
     overwrite true
-    onlyIfModified true
+    onlyIf { !file(soPath + "/x86_64/libcronet." + CronetVersion + ".so").exists() }
 }
 /**
  * 下载Cronet的x86 so
  */
 tasks.register('downloadX86', Download) {
     src BASE_PATH + "libs/x86/libcronet." + CronetVersion + ".so"
-    dest soPath + "/x86.so"
+    dest soPath + "/x86/libcronet." + CronetVersion + ".so"
     overwrite true
-    onlyIfModified true
+    onlyIf { !file(soPath + "/x86/libcronet." + CronetVersion + ".so").exists() }
 }
 
 /**
@@ -88,10 +97,19 @@ tasks.register('downloadCronet') {
 
     doLast {
         StringBuilder sb = new StringBuilder("{")
-        def files = new File(soPath).listFiles()
-        for (File file : files) {
-            println file.name.replace(".so", "")
-            sb.append("\"").append(file.name.replace(".so", "")).append("\":\"").append(generateMD5(file)).append("\",")
+        def jniDir = new File(soPath)
+        def files = [] as List
+        if (jniDir.exists()) {
+            jniDir.listFiles().each { dir ->
+                if (dir.isDirectory()) {
+                    def soFile = new File(dir, 'libcronet.' + CronetVersion + '.so')
+                    if (soFile.exists()) files << [abi: dir.name, file: soFile]
+                }
+            }
+        }
+        for (entry : files) {
+            println entry.abi
+            sb.append("\"").append(entry.abi).append("\":\"").append(generateMD5(entry.file)).append("\",")
         }
         sb.append("\"version\":\"").append(CronetVersion).append("\"}")
 
@@ -105,9 +123,38 @@ tasks.register('downloadCronet') {
         }
         f1.text = sb.toString()
 
+        // 清理 jniLibs 中同 ABI 下所有非当前版本的 libcronet.*.so（避免仓库累积旧版本）
+        def soBase = new File(soPath)
+        if (soBase.exists()) {
+            soBase.listFiles().each { dir ->
+                if (dir.isDirectory()) {
+                    dir.listFiles().findAll { it.name ==~ /libcronet\\..*\\.so/ && it.name != "libcronet.${CronetVersion}.so" }.each { old ->
+                        if (old.delete()) println "Deleted old so: ${old.path}" else println "Failed to delete old so: ${old.path}"
+                    }
+                }
+            }
+        }
+
+        // 清理 cronetlib 目录中非当前版本的 libcronet.*.so
+        def cronetDir = new File(libPath)
+        if (cronetDir.exists()) {
+            cronetDir.listFiles().findAll { it.name ==~ /libcronet\\..*\\.so/ && it.name != "libcronet.${CronetVersion}.so" }.each { old ->
+                if (old.delete()) println "Deleted old cronetlib so: ${old.path}" else println "Failed to delete old cronetlib so: ${old.path}"
+            }
+        }
+
+        // 将下载的 so 文件复制一份到 cronetlib（便于仓库检查）以及打包到 jniLibs 目录下以便在 APK 中加载
+        // Copy found jniLibs so files into cronetlib (keep a repository copy) and ensure assets.json updated.
+        files.each { entry ->
+            def s = entry.file
+            def destName = 'libcronet.' + CronetVersion + '.so'
+            def destJarSo = new File(libPath, destName)
+            try {
+                s.withInputStream { ins -> destJarSo.withOutputStream { outs -> outs << ins } }
+            } catch (e) {
+                println "copy to cronetlib failed: ${e.message}"
+            }
+        }
+
     }
-
-
 }
-
-

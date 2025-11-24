@@ -14,6 +14,41 @@ plugins {
     // alias libs.plugins.google.services
     // google-services plugin removed: it required google-services.json and Play services integration
 }
+
+// Ensure Cronet artifacts are downloaded and installed before any assemble task runs.
+// This avoids runtime failures caused by missing .so when initializing Cronet.
+tasks.matching { it.name.startsWith('assemble') }.configureEach {
+    dependsOn tasks.named('downloadCronet')
+}
+
+// Some Gradle tasks read files from `cronetlib` (downloadJar output).
+// When builds run with --parallel this becomes an implicit dependency issue
+// (task reads output of downloadJar without declaring dependency). Make
+// collect*Dependencies tasks explicitly depend on downloadJar to avoid
+// validation failures and ensure correct task ordering.
+tasks.matching { it.name ==~ /collect.*Dependencies/ }.configureEach {
+    dependsOn tasks.named('downloadJar')
+}
+
+// merge*JniLibFolders will read files from `src/main/jniLibs` which are
+// produced by per-ABI download tasks. When running with --parallel Gradle
+// can run merge tasks before downloads unless we declare the dependency.
+// Make merge tasks depend on the ABI download tasks to avoid implicit
+// dependency validation failures.
+tasks.matching { it.name ==~ /merge.*JniLibFolders/ }.configureEach {
+    dependsOn tasks.named('downloadARM64')
+    dependsOn tasks.named('downloadARMv7')
+    dependsOn tasks.named('downloadX86')
+    dependsOn tasks.named('downloadX86_64')
+}
+
+// Ensure Java/Kotlin compile tasks have the cronet jars available before compiling
+tasks.withType(JavaCompile).configureEach {
+    dependsOn tasks.named('downloadJar')
+}
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    dependsOn tasks.named('downloadJar')
+}
 apply from: 'download.gradle'
 
 static def releaseTime() {
@@ -145,10 +180,20 @@ android {
         }
     }
 
-    android.applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach {
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
             def flavor = variant.productFlavors[0].name
-            outputFileName = "${name}_${flavor}_${defaultConfig.versionName}.apk"
+            def abiSuffix = output.name.startsWith(flavor + "-") ? output.name - (flavor + "-") : output.name
+            outputFileName = "${name}_${flavor}_${defaultConfig.versionName}-${abiSuffix}.apk"
+        }
+    }
+
+    splits {
+        abi {
+            enable = true
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+            universalApk = true
         }
     }
 

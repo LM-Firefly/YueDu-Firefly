@@ -51,3 +51,6 @@ jobs:
             *updateLog.md
             *gradle.properties
             *cronet-proguard-rules.pro
+            app/src/main/jniLibs/**
+            app/cronetlib/**
+            **/libcronet*.so

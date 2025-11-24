@@ -16,14 +16,14 @@ jobs:
       - name: Check Cronet Updates
         run: source .github/scripts/cronet.sh
 
-      - name: Set up JDK 21
+      - name: Set up JDK 24
         if: ${{ env.cronet == 'ok' }}
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 21
+          java-version: 24
 
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
         if: ${{ env.cronet == 'ok' }}
 
       - name: Download Cronet
@@ -51,3 +51,6 @@ jobs:
             *updateLog.md
             *gradle.properties
             *cronet-proguard-rules.pro
+            app/src/main/jniLibs/**
+            app/cronetlib/**
+            **/libcronet*.so

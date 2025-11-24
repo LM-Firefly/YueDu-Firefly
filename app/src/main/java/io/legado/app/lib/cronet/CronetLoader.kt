@@ -93,6 +93,46 @@ object CronetLoader : CronetEngine.Builder.LibraryLoader(), Cronet.LoaderInterfa
         }
     }
 
+    /**
+     * 同步安装 Cronet 库，阻塞直到文件下载并校验完成或失败。用于在需要立即加载 Native Cronet 时调用。
+     */
+    @Synchronized
+    fun installSync(): Boolean {
+        if (cacheInstall) return true
+        // 基本校验
+        if (md5.length != 32 || soUrl.isEmpty()) {
+            cacheInstall = false
+            return false
+        }
+        // 文件已存在且 md5 匹配
+        if (soFile.exists() && md5 == getFileMD5(soFile)) {
+            cacheInstall = true
+            return true
+        }
+        // 尝试同步下载到临时文件
+        val result = downloadFileIfNotExist(soUrl, downloadFile)
+        if (!result) return false
+        val fileMD5 = getFileMD5(downloadFile)
+        if (fileMD5 == null || !fileMD5.equals(md5, ignoreCase = true)) {
+            if (downloadFile.exists()) downloadFile.delete()
+            return false
+        }
+        // 拷贝并校验
+        copyFile(downloadFile, soFile)
+        val copiedMD5 = getFileMD5(soFile)
+        if (copiedMD5 != null && copiedMD5.equals(md5, ignoreCase = true)) {
+            cacheInstall = true
+            try {
+                System.load(soFile.absolutePath)
+            } catch (e: Throwable) {
+                // 忽略加载错误，此时返回 true 表示文件已安装到正确路径
+                DebugLog.d(javaClass.simpleName, e.message ?: "")
+            }
+            return true
+        }
+        return false
+    }
+
     private fun getMd5(context: Context): String {
         val stringBuilder = StringBuilder()
         return try {

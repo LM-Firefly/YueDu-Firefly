@@ -42,7 +42,7 @@ jobs:
           
       # Step 5: Create Pull Request
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.ACTIONS_TOKEN }}
           branch: upstream-sync-${{ github.run_id }}

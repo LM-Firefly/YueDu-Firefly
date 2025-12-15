@@ -107,7 +107,7 @@ jobs:
             mv "$file" ${{ github.workspace }}/apk/"$filename"
           done
       - name: Upload App To Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: YueDu.${{ env.product }}.${{ env.type }}
           path: ${{ github.workspace }}/apk/*.apk

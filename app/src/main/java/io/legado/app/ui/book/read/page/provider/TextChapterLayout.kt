@@ -6,6 +6,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.AppPattern
+import io.legado.app.constant.PageAnim
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.help.book.BookContent
@@ -30,10 +31,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.util.LinkedList
-import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToInt
 
 class TextChapterLayout(
@@ -76,6 +77,7 @@ class TextChapterLayout(
     private val useZhLayout = ReadBookConfig.useZhLayout
     private val isMiddleTitle = ReadBookConfig.isMiddleTitle
     private val textFullJustify = ReadBookConfig.textFullJustify
+    private val pageAnim = book.getPageAnim()
 
     private var pendingTextPage = TextPage()
 
@@ -109,6 +111,8 @@ class TextChapterLayout(
         }.onError {
             exception = it
             onException(it)
+        }.onCancel {
+            channel.cancel()
         }.onFinally {
             isCompleted = true
         }
@@ -227,7 +231,7 @@ class TextChapterLayout(
         val sb = StringBuffer()
         var isSetTypedImage = false
         contents.forEach { content ->
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             if (isTextImageStyle) {
                 //图片样式为文字嵌入类型
                 var text = content.replace(ChapterProvider.srcReplaceChar, "▣")
@@ -260,7 +264,7 @@ class TextChapterLayout(
                 if (content.contains("<img")) {
                     val matcher = AppPattern.imgPattern.matcher(content)
                     while (matcher.find()) {
-                        coroutineContext.ensureActive()
+                        currentCoroutineContext().ensureActive()
                         val text = content.substring(start, matcher.start())
                         if (text.isNotBlank()) {
                             setTypeText(
@@ -314,7 +318,7 @@ class TextChapterLayout(
             textPage.height += endPadding
         }
         textPage.text = stringBuilder.toString()
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         onPageCompleted()
         onCompleted()
     }
@@ -337,6 +341,13 @@ class TextChapterLayout(
                 Book.imgStyleFull -> {
                     width = visibleWidth
                     height = size.height * visibleWidth / size.width
+                    if (pageAnim != PageAnim.scrollPageAnim && height > visibleHeight - durY) {
+                        if (height > visibleHeight) {
+                            width = width * visibleHeight / height
+                            height = visibleHeight
+                        }
+                        prepareNextPageIfNeed(durY + height)
+                    }
                 }
 
                 Book.imgStyleSingle -> {
@@ -773,7 +784,7 @@ class TextChapterLayout(
                     textPage.leftLineSize = textPage.lineSize
                 }
                 textPage.text = stringBuilder.toString()
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
                 onPageCompleted()
                 //新建页面
                 pendingTextPage = TextPage()

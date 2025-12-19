@@ -56,7 +56,7 @@ commonsText = "1.13.1"
 media3 = "1.8.0"
 
 #noinspection GradleDependency
-activity = "1.11.0"
+activity = "1.12.2"
 #noinspection GradleDependency
 lifecycle = "2.9.4"
 #noinspection GradleDependency

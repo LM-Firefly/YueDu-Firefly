@@ -149,12 +149,6 @@
 -dontwarn org.chromium.base.library_loader.LibraryLoader
 -dontwarn org.chromium.base.SysUtils
 -dontwarn org.chromium.build.NativeLibraries
--dontwarn internal.org.chromium.build.NativeLibraries
--dontwarn org.chromium.base.FeatureList
--dontwarn org.chromium.base.FeatureMap
--dontwarn org.chromium.base.FeatureOverrides
--dontwarn org.chromium.base.FeatureParam
--dontwarn org.chromium.base.version_info.VersionConstantsBridgeJni
 
 # Objects of this type are passed around by native code, but the class
 # is never used directly by native code. Since the class is not loaded, it does

@@ -183,7 +183,7 @@ jobs:
           prerelease: true
           files: ${{ github.workspace }}/apk/*.*.apk
       - name: Release Changelog Builder
-        uses: mikepenz/release-changelog-builder-action@v6.0.0
+        uses: mikepenz/release-changelog-builder-action@v6.1.0
 #  lanzou:
 #    needs: [ prepare, build ]
 #    if: ${{ github.event_name != 'pull_request' && needs.prepare.outputs.lanzou == 'yes' }}

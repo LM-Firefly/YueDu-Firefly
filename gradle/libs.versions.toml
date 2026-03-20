@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 ksp = "2.3.6"
 agp = "9.1.0"
 appcompat = "1.7.1"

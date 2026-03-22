@@ -34,7 +34,6 @@ tasks.register('downloadJar', Download) {
             BASE_PATH + "cronet_api.jar",
             BASE_PATH + "cronet_impl_common_java.jar",
             BASE_PATH + "cronet_impl_native_java.jar",
-            BASE_PATH + "cronet_impl_platform_java.jar",
             BASE_PATH + "cronet_shared_java.jar"
     ])
     dest libPath
@@ -45,7 +44,6 @@ tasks.register('downloadJar', Download) {
                 'cronet_api.jar',
                 'cronet_impl_common_java.jar',
                 'cronet_impl_native_java.jar',
-                'cronet_impl_platform_java.jar',
                 'cronet_shared_java.jar'
         ]
         def versionMismatch = !cronetVersionMarker.exists() || cronetVersionMarker.text.trim() != CronetVersion
@@ -56,6 +54,15 @@ tasks.register('downloadJar', Download) {
             cronetVersionMarker.parentFile.mkdirs()
         }
         cronetVersionMarker.text = CronetVersion
+        // 清理已弃用的平台实现，避免与 native 实现混用导致运行时类缺失。
+        def platformJar = new File(libPath, "cronet_impl_platform_java.jar")
+        if (platformJar.exists()) {
+            if (platformJar.delete()) {
+                println "Deleted deprecated Cronet platform jar: ${platformJar.path}"
+            } else {
+                println "Failed to delete deprecated Cronet platform jar: ${platformJar.path}"
+            }
+        }
     }
 }
 /**

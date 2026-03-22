@@ -26,51 +26,55 @@ internal const val BUFFER_SIZE = 32 * 1024
 val cronetEngine: CronetEngine? by lazy {
     CronetLoader.preDownload()
     disableCertificateVerify()
-    // 若 so 未安装，先同步下载安装以便 native builder 能正确加载
+    // 若 so 未安装，先同步下载以便 native 路径可用
     try { CronetLoader.installSync() } catch (e: Throwable) { AppLog.put("Cronet.installSync failed (pre-build)", e) }
-    val builder = try {
-        CronetEngine.Builder(appCtx)
-    } catch (e: Throwable) {
-        val msg = e.message ?: ""
-        if (msg.contains("HttpEngineNativeProvider") || e is NoClassDefFoundError || e is ClassNotFoundException) { AppLog.put("Cronet.Builder ctor failed — missing internal Cronet class (HttpEngineNativeProvider); skipping Cronet", e) }
-        else { AppLog.put("Cronet.Builder ctor failed", e) }
-        null
-    }?.apply {
-        if (CronetLoader.install()) {
-            setLibraryLoader(CronetLoader)//设置自定义so库加载
-        }
-        setStoragePath(appCtx.externalCache.absolutePath)//设置缓存路径
-        enableHttpCache(HTTP_CACHE_DISK, (1024 * 1024 * 50).toLong())//设置50M的磁盘缓存
-        enableQuic(true)//设置支持http/3
-        enableHttp2(true)  //设置支持http/2
-        enablePublicKeyPinningBypassForLocalTrustAnchors(true)
-        enableBrotli(true)//Brotli压缩
-        val m = this.javaClass.getMethod("setExperimentalOptions", String::class.java)
-        m.invoke(this, options)
-    }
-    if (builder == null) {
-        AppLog.put("Cronet.Builder unavailable; attempting NativeCronetEngineBuilderImpl via reflection")
+
+    // so 就绪时直接走 NativeCronetEngineBuilderImpl（platform jar 已移除，ServiceLoader 无 provider 注册）
+    if (CronetLoader.install()) {
         try {
             val implClass = Class.forName("org.chromium.net.impl.NativeCronetEngineBuilderImpl")
             val ctor = implClass.getConstructor(android.content.Context::class.java)
-            val nativeBuilder = ctor.newInstance(appCtx)
-            try {
-                val setLibraryLoader = implClass.getMethod("setLibraryLoader", org.chromium.net.CronetEngine.Builder.LibraryLoader::class.java)
-                setLibraryLoader.invoke(nativeBuilder, CronetLoader)
-            } catch (e: Throwable) { DebugLog.d("CronetHelper", "setLibraryLoader reflection: ${e.message}")
-            }
-            try { implClass.getMethod("setStoragePath", String::class.java).invoke(nativeBuilder, appCtx.externalCache.absolutePath) } catch (e: Throwable) { DebugLog.d("CronetHelper", "setStoragePath reflection: ${e.message}") }
-            try { implClass.getMethod("enableHttp2", Boolean::class.javaPrimitiveType).invoke(nativeBuilder, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableHttp2 reflection: ${e.message}") }
-            try { implClass.getMethod("enableBrotli", Boolean::class.javaPrimitiveType).invoke(nativeBuilder, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableBrotli reflection: ${e.message}") }
-            try { implClass.getMethod("setExperimentalOptions", String::class.java).invoke(nativeBuilder, options) } catch (e: Throwable) { DebugLog.d("CronetHelper", "setExperimentalOptions reflection: ${e.message}") }
-            val buildMethod = implClass.getMethod("build")
-            val engine = buildMethod.invoke(nativeBuilder)
+            val nb = ctor.newInstance(appCtx)
+            try { implClass.getMethod("setLibraryLoader", org.chromium.net.CronetEngine.Builder.LibraryLoader::class.java).invoke(nb, CronetLoader) } catch (e: Throwable) { DebugLog.d("CronetHelper", "setLibraryLoader: ${e.message}") }
+            try { implClass.getMethod("setStoragePath", String::class.java).invoke(nb, appCtx.externalCache.absolutePath) } catch (e: Throwable) { DebugLog.d("CronetHelper", "setStoragePath: ${e.message}") }
+            try { implClass.getMethod("enableHttpCache", Int::class.javaPrimitiveType, Long::class.javaPrimitiveType).invoke(nb, HTTP_CACHE_DISK, 1024L * 1024 * 50) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableHttpCache: ${e.message}") }
+            try { implClass.getMethod("enableQuic", Boolean::class.javaPrimitiveType).invoke(nb, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableQuic: ${e.message}") }
+            try { implClass.getMethod("enableHttp2", Boolean::class.javaPrimitiveType).invoke(nb, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableHttp2: ${e.message}") }
+            try { implClass.getMethod("enablePublicKeyPinningBypassForLocalTrustAnchors", Boolean::class.javaPrimitiveType).invoke(nb, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enablePKPBypass: ${e.message}") }
+            try { implClass.getMethod("enableBrotli", Boolean::class.javaPrimitiveType).invoke(nb, true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "enableBrotli: ${e.message}") }
+            try { implClass.getMethod("setExperimentalOptions", String::class.java).invoke(nb, options) } catch (e: Throwable) { DebugLog.d("CronetHelper", "setExperimentalOptions: ${e.message}") }
+            val engine = implClass.getMethod("build").invoke(nb)
             if (engine is CronetEngine) {
-                DebugLog.d("Cronet Version (native impl):", engine.versionString)
+                DebugLog.d("Cronet Version (native):", engine.versionString)
                 return@lazy engine
             }
-        } catch (e: Throwable) { AppLog.put("Native builder reflection failed", e) }
-        AppLog.put("Cronet.Builder unavailable; skipping cronetEngine init")
+        } catch (e: Throwable) {
+            AppLog.put("Cronet native reflection 初始化失败", e)
+        }
+        AppLog.put("Cronet 初始化失败，回退到 OkHttp")
+        return@lazy null
+    }
+
+    // so 不可用：尝试 ServiceLoader 路径（系统 / GMS Cronet）
+    val builder = try {
+        CronetEngine.Builder(appCtx)
+    } catch (e: Throwable) {
+        AppLog.put("Cronet.Builder ctor failed (no system provider)", e)
+        null
+    }?.apply {
+        setStoragePath(appCtx.externalCache.absolutePath)
+        enableHttpCache(HTTP_CACHE_DISK, 1024L * 1024 * 50)
+        enableQuic(true)
+        enableHttp2(true)
+        enablePublicKeyPinningBypassForLocalTrustAnchors(true)
+        enableBrotli(true)
+        try {
+            val m = this.javaClass.getMethod("setExperimentalOptions", String::class.java)
+            m.invoke(this, options)
+        } catch (e: Throwable) { DebugLog.d("CronetHelper", "setExperimentalOptions: ${e.message}") }
+    }
+    if (builder == null) {
+        AppLog.put("Cronet 初始化失败，回退到 OkHttp")
         return@lazy null
     }
     try {
@@ -78,20 +82,7 @@ val cronetEngine: CronetEngine? by lazy {
         DebugLog.d("Cronet Version:", engine.versionString)
         return@lazy engine
     } catch (e: Throwable) {
-        AppLog.put("Cronet build failed, attempting fallback", e)
-        val isMissingInternal = (e is NoClassDefFoundError) || (e is ClassNotFoundException) || (e.message?.contains("HttpEngineNativeProvider") == true)
-        if (isMissingInternal) {
-            try {
-                val fallback = CronetEngine.Builder(appCtx).apply {
-                    setStoragePath(appCtx.externalCache.absolutePath)
-                    try { enableHttp2(true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "fallback enableHttp2: ${e.message}") }
-                    try { enableBrotli(true) } catch (e: Throwable) { DebugLog.d("CronetHelper", "fallback enableBrotli: ${e.message}") }
-                }.build()
-                DebugLog.d("Cronet Fallback Version:", fallback.versionString)
-                return@lazy fallback
-            } catch (e2: Throwable) { AppLog.put("Cronet fallback build failed", e2) }
-        }
-        AppLog.put("初始化cronetEngine出错", e)
+        AppLog.put("Cronet system build 失败", e)
         return@lazy null
     }
 }

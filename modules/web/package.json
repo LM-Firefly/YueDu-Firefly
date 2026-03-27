@@ -41,7 +41,7 @@
     "eslint-plugin-vue": "^10.3.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.2",
     "unplugin-auto-import": "^20.2.0",
     "unplugin-icons": "^22.1.0",
     "unplugin-vue-components": "^30.0.0",

@@ -40,7 +40,7 @@ jobs:
     #      telegram: ${{ steps.check.outputs.telegram }}
     steps:
       - name: Setup timezone
-        uses: hoang-rio/set-timezone@v1.4
+        uses: hoang-rio/set-timezone@v1.5
         with:
           timezoneLinux: "Asia/Shanghai"
       - uses: actions/checkout@v6
@@ -196,7 +196,7 @@ jobs:
 #      LANZOU_FOLDER_ID: '2670621'
 #    steps:
 #      - name: Setup timezone
-#        uses: hoang-rio/set-timezone@v1.4
+#        uses: hoang-rio/set-timezone@v1.5
 #        with:
 #          timezoneLinux: "Asia/Shanghai"
 #      - uses: actions/checkout@v6

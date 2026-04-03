@@ -57,7 +57,7 @@ commonsText = "1.15.0"
 rhino = "1.9.1"
 
 #noinspection GradleDependency,NewerVersionAvailable
-media3 = "1.9.3"
+media3 = "1.10.0"
 
 #noinspection GradleDependency
 webkit = "1.15.0"

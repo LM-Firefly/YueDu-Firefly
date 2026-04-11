@@ -29,7 +29,7 @@ jobs:
     #      sign: ${{ steps.check.outputs.sign }}
     steps:
       - name: Setup timezone
-        uses: hoang-rio/set-timezone@v1.4
+        uses: hoang-rio/set-timezone@v1.5
         with:
           timezoneLinux: "Asia/Shanghai"
       - uses: actions/checkout@v6
@@ -84,7 +84,7 @@ jobs:
           sed '$a\RELEASE_STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}'     $GITHUB_WORKSPACE/gradle.properties -i
           sed '$a\RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}'       $GITHUB_WORKSPACE/gradle.properties -i
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build With Gradle
         run: |

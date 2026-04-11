@@ -42,26 +42,7 @@ object SecurityInitializer {
         try {
             AppLog.put("初始化 BouncyCastle 安全提供程序...")
             
-            // 方案 1: 通过 Hutool 的 GlobalBouncyCastleProvider
-            try {
-                val providerClass = Class.forName("cn.hutool.crypto.GlobalBouncyCastleProvider")
-                val instance = providerClass.getDeclaredField("INSTANCE").get(null) as? Provider
-                if (instance != null) {
-                    val installed = Security.getProvider(instance.name)
-                    if (installed == null) {
-                        Security.addProvider(instance)
-                        AppLog.put("✓ Hutool GlobalBouncyCastleProvider 已初始化并注册")
-                        return
-                    } else {
-                        AppLog.put("✓ Hutool GlobalBouncyCastleProvider 已存在")
-                        return
-                    }
-                }
-            } catch (e: Exception) {
-                AppLog.put("获取 Hutool GlobalBouncyCastleProvider 失败: ${e.message}")
-            }
-            
-            // 方案 2: 直接使用 BouncyCastle 提供程序
+            // 使用可选的 BouncyCastle 提供程序（若存在则注册）
             try {
                 val bcProvider = Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")
                     .getConstructor().newInstance() as? Provider
@@ -121,8 +102,8 @@ object SecurityInitializer {
     fun verifyCryptoAvailable(): Boolean {
         return try {
             // 尝试创建一个简单的加密实例
-            val crypto = io.legado.app.help.crypto.SymmetricCryptoAndroid("AES", "1234567890123456".toByteArray())
-            crypto != null
+            io.legado.app.help.crypto.SymmetricCryptoAndroid("AES", "1234567890123456".toByteArray())
+            true
         } catch (e: Exception) {
             AppLog.put("加密库验证失败: ${e.javaClass.simpleName}")
             false

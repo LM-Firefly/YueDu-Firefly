@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Base64
 import androidx.annotation.Keep
 import androidx.media3.common.MediaItem
-import cn.hutool.core.codec.PercentCodec
-import cn.hutool.core.net.RFC3986
-import cn.hutool.core.util.HexUtil
 import com.bumptech.glide.load.model.GlideUrl
 import com.script.buildScriptBindings
 import com.script.rhino.RhinoScriptEngine
@@ -43,6 +40,7 @@ import io.legado.app.model.Debug
 import io.legado.app.utils.EncoderUtils
 import io.legado.app.utils.GSON
 import io.legado.app.utils.GSONStrict
+import io.legado.app.utils.HexUtils
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.fromJsonArray
 import io.legado.app.utils.fromJsonObject
@@ -295,7 +293,7 @@ class AnalyzeUrl(
             if (NetworkUtils.encodedQuery(params)) {
                 return params
             }
-            return queryEncoder.encode(params, charset)
+            return Companion.encodeQueryPreservingReserved(params, charset)
         }
         val len = params.length
         val sb = StringBuilder()
@@ -403,7 +401,7 @@ class AnalyzeUrl(
         useWebView: Boolean = true,
     ): StrResponse {
         if (type != null) {
-            return StrResponse(url, HexUtil.encodeHexStr(getByteArrayAwait()))
+            return StrResponse(url, HexUtils.encodeHexStr(getByteArrayAwait()))
         }
         concurrentRateLimiter.withLimit {
             setCookie()
@@ -668,8 +666,24 @@ class AnalyzeUrl(
     companion object {
         val paramPattern: Pattern = Pattern.compile("\\s*,\\s*(?=\\{)")
         private val pagePattern = Pattern.compile("<(.*?)>")
-        private val queryEncoder =
-            RFC3986.UNRESERVED.orNew(PercentCodec.of("!$%&()*+,/:;=?@[\\]^`{|}"))
+        private const val QUERY_ALLOWED = "-._~!$%&()*+,/:;=?@[\\]^`{|}"
+
+        private fun encodeQueryPreservingReserved(params: String, charset: Charset): String {
+            val out = StringBuilder(params.length)
+            for (ch in params) {
+                if (ch.isLetterOrDigit() || QUERY_ALLOWED.indexOf(ch) >= 0) {
+                    out.append(ch)
+                } else {
+                    val bytes = ch.toString().toByteArray(charset)
+                    for (b in bytes) {
+                        out.append('%')
+                        out.append(((b.toInt() ushr 4) and 0xF).toString(16).uppercase())
+                        out.append((b.toInt() and 0xF).toString(16).uppercase())
+                    }
+                }
+            }
+            return out.toString()
+        }
 
         fun AnalyzeUrl.getMediaItem(): MediaItem {
             setCookie()

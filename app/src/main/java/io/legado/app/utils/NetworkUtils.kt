@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import cn.hutool.core.lang.Validator
 import io.legado.app.constant.AppLog
 import okhttp3.internal.publicsuffix.PublicSuffixDatabase
 import splitties.systemservices.connectivityManager
@@ -275,17 +274,23 @@ object NetworkUtils {
      * @return True if the input parameter is a valid IPv4 address.
      */
     fun isIPv4Address(input: String?): Boolean {
-        return input != null && input.isNotEmpty()
-                && input[0] in '1'..'9'
-                && input.count { it == '.' } == 3
-                && Validator.isIpv4(input)
+        if (input.isNullOrEmpty()) return false
+        if (input[0] !in '1'..'9') return false
+        if (input.count { it == '.' } != 3) return false
+        return runCatching {
+            val address = InetAddress.getByName(input)
+            address.hostAddress == input && address is java.net.Inet4Address
+        }.getOrDefault(false)
     }
 
     /**
      * Check if valid IPV6 address.
      */
     fun isIPv6Address(input: String?): Boolean {
-        return input != null && input.contains(":") && Validator.isIpv6(input)
+        if (input.isNullOrBlank() || !input.contains(":")) return false
+        return runCatching {
+            InetAddress.getByName(input) is java.net.Inet6Address
+        }.getOrDefault(false)
     }
 
     /**

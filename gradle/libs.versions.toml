@@ -81,8 +81,8 @@ activity-activity = { module = "androidx.activity:activity", version.ref = "acti
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 
-androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.9.1" }
-#androidx-annotation-experimental = { group = "androidx.annotation", name = "annotation-experimental", version = "1.9.1" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.10.0" }
+#androidx-annotation-experimental = { group = "androidx.annotation", name = "annotation-experimental", version = "1.10.0" }
 
 androidx-collection = { module = "androidx.collection:collection", version.ref = "collection" }
 appcompat-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }

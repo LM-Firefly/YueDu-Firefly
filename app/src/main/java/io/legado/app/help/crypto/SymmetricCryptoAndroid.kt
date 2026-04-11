@@ -1,9 +1,9 @@
 package io.legado.app.help.crypto
 
+import android.util.Base64
 import androidx.annotation.Keep
-import cn.hutool.core.codec.Base64
-import cn.hutool.core.util.HexUtil
 import io.legado.app.utils.EncoderUtils
+import io.legado.app.utils.HexUtils
 import io.legado.app.utils.isHex
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -104,17 +104,17 @@ class SymmetricCryptoAndroid(
 
     fun encryptBase64(data: InputStream): String = EncoderUtils.base64Encode(encrypt(data))
 
-    fun encryptHex(data: ByteArray): String = HexUtil.encodeHexStr(encrypt(data))
+    fun encryptHex(data: ByteArray): String = HexUtils.encodeHexStr(encrypt(data))
 
-    fun encryptHex(data: String): String = HexUtil.encodeHexStr(encrypt(data))
+    fun encryptHex(data: String): String = HexUtils.encodeHexStr(encrypt(data))
 
     fun decrypt(data: ByteArray): ByteArray = createCipher(Cipher.DECRYPT_MODE).doFinal(data)
 
     fun decrypt(data: String): ByteArray {
         val bytes = if (data.isHex()) {
-            HexUtil.decodeHex(data)
+            HexUtils.decodeHex(data)
         } else {
-            Base64.decode(data)
+            Base64.decode(data, Base64.DEFAULT)
         }
         return decrypt(bytes)
     }

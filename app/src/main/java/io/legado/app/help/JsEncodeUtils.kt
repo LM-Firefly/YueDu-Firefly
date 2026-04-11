@@ -1,12 +1,14 @@
 package io.legado.app.help
 
 import android.util.Base64
-import cn.hutool.crypto.digest.HMac
 import io.legado.app.help.crypto.AsymmetricCrypto
 import io.legado.app.help.crypto.Sign
 import io.legado.app.help.crypto.SymmetricCryptoAndroid
+import io.legado.app.utils.HexUtils
 import io.legado.app.utils.MD5Utils
 import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 
 /**
@@ -477,7 +479,11 @@ interface JsEncodeUtils {
         algorithm: String,
         key: String
     ): String {
-        return HMac(algorithm, key.toByteArray()).digestHex(data)
+        return runCatching {
+            val mac = Mac.getInstance(algorithm)
+            mac.init(SecretKeySpec(key.toByteArray(), algorithm))
+            HexUtils.encodeHexStr(mac.doFinal(data.toByteArray()))
+        }.getOrDefault("")
     }
 
     /**
@@ -494,10 +500,11 @@ interface JsEncodeUtils {
         algorithm: String,
         key: String
     ): String {
-        return Base64.encodeToString(
-            HMac(algorithm, key.toByteArray()).digest(data),
-            Base64.NO_WRAP
-        )
+        return runCatching {
+            val mac = Mac.getInstance(algorithm)
+            mac.init(SecretKeySpec(key.toByteArray(), algorithm))
+            Base64.encodeToString(mac.doFinal(data.toByteArray()), Base64.NO_WRAP)
+        }.getOrDefault("")
     }
 
 

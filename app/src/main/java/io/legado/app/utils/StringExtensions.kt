@@ -7,12 +7,12 @@ import android.icu.text.Collator
 import android.icu.util.ULocale
 import android.net.Uri
 import android.text.Editable
-import cn.hutool.core.net.URLEncodeUtil
 import io.legado.app.constant.AppPattern
 import io.legado.app.constant.AppPattern.dataUriRegex
 import java.io.File
 import java.lang.Character.codePointCount
 import java.lang.Character.offsetByCodePoints
+import java.net.URLEncoder
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -139,7 +139,9 @@ fun String.escapeRegex(): String {
     return replace(AppPattern.regexCharRegex, "\\\\$0")
 }
 
-fun String.encodeURI(): String = URLEncodeUtil.encodeQuery(this)
+fun String.encodeURI(): String = URLEncoder.encode(this, Charsets.UTF_8)
+    .replace("+", "%20")
+    .replace("%7E", "~")
 
 fun String.normalizeFileName(): String {
     return replace(AppPattern.fileNameRegex2, "_")

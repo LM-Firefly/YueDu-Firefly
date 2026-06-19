@@ -64,7 +64,7 @@ webkit = "1.15.0"
 #noinspection GradleDependency
 activity = "1.13.0"
 #noinspection GradleDependency
-lifecycle = "2.10.0"
+lifecycle = "2.11.0"
 #noinspection GradleDependency
 room = "2.8.4"
 #noinspection GradleDependency

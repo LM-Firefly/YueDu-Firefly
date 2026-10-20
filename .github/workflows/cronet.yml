@@ -32,6 +32,42 @@ jobs:
           chmod +x gradlew
           ./gradlew app:downloadCronet
 
+      # B 警告式：编译校验只记录结果、不阻塞 PR，用于暴露新版 cronet 的破坏性 API 变更（需手工改代码）
+      - name: Verify build (catch cronet API breaks)
+        if: ${{ env.cronet == 'ok' }}
+        continue-on-error: true
+        run: |
+          chmod +x gradlew
+          code=0
+          ./gradlew :app:compileAppDebugKotlin > build-check.log 2>&1 || code=$?
+          if [ "$code" -eq 0 ]; then
+            {
+              echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
+              echo '✅ **cronet API 编译校验通过**（`./gradlew :app:compileAppDebugKotlin`），无需手工改动代码。'
+              echo 'CRONET_BUILD_EOF'
+            } >> "$GITHUB_ENV"
+          else
+            {
+              echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
+              echo '⚠️ **cronet API 编译校验失败** —— 新版 cronet 存在破坏性 API 变更，此 PR 需手工修复代码后再合并。'
+              echo ''
+              echo '报错摘录：'
+              echo ''
+              echo '```'
+              grep -m10 -E "e: |error:|FAILED|Execution failed" build-check.log || echo '(未匹配到标准 error 行，请展开下方完整日志)'
+              echo '```'
+              echo ''
+              echo '<details><summary>完整编译日志（末 40 行）</summary>'
+              echo ''
+              echo '```'
+              tail -n 40 build-check.log
+              echo '```'
+              echo ''
+              echo '</details>'
+              echo 'CRONET_BUILD_EOF'
+            } >> "$GITHUB_ENV"
+          fi
+
       - name: Create Pull Request
         if: ${{ env.cronet == 'ok' }}
         uses: peter-evans/create-pull-request@v7
@@ -42,7 +78,11 @@ jobs:
           commit-message: |
             ${{ env.PR_TITLE }}
             - ${{ env.PR_BODY }}
-          body: ${{ env.PR_BODY }}
+          body: |
+            ${{ env.PR_BODY }}
+            ---
+            ### 编译校验（cronet API 兼容性）
+            ${{ env.BUILD_STATUS }}
           branch: cronet
           delete-branch: true
           add-paths: |

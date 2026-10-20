@@ -72,7 +72,7 @@ class App : Application() {
         super.onCreate()
         CrashHandler(this)
         if (isDebuggable) {
-            ThreadUtils.setThreadAssertsDisabledForTesting(true)
+            ThreadUtils.hasSubtleSideEffectsSetThreadAssertsDisabledForTesting(true)
         }
         oldConfig = Configuration(resources.configuration)
         applyDayNightInit(this)

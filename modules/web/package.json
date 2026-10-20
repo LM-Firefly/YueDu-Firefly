@@ -20,7 +20,7 @@
     "@element-plus/icons-svg": "^2.3.2",
     "@element-plus/icons-vue": "^2.3.2",
     "@vueuse/core": "^14.4.0",
-    "@vueuse/shared": "^14.4.0",
+    "@vueuse/shared": "^15.0.0",
     "axios": "^1.20.0",
     "element-plus": "^2.14.7",
     "hotkeys-js": "^4.0.8",

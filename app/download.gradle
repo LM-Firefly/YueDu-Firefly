@@ -34,7 +34,8 @@ tasks.register('downloadJar', Download) {
             BASE_PATH + "cronet_impl_common_java.jar",
             BASE_PATH + "cronet_impl_native_java.jar",
             BASE_PATH + "cronet_impl_platform_java.jar",
-            BASE_PATH + "cronet_shared_java.jar"
+            BASE_PATH + "cronet_shared_java.jar",
+            BASE_PATH + "httpengine_native_provider_java.jar"
     ])
     dest libPath
     // use method-style setters compatible with the download plugin
@@ -109,5 +110,3 @@ tasks.register('downloadCronet') {
 
 
 }
-
-

@@ -16,12 +16,12 @@ jobs:
       - name: Check Cronet Updates
         run: source .github/scripts/cronet.sh
 
-      - name: Set up JDK 21
+      - name: Set up JDK 24
         if: ${{ env.cronet == 'ok' }}
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 21
+          java-version: 24
 
       - uses: gradle/actions/setup-gradle@v5
         if: ${{ env.cronet == 'ok' }}
@@ -32,35 +32,44 @@ jobs:
           chmod +x gradlew
           ./gradlew app:downloadCronet
 
-      # B 警告式：编译校验只记录结果、不阻塞 PR，用于暴露新版 cronet 的破坏性 API 变更（需手工改代码）
-      - name: Verify build (catch cronet API breaks)
+      # B 警告式：R8/编译校验只记录结果、不阻塞 PR，用于暴露新版 cronet 的破坏性变更（API 改名 / R8 缺类，需手工改代码或补 -dontwarn）
+      # 用 minifyAppReleaseWithR8 而非 compileAppDebugKotlin：cronet 破坏性变更常在 R8(release 混淆)才暴露，debug 不混淆测不出
+      - name: Verify build (catch cronet API/R8 breaks)
         if: ${{ env.cronet == 'ok' }}
         continue-on-error: true
         run: |
           chmod +x gradlew
           code=0
-          ./gradlew :app:compileAppDebugKotlin > build-check.log 2>&1 || code=$?
+          ./gradlew :app:minifyAppReleaseWithR8 > build-check.log 2>&1 || code=$?
           if [ "$code" -eq 0 ]; then
             {
               echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
-              echo '✅ **cronet API 编译校验通过**（`./gradlew :app:compileAppDebugKotlin`），无需手工改动代码。'
+              echo '✅ **cronet R8/编译校验通过**（`./gradlew :app:minifyAppReleaseWithR8`），无需手工改动代码。'
               echo 'CRONET_BUILD_EOF'
             } >> "$GITHUB_ENV"
           else
             {
               echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
-              echo '⚠️ **cronet API 编译校验失败** —— 新版 cronet 存在破坏性 API 变更，此 PR 需手工修复代码后再合并。'
+              echo '⚠️ **cronet R8/编译校验失败** —— 新版 cronet 存在破坏性变更（API 改名或 R8 缺类），此 PR 需手工修复后再合并。'
               echo ''
-              echo '报错摘录：'
-              echo ''
-              echo '```'
-              grep -m10 -E "e: |error:|FAILED|Execution failed" build-check.log || echo '(未匹配到标准 error 行，请展开下方完整日志)'
-              echo '```'
-              echo ''
-              echo '<details><summary>完整编译日志（末 40 行）</summary>'
+              echo '报错摘录（R8 缺类按下方补 `-dontwarn` 到 app/proguard-rules.pro）：'
               echo ''
               echo '```'
-              tail -n 40 build-check.log
+              grep -m15 -E "ERROR|Missing class|Unresolved|e: |error:|FAILED|Execution failed" build-check.log || echo '(未匹配到标准 error 行，请展开下方完整日志)'
+              echo '```'
+              echo ''
+              if [ -f app/build/outputs/mapping/appRelease/missing_rules.txt ]; then
+                echo 'R8 生成的 missing_rules.txt（可直接补到 app/proguard-rules.pro）：'
+                echo ''
+                echo '```'
+                cat app/build/outputs/mapping/appRelease/missing_rules.txt
+                echo '```'
+              fi
+              echo ''
+              echo '<details><summary>完整编译日志（末 50 行）</summary>'
+              echo ''
+              echo '```'
+              tail -n 50 build-check.log
               echo '```'
               echo ''
               echo '</details>'
@@ -87,6 +96,7 @@ jobs:
           delete-branch: true
           add-paths: |
             *cronet*jar
+            *httpengine*jar
             *cronet.json
             *updateLog.md
             *gradle.properties

@@ -192,7 +192,7 @@ class JSAdapter private constructor(var adaptee: Scriptable) : Scriptable, Funct
                     res
                 }
                 !is NativeJavaArray -> {
-                    Context.emptyArgs
+                    ScriptRuntime.emptyArgs
                 }
                 else -> {
                     val tmp = val1.unwrap()
@@ -203,7 +203,7 @@ class JSAdapter private constructor(var adaptee: Scriptable) : Scriptable, Funct
                             res[index] = mapToId(array[index])
                         }
                     } else {
-                        res = Context.emptyArgs
+                        res = ScriptRuntime.emptyArgs
                     }
                     res
                 }

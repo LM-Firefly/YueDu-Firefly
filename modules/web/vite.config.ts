@@ -51,9 +51,6 @@ export default defineConfig(({ mode }) => {
         "@utils": fileURLToPath(new URL("./src/utils/", import.meta.url)),
       },
     },
-    esbuild: {
-      drop: mode === "development" ? undefined : ["console", "debugger"],
-    },
     build: {
       rollupOptions: {
         output: {
@@ -62,13 +59,15 @@ export default defineConfig(({ mode }) => {
               return "vendor";
             }
           },
-        },
-      },
-    },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern-compiler', // or 'modern'
+          // Vite 8 默认使用 rolldown/oxc 压缩，`esbuild` 选项不再生效，用 output.minify 的 compress 选项剔除 console/debugger。
+          minify: {
+            compress: {
+              dropConsole: mode !== "development",
+              dropDebugger: true,
+            },
+            mangle: true,
+            codegen: true,
+          },
         },
       },
     },

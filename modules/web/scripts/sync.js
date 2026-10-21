@@ -7,7 +7,7 @@ if (!process.env.GITHUB_ENV) {
   process.exit();
 }
 const LEGADO_ASSETS_WEB_VUE_DIR = new URL(
-  "../../../app/src/main/assets/web/vue",
+  "../../../YueDu/assets/web/vue",
   import.meta.url,
 );
 const VUE_DIST_DIR = new URL("../dist", import.meta.url);

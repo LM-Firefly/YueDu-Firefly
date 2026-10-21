@@ -1,13 +1,14 @@
 package io.YueDu.help
 
 import android.util.Base64
-import cn.hutool.crypto.digest.DigestUtil
-import cn.hutool.crypto.digest.HMac
-import cn.hutool.crypto.symmetric.SymmetricCrypto
 import io.YueDu.help.crypto.AsymmetricCrypto
 import io.YueDu.help.crypto.Sign
 import io.YueDu.help.crypto.SymmetricCryptoAndroid
+import io.YueDu.utils.HexUtils
 import io.YueDu.utils.MD5Utils
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 
 /**
@@ -38,12 +39,12 @@ interface JsEncodeUtils {
      * java.createSymmetricCrypto(transformation, key, iv).encryptHex(data)
      */
 
-    /* 调用SymmetricCrypto key为null时使用随机密钥*/
+    /* key 为null时使用随机密钥 */
     fun createSymmetricCrypto(
         transformation: String,
         key: ByteArray?,
         iv: ByteArray?
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         val symmetricCrypto = SymmetricCryptoAndroid(transformation, key)
         return if (iv != null && iv.isNotEmpty()) symmetricCrypto.setIv(iv) else symmetricCrypto
     }
@@ -51,14 +52,14 @@ interface JsEncodeUtils {
     fun createSymmetricCrypto(
         transformation: String,
         key: ByteArray
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(transformation, key, null)
     }
 
     fun createSymmetricCrypto(
         transformation: String,
         key: String
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(transformation, key, null)
     }
 
@@ -66,7 +67,7 @@ interface JsEncodeUtils {
         transformation: String,
         key: String,
         iv: String?
-    ): SymmetricCrypto {
+    ): SymmetricCryptoAndroid {
         return createSymmetricCrypto(
             transformation, key.encodeToByteArray(), iv?.encodeToByteArray()
         )
@@ -439,7 +440,11 @@ interface JsEncodeUtils {
         data: String,
         algorithm: String,
     ): String {
-        return DigestUtil.digester(algorithm).digestHex(data)
+        return runCatching {
+            val digest = MessageDigest.getInstance(algorithm)
+            val hash = digest.digest(data.toByteArray())
+            hash.joinToString("") { "%02x".format(it) }
+        }.getOrDefault("")
     }
 
     /**
@@ -453,7 +458,11 @@ interface JsEncodeUtils {
         data: String,
         algorithm: String,
     ): String {
-        return Base64.encodeToString(DigestUtil.digester(algorithm).digest(data), Base64.NO_WRAP)
+        return runCatching {
+            val digest = MessageDigest.getInstance(algorithm)
+            val hash = digest.digest(data.toByteArray())
+            Base64.encodeToString(hash, Base64.NO_WRAP)
+        }.getOrDefault("")
     }
 
     /**
@@ -470,7 +479,11 @@ interface JsEncodeUtils {
         algorithm: String,
         key: String
     ): String {
-        return HMac(algorithm, key.toByteArray()).digestHex(data)
+        return runCatching {
+            val mac = Mac.getInstance(algorithm)
+            mac.init(SecretKeySpec(key.toByteArray(), algorithm))
+            HexUtils.encodeHexStr(mac.doFinal(data.toByteArray()))
+        }.getOrDefault("")
     }
 
     /**
@@ -487,10 +500,11 @@ interface JsEncodeUtils {
         algorithm: String,
         key: String
     ): String {
-        return Base64.encodeToString(
-            HMac(algorithm, key.toByteArray()).digest(data),
-            Base64.NO_WRAP
-        )
+        return runCatching {
+            val mac = Mac.getInstance(algorithm)
+            mac.init(SecretKeySpec(key.toByteArray(), algorithm))
+            Base64.encodeToString(mac.doFinal(data.toByteArray()), Base64.NO_WRAP)
+        }.getOrDefault("")
     }
 
 

@@ -53,19 +53,35 @@ function write_github_env_variable() {
     echo "$1=$2" >> $GITHUB_ENV
 }
 
+# 从与 jar/so 同源的 chromium-cronet 发布桶拉取官方 proguard 规则。不用 raw.githubusercontent.com： GitHub 对 runner 共享 IP 有滥用检测容易 429 限流，
+# 且限流错误页会被当正文返回、写进规则文件就抹掉全部 keep 规则（曾致 PR #631 R8 编译失败）。
+# 桶内 cronet_impl_native_proguard.cfg 与 GitHub 的 cronet_combined_impl_native_proguard_golden.cfg 逐字节一致（已比对 SHA256）。
 function sync_proguard_rules() {
-    local raw_github_git="https://raw.githubusercontent.com/chromium/chromium/$lastest_cronet_version"
+    local bucket_base="https://storage.googleapis.com/chromium-cronet/android/$lastest_cronet_version/Release/cronet"
     local proguard_paths=(
-      components/cronet/android/cronet_combined_impl_native_proguard_golden.cfg
+      cronet_impl_native_proguard.cfg
     )
     local proguard_rules_path="$GITHUB_WORKSPACE/YueDu/cronet-proguard-rules.pro"
-    rm -f $proguard_rules_path
-    echo "fetch cronet proguard rules from upstream $raw_github_git"
+    local tmp="$proguard_rules_path.tmp"
+    echo "fetch cronet proguard rules from $bucket_base"
+    rm -f "$tmp"
     for path in ${proguard_paths[@]}
     do
         echo "fetching $path ..."
-        curl "$raw_github_git/$path" >> $proguard_rules_path
+        # -f：HTTP 错误返回非零且不输出错误页；重试后仍失败则硬失败，绝不把错误页写进规则文件（会覆盖全部 keep 规则，R8 直接编译失败）
+        curl -fsSL --retry 5 --retry-delay 10 --retry-all-errors "$bucket_base/$path" >> "$tmp" || {
+            echo "ERROR: failed to fetch $path from $bucket_base"
+            rm -f "$tmp"
+            exit 1
+        }
     done
+    # 内容校验：必须是合法 proguard 规则（非空、含 -keep 类指令、不含限流错误页），校验失败中止整个 workflow，不允许带着垃圾内容继续生成 PR
+    if [ ! -s "$tmp" ] || ! grep -q "^-" "$tmp" || grep -qi "too many requests" "$tmp"; then
+        echo "ERROR: fetched proguard rules are invalid, abort to avoid committing garbage"
+        rm -f "$tmp"
+        exit 1
+    fi
+    mv "$tmp" "$proguard_rules_path"
 }
 ##########
 # 获取本地cronet版本

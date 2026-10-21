@@ -23,12 +23,16 @@ def name = "YueDu"
 def version = "3." + releaseTime()
 def gitCommits = 0
 try {
-    def proc = "git rev-list HEAD --count".execute(null, rootProject.rootDir)
-    proc.waitFor()
-    if (proc.exitValue() == 0) {
-        gitCommits = Integer.parseInt(proc.in.text.trim())
+    // ProviderFactory.exec：避免已弃用的配置期外部进程调用（旧 Groovy .execute()，Gradle 11 将报错）
+    def execOutput = providers.exec {
+        commandLine 'git', 'rev-list', 'HEAD', '--count'
+        workingDir = rootProject.rootDir
+        ignoreExitValue = true
+    }
+    if (execOutput.result.get().exitValue == 0) {
+        gitCommits = Integer.parseInt(execOutput.standardOutput.asText.get().trim())
     } else {
-        def digits = (proc.err?.text ?: "").find(/\d+/) ?: "0"
+        def digits = (execOutput.standardError.asText.get() ?: "").find(/\d+/) ?: "0"
         gitCommits = Integer.parseInt(digits)
     }
 } catch (Exception ignored) {
@@ -55,6 +59,7 @@ def versionCodeFromVersion(String ver, int fallback) {
 
 android {
     compileSdk = rootProject.ext.compile_sdk_version
+    compileSdkMinor = rootProject.ext.compile_sdk_minor
     namespace = 'io.YueDu'
     kotlin {
         jvmToolchain {
@@ -78,15 +83,15 @@ android {
         if (hasReleaseSigning) {
             myConfig {
                 if (project.hasProperty("RELEASE_STORE_FILE")) {
-                    storeFile file(RELEASE_STORE_FILE)
-                    storePassword RELEASE_STORE_PASSWORD
-                    keyAlias RELEASE_KEY_ALIAS
-                    keyPassword RELEASE_KEY_PASSWORD
+                    storeFile = file(RELEASE_STORE_FILE)
+                    storePassword = RELEASE_STORE_PASSWORD
+                    keyAlias = RELEASE_KEY_ALIAS
+                    keyPassword = RELEASE_KEY_PASSWORD
                 } else {
-                    storeFile rootProject.file(localSigningProps.getProperty("keystore.path"))
-                    storePassword localSigningProps.getProperty("keystore.password")
-                    keyAlias localSigningProps.getProperty("key.alias")
-                    keyPassword localSigningProps.getProperty("key.password")
+                    storeFile = rootProject.file(localSigningProps.getProperty("keystore.path"))
+                    storePassword = localSigningProps.getProperty("keystore.password")
+                    keyAlias = localSigningProps.getProperty("key.alias")
+                    keyPassword = localSigningProps.getProperty("key.password")
                 }
                 enableV1Signing = true
                 enableV2Signing = true
@@ -97,8 +102,8 @@ android {
     }
     defaultConfig {
     applicationId = "io.YueDu"
-        minSdk 26
-        targetSdk = 36
+        minSdk = 26
+        targetSdk = 37
     versionCode = versionCodeFromVersion(version, 10000 + gitCommits)
     versionName = version
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -124,7 +129,7 @@ android {
     buildTypes {
         release {
             if (hasReleaseSigning) {
-                signingConfig signingConfigs.myConfig
+                signingConfig = signingConfigs.myConfig
             }
             applicationIdSuffix = '.Firefly'
 //            if (getApplicationIdSuffix() == '.Firefly') {
@@ -135,11 +140,12 @@ android {
 
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
+            // cronet-local-rules.pro 为本地补丁（protobuf 字段/provider keep），独立于会被 cronet.sh 覆盖的 cronet-proguard-rules.pro
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro', 'cronet-local-rules.pro'
         }
         debug {
             if (hasReleaseSigning) {
-                signingConfig signingConfigs.myConfig
+                signingConfig = signingConfigs.myConfig
             }
             manifestPlaceholders.put("app_name", "@string/app_name")
 
@@ -181,11 +187,14 @@ android {
     sourceSets {
         // 源码树扁平化布局：源码直接位于 YueDu/src（包名 io.YueDu.* 不再镜像目录）
         main {
+            // manifest.srcFile(...) 是方法调用（非属性赋值，不适用 = 语法）
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
             kotlin.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            // Cronet so 以标准 jniLibs 结构打包（jniLibs/<abi>/libcronet.<version>.so）
+            jniLibs.srcDirs = ['jniLibs']
         }
         test {
             java.srcDirs = ['test']
@@ -203,8 +212,11 @@ android {
     }
     lint {
         checkDependencies = true
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
     }
-    buildToolsVersion '37.0.0'
+    buildToolsVersion = '37.0.0'
     ndkVersion = '30.0.16248370'
     tasks.withType(JavaCompile).tap {
         configureEach {

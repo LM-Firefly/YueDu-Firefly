@@ -18,12 +18,12 @@ jobs:
 
       - name: Set up JDK 25
         if: ${{ env.cronet == 'ok' }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: 25
 
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
         if: ${{ env.cronet == 'ok' }}
 
       - name: Download Cronet
@@ -32,22 +32,110 @@ jobs:
           chmod +x gradlew
           ./gradlew YueDu:downloadCronet
 
+      # A 警告式：校验 cronet provider 反射链完整性。155 升级踩过的坑： jar 缺 NativeCronetProviderSentinel 类 + JavaCronetProvider 被 R8 剥离 → 运行时 "All available Cronet providers are disabled" 全网挂，而编译/R8 校验完全测不出（问题只在运行时反射链暴露），只能静态查。
+      - name: Sanity check (cronet provider chain)
+        if: ${{ env.cronet == 'ok' }}
+        continue-on-error: true
+        run: |
+          msg=''
+          # 1) app 侧 Sentinel 补丁类必须在（Cronet 155+ jar 缺此类，isEnabled() 靠它）
+          if ! grep -rq "NativeCronetProviderSentinel" YueDu/src/org/chromium/net/impl/ 2>/dev/null; then
+            msg="${msg}❌ **NativeCronetProviderSentinel 补丁类缺失**（YueDu/src/org/chromium/net/impl/）——NativeCronetProvider.isEnabled() 恒 false，全部网络请求失败，请恢复补丁类。"$'\n'
+          fi
+          # 2) 新版 jar 若已内置 Sentinel → duplicate class 风险，需删 app 侧补丁类
+          for j in YueDu/cronetlib/*.jar; do
+            if unzip -l "$j" 2>/dev/null | grep -q "NativeCronetProviderSentinel"; then
+              msg="${msg}⚠️ **新版 cronet jar 已内置 NativeCronetProviderSentinel**——请删除 app 侧补丁类 YueDu/src/org/chromium/net/impl/NativeCronetProviderSentinel.kt，避免 duplicate class 构建失败。"$'\n'
+              break
+            fi
+          done
+          # 3) 本地补丁 keep 文件必须完整（sync_proguard_rules 会覆盖官方文件，本地补丁独立于此）
+          if ! grep -q "JavaCronetProvider" YueDu/cronet-local-rules.pro 2>/dev/null; then
+            msg="${msg}❌ **cronet-local-rules.pro 缺失或被改动**——protobuf 字段/provider keep 规则丢失，flags_ 反射崩溃与 provider disabled 将回归。"$'\n'
+          fi
+          if [ -z "$msg" ]; then
+            msg='✅ **provider 链校验通过**（Sentinel 补丁类在位、本地 keep 规则完整、jar 无 duplicate 风险）。'
+          fi
+          {
+            echo 'PROVIDER_STATUS<<CRONET_PROVIDER_EOF'
+            printf '%s\n' "$msg"
+            echo 'CRONET_PROVIDER_EOF'
+          } >> "$GITHUB_ENV"
+
+      # B 警告式：R8/编译校验只记录结果、不阻塞 PR，用于暴露新版 cronet 的破坏性变更（API 改名 / R8 缺类，需手工改代码或补 -dontwarn）
+      # 用 minifyAppReleaseWithR8 而非 compileAppDebugKotlin：cronet 破坏性变更常在 R8(release 混淆)才暴露，debug 不混淆测不出
+      - name: Verify build (catch cronet API/R8 breaks)
+        if: ${{ env.cronet == 'ok' }}
+        continue-on-error: true
+        run: |
+          chmod +x gradlew
+          code=0
+          # 日志放 RUNNER_TEMP，避免留在工作区被 create-pull-request 当作待提交文件
+          log="$RUNNER_TEMP/build-check.log"
+          ./gradlew :YueDu:minifyAppReleaseWithR8 > "$log" 2>&1 || code=$?
+          if [ "$code" -eq 0 ]; then
+            {
+              echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
+              echo '✅ **cronet R8/编译校验通过**（`./gradlew :YueDu:minifyAppReleaseWithR8`），无需手工改动代码。'
+              echo 'CRONET_BUILD_EOF'
+            } >> "$GITHUB_ENV"
+          else
+            {
+              echo 'BUILD_STATUS<<CRONET_BUILD_EOF'
+              echo '⚠️ **cronet R8/编译校验失败** —— 新版 cronet 存在破坏性变更（API 改名或 R8 缺类），此 PR 需手工修复后再合并。'
+              echo ''
+              echo '报错摘录（R8 缺类按下方补 `-dontwarn` 到 YueDu/proguard-rules.pro）：'
+              echo ''
+              echo '```'
+              grep -m15 -E "ERROR|Missing class|Unresolved|e: |error:|FAILED|Execution failed" "$log" || echo '(未匹配到标准 error 行，请展开下方完整日志)'
+              echo '```'
+              echo ''
+              if [ -f YueDu/build/outputs/mapping/appRelease/missing_rules.txt ]; then
+                echo 'R8 生成的 missing_rules.txt（可直接补到 YueDu/proguard-rules.pro）：'
+                echo ''
+                echo '```'
+                cat YueDu/build/outputs/mapping/appRelease/missing_rules.txt
+                echo '```'
+              fi
+              echo ''
+              echo '<details><summary>完整编译日志（末 50 行）</summary>'
+              echo ''
+              echo '```'
+              tail -n 50 "$log"
+              echo '```'
+              echo ''
+              echo '</details>'
+              echo 'CRONET_BUILD_EOF'
+            } >> "$GITHUB_ENV"
+          fi
+
       - name: Create Pull Request
         if: ${{ env.cronet == 'ok' }}
-        uses: peter-evans/create-pull-request@v7
-        continue-on-error: true
+        uses: peter-evans/create-pull-request@v8
+        # 不加 continue-on-error：PR 创建失败必须让 workflow 显红（此前 *cronet.json pathspec 导致的失败被吞成绿勾，静默溜过了好几轮）。
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          # author 显式指定为 bot：默认 author=github.actor=LM-Firefly，本人账号开了 vigilant mode，未签名 commit 会被标 Unverified（纯展示问题，但避免误解）
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           title: ${{ env.PR_TITLE }}
           commit-message: |
             ${{ env.PR_TITLE }}
             - ${{ env.PR_BODY }}
-          body: ${{ env.PR_BODY }}
+          body: |
+            ${{ env.PR_BODY }}
+            ---
+            ### Provider 链校验（Sentinel 补丁 / 本地 keep 规则）
+            ${{ env.PROVIDER_STATUS }}
+            ### 编译校验（cronet API 兼容性）
+            ${{ env.BUILD_STATUS }}
           branch: cronet
           delete-branch: true
+          # 注意：git add 对"无任何匹配"的 pathspec 会 fatal 并中止整个 add（历史上 *cronet.json 就因此导致所有文件没被提交、PR 创建失败）。
+          # 这里每个 pattern 都必须至少匹配一个仓库内恒存在的文件（含被删除的旧版本 so，删除也能被匹配到）。
           add-paths: |
             *cronet*jar
-            *cronet.json
+            *httpengine*jar
+            *libcronet*so
             *updateLog.md
             *gradle.properties
             *cronet-proguard-rules.pro

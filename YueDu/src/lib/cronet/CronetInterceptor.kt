@@ -25,7 +25,7 @@ class CronetInterceptor(private val cookieJar: CookieJar) : Interceptor {
         }
         val original: Request = chain.request()
         //Cronet未初始化
-        if (!CronetLoader.install() || cronetEngine == null) {
+        if (cronetEngine == null) {
             return chain.proceed(original)
         }
         val cronetException: Exception

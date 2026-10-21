@@ -44,7 +44,6 @@ import io.YueDu.help.config.ThemeConfig
 import io.YueDu.help.config.ThemeConfig.applyDayNight
 import io.YueDu.help.config.ThemeConfig.applyDayNightInit
 import io.YueDu.help.coroutine.Coroutine
-import io.YueDu.help.http.Cronet
 import io.YueDu.help.http.ObsoleteUrlFactory
 import io.YueDu.help.http.okHttpClient
 import io.YueDu.help.rhino.NativeBaseSource
@@ -72,7 +71,7 @@ class App : Application() {
         super.onCreate()
         CrashHandler(this)
         if (isDebuggable) {
-            ThreadUtils.setThreadAssertsDisabledForTesting(true)
+            ThreadUtils.hasSubtleSideEffectsSetThreadAssertsDisabledForTesting(true)
         }
         oldConfig = Configuration(resources.configuration)
         applyDayNightInit(this)
@@ -82,8 +81,6 @@ class App : Application() {
             LogUtils.init(this@App)
             LogUtils.d("App", "onCreate")
             LogUtils.logDeviceInfo()
-            //预下载Cronet so
-            Cronet.preDownload()
             createNotificationChannels()
             LiveEventBus.config()
                 .lifecycleObserverAlwaysActive(true)

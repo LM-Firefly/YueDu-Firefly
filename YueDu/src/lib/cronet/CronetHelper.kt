@@ -24,12 +24,8 @@ import splitties.init.appCtx
 internal const val BUFFER_SIZE = 32 * 1024
 
 val cronetEngine: ExperimentalCronetEngine? by lazy {
-    CronetLoader.preDownload()
     disableCertificateVerify()
     val builder = ExperimentalCronetEngine.Builder(appCtx).apply {
-        if (CronetLoader.install()) {
-            setLibraryLoader(CronetLoader)//设置自定义so库加载
-        }
         setStoragePath(appCtx.externalCache.absolutePath)//设置缓存路径
         enableHttpCache(HTTP_CACHE_DISK, (1024 * 1024 * 50).toLong())//设置50M的磁盘缓存
         enableQuic(true)//设置支持http/3

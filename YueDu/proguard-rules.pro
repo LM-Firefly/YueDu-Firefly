@@ -171,6 +171,9 @@ cn.hutool.core.util.**{*;}
     *** sDefaultTrustManager;
     *** sTestTrustManager;
 }
+# Cronet 155 遥测 CronetStatsLog 引用 android.util.StatsEvent（隐藏 API，不在编译 classpath），R8 minify 报 "Missing classes"，按 missing_rules.txt 补 -dontwarn。
+-dontwarn android.util.StatsEvent
+-dontwarn android.util.StatsEvent$Builder
 
 # Throwable
 -keepnames class * extends java.lang.Throwable

@@ -4,6 +4,7 @@ plugins {
 
 android {
     compileSdk = rootProject.ext.compile_sdk_version
+    compileSdkMinor = rootProject.ext.compile_sdk_minor
     namespace = 'me.ag2s'
     kotlin {
         jvmToolchain {
@@ -12,7 +13,7 @@ android {
     }
     defaultConfig {
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 37
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -24,6 +25,9 @@ android {
     }
     lint {
         checkDependencies = true
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
     }
 }
 

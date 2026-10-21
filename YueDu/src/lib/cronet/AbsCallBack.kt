@@ -393,10 +393,12 @@ abstract class AbsCallBack(
             val requestBuilder = userResponse.request.newBuilder()
             if (HttpMethod.permitsRequestBody(method)) {
                 val responseCode = userResponse.code
-                val maintainBody = HttpMethod.redirectsWithBody(method) ||
+                // okhttp 5.x 移除了 internal HttpMethod.redirectsWithBody 且 redirectsToGet 签名有变，按 WebDAV 语义内联（PROPFIND 保体、不转 GET），避免依赖 okhttp internal API
+                val isWebDavMethod = method == "PROPFIND"
+                val maintainBody = isWebDavMethod ||
                         responseCode == HTTP_PERM_REDIRECT ||
                         responseCode == HTTP_TEMP_REDIRECT
-                if (HttpMethod.redirectsToGet(method)
+                if (!isWebDavMethod
                     && responseCode != HTTP_PERM_REDIRECT
                     && responseCode != HTTP_TEMP_REDIRECT
                 ) {

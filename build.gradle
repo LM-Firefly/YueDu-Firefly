@@ -3,6 +3,7 @@
 buildscript {
     ext{
         compile_sdk_version = 37
+        compile_sdk_minor = 2
 //        build_tool_version = '36.0.0'
 //        kotlin_version = '1.9.22'
 //        ksp_version = "1.0.17"
@@ -18,7 +19,6 @@ plugins {
     //id 'com.android.library' version "$agp_version" apply false
     //id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
     //id 'com.google.devtools.ksp' version "$kotlin_version-$ksp_version" apply false
-    //id "de.undercouch.download" version "5.5.0" apply false
     //id "com.google.gms.google-services" version "4.4.0" apply false
 
     alias libs.plugins.android.application apply false
@@ -29,8 +29,6 @@ plugins {
     // alias libs.plugins.google.services apply false
     // google-services plugin removed upstream to avoid requiring Google Play services
     alias libs.plugins.room apply false
-
-    alias libs.plugins.download apply false
     alias libs.plugins.version.catalog.update
 }
 

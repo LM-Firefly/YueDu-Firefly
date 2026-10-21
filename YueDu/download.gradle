@@ -1,81 +1,86 @@
-import java.security.MessageDigest
-
-apply plugin: 'de.undercouch.download'
-
+// Cronet 155 起废弃 CronetEngine.Builder.LibraryLoader（自定义 so 加载），官方机制改为
+// CronetLibraryLoader 内部 System.loadLibrary("cronet.<version>")，故 so 以标准 jniLibs
+// 结构打包进 APK：jniLibs/<abi>/libcronet.<version>.so（运行时下载方案在新机制下无法加载）
+//
+// 下载用纯 JDK 实现：不使用 de.undercouch.download 插件（其内部 Configuration.setVisible
+// 在 Gradle 9 弃用/11 移除），且本组任务仅在更新 Cronet 版本时手动执行
 def BASE_PATH = "https://storage.googleapis.com/chromium-cronet/android/" + CronetVersion + "/Release/cronet/"
-def assetsDir = projectDir.toString() + "/assets"
 def libPath = projectDir.toString() + "/cronetlib"
-def soPath = projectDir.toString() + "/so"
+def jniLibsPath = projectDir.toString() + "/jniLibs"
 
-/**
- * 从文件生成MD5
- * @param file
- * @return
- */
-static def generateMD5(final file) {
-    MessageDigest digest = MessageDigest.getInstance("MD5")
-    file.withInputStream() { is ->
-        byte[] buffer = new byte[1024]
-        //noinspection GroovyUnusedAssignment
-        int numRead = 0
-        while ((numRead = is.read(buffer)) > 0) {
-            digest.update(buffer, 0, numRead)
-        }
+def downloadFile = { String url, String destPath ->
+    def dest = new File(destPath)
+    dest.parentFile.mkdirs()
+    def conn = URI.create(url).toURL().openConnection()
+    def expected = conn.contentLengthLong
+    // 先写临时文件并校验 Content-Length，避免网络抖动产生截断的坏 so/jar（strip 会报 "section header table goes past the end of the file"）
+    def tmp = new File(destPath + ".tmp")
+    tmp.withOutputStream { output ->
+        conn.inputStream.withStream { input -> output << input }
     }
-    return String.format("%032x", new BigInteger(1, digest.digest())).toLowerCase()
+    if (expected > 0 && tmp.length() != expected) {
+        def actual = tmp.length()
+        tmp.delete()
+        throw new GradleException("download incomplete: $url expected=$expected actual=$actual")
+    }
+    if (dest.exists()) dest.delete()
+    if (!tmp.renameTo(dest)) {
+        dest.bytes = tmp.bytes
+        tmp.delete()
+    }
+    println "downloaded $url -> ${destPath} (${dest.length()} bytes)"
 }
 
 /**
  * 下载Cronet相关的jar
  */
-tasks.register('downloadJar', Download) {
-    src([
-            BASE_PATH + "cronet_api.jar",
-            BASE_PATH + "cronet_impl_common_java.jar",
-            BASE_PATH + "cronet_impl_native_java.jar",
-            BASE_PATH + "cronet_impl_platform_java.jar",
-            BASE_PATH + "cronet_shared_java.jar"
-    ])
-    dest libPath
-    // use method-style setters compatible with the download plugin
-    overwrite true
-    onlyIfModified false
+tasks.register('downloadJar') {
+    doLast {
+        ["cronet_api.jar",
+         "cronet_impl_common_java.jar",
+         "cronet_impl_native_java.jar",
+         "cronet_impl_platform_java.jar",
+         "cronet_shared_java.jar",
+         "httpengine_native_provider_java.jar"].each {
+            downloadFile(BASE_PATH + it, libPath + "/" + it)
+        }
+    }
 }
 /**
  * 下载Cronet的arm64-v8a so
  */
-tasks.register('downloadARM64', Download) {
-    src BASE_PATH + "libs/arm64-v8a/libcronet." + CronetVersion + ".so"
-    dest soPath + "/arm64-v8a.so"
-    overwrite true
-    onlyIfModified true
+tasks.register('downloadARM64') {
+    doLast {
+        downloadFile(BASE_PATH + "libs/arm64-v8a/libcronet." + CronetVersion + ".so",
+                jniLibsPath + "/arm64-v8a/libcronet." + CronetVersion + ".so")
+    }
 }
 /**
  * 下载Cronet的armeabi-v7a so
  */
-tasks.register('downloadARMv7', Download) {
-    src BASE_PATH + "libs/armeabi-v7a/libcronet." + CronetVersion + ".so"
-    dest soPath + "/armeabi-v7a.so"
-    overwrite true
-    onlyIfModified true
+tasks.register('downloadARMv7') {
+    doLast {
+        downloadFile(BASE_PATH + "libs/armeabi-v7a/libcronet." + CronetVersion + ".so",
+                jniLibsPath + "/armeabi-v7a/libcronet." + CronetVersion + ".so")
+    }
 }
 /**
  * 下载Cronet的x86_64 so
  */
-tasks.register('downloadX86_64', Download) {
-    src BASE_PATH + "libs/x86_64/libcronet." + CronetVersion + ".so"
-    dest soPath + "/x86_64.so"
-    overwrite true
-    onlyIfModified true
+tasks.register('downloadX86_64') {
+    doLast {
+        downloadFile(BASE_PATH + "libs/x86_64/libcronet." + CronetVersion + ".so",
+                jniLibsPath + "/x86_64/libcronet." + CronetVersion + ".so")
+    }
 }
 /**
  * 下载Cronet的x86 so
  */
-tasks.register('downloadX86', Download) {
-    src BASE_PATH + "libs/x86/libcronet." + CronetVersion + ".so"
-    dest soPath + "/x86.so"
-    overwrite true
-    onlyIfModified true
+tasks.register('downloadX86') {
+    doLast {
+        downloadFile(BASE_PATH + "libs/x86/libcronet." + CronetVersion + ".so",
+                jniLibsPath + "/x86/libcronet." + CronetVersion + ".so")
+    }
 }
 
 /**
@@ -85,29 +90,19 @@ tasks.register('downloadX86', Download) {
  */
 tasks.register('downloadCronet') {
     dependsOn downloadJar, downloadARM64, downloadARMv7, downloadX86_64, downloadX86
-
     doLast {
-        StringBuilder sb = new StringBuilder("{")
-        def files = new File(soPath).listFiles()
-        for (File file : files) {
-            println file.name.replace(".so", "")
-            sb.append("\"").append(file.name.replace(".so", "")).append("\":\"").append(generateMD5(file)).append("\",")
+        /** libcronet.<version>.so 文件名带版本号，新版本下载后旧版本不会被覆盖。 */
+        /** 不清理的话旧 so 会一直留在 jniLibs 里被打进 APK（多出约 28MB 死重）。 */
+        def currentName = "libcronet." + CronetVersion + ".so"
+        ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"].each { abi ->
+            fileTree(jniLibsPath + "/" + abi) {
+                include "libcronet.*.so"
+            }.files.each { f ->
+                if (f.name != currentName) {
+                    f.delete()
+                    println "removed stale cronet so: $f"
+                }
+            }
         }
-        sb.append("\"version\":\"").append(CronetVersion).append("\"}")
-
-        println sb.toString()
-
-        println assetsDir
-        def f1 = new File(assetsDir + "/cronet.json")
-        if (!f1.exists()) {
-            f1.parentFile.mkdirs()
-            f1.createNewFile()
-        }
-        f1.text = sb.toString()
-
     }
-
-
 }
-
-

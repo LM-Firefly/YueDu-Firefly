@@ -59,13 +59,28 @@ function sync_proguard_rules() {
       components/cronet/android/cronet_combined_impl_native_proguard_golden.cfg
     )
     local proguard_rules_path="$GITHUB_WORKSPACE/YueDu/cronet-proguard-rules.pro"
-    rm -f $proguard_rules_path
+    local tmp="$proguard_rules_path.tmp"
     echo "fetch cronet proguard rules from upstream $raw_github_git"
+    rm -f "$tmp"
     for path in ${proguard_paths[@]}
     do
         echo "fetching $path ..."
-        curl "$raw_github_git/$path" >> $proguard_rules_path
+        # -f：HTTP 错误（如 raw.githubusercontent.com 429 限流）返回非零且不输出错误页；
+        # 重试后仍失败则硬失败，绝不把错误页写进规则文件（会覆盖全部 keep 规则，R8 直接编译失败）
+        curl -fsSL --retry 5 --retry-delay 10 --retry-all-errors "$raw_github_git/$path" >> "$tmp" || {
+            echo "ERROR: failed to fetch $path from upstream"
+            rm -f "$tmp"
+            exit 1
+        }
     done
+    # 内容校验：必须是合法 proguard 规则（非空、含 -keep 类指令、不含限流错误页），
+    # 校验失败中止整个 workflow，不允许带着垃圾内容继续生成 PR
+    if [ ! -s "$tmp" ] || ! grep -q "^-" "$tmp" || grep -qi "too many requests" "$tmp"; then
+        echo "ERROR: fetched proguard rules are invalid, abort to avoid committing garbage"
+        rm -f "$tmp"
+        exit 1
+    fi
+    mv "$tmp" "$proguard_rules_path"
 }
 ##########
 # 获取本地cronet版本

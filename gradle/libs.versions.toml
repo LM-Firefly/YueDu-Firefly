@@ -1,7 +1,7 @@
 [versions]
 #noinspection GradleDependency
 activity = "1.13.0"
-agp = "9.5.0-rc01"
+agp = "9.6.0-alpha02"
 appcompat = "1.8.0"
 collection = "1.7.0"
 colorpicker = "1.1.0"
@@ -16,7 +16,7 @@ documentfile = "1.1.0"
 flexbox = "3.0.0"
 fragment = "1.9.1"
 glide = "5.0.9"
-gson = "2.14.0"
+gson = "2.15.0"
 jsonPath = "3.0.0"
 # issue #3811，不要更新版本，新版引入了一个破坏性变更（详见https://github.com/jhy/jsoup/pull/2017）
 # 若要升级请确保相关代码不会受此变更影响（如AnalyzeByJSoup.kt、JsoupXpath库等）
@@ -35,7 +35,7 @@ media = "1.8.0"
 #noinspection GradleDependency,NewerVersionAvailable
 media3 = "1.10.1"
 nanoHttpd = "2.3.1"
-okhttp = "5.5.0"
+okhttp = "5.5.1"
 preference = "1.2.1"
 #不要更新版本
 #noinspection NewerVersionAvailable
@@ -177,4 +177,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 #protobuf = { id = "com.google.protobuf", version = "0.9.4" }
-version-catalog-update = "nl.littlerobots.version-catalog-update:1.1.1"
+version-catalog-update = "nl.littlerobots.version-catalog-update:1.1.2"

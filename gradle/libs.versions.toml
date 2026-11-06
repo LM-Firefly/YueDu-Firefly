@@ -24,7 +24,7 @@ jsonPath = "3.0.0"
 jsoup = "1.22.1"
 jsoupxpath = "2.5.5"
 kotlin = "2.4.21"
-ksp = "2.3.12"
+ksp = "2.3.13"
 libarchive = "1.1.7"
 #noinspection GradleDependency
 lifecycle = "2.11.0"

@@ -1,7 +1,7 @@
 [versions]
 #noinspection GradleDependency
 activity = "1.13.0"
-agp = "9.6.0-alpha02"
+agp = "9.6.0-alpha03"
 appcompat = "1.8.0"
 collection = "1.7.0"
 colorpicker = "1.1.0"

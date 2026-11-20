@@ -15,7 +15,7 @@ desugar = "2.1.5"
 documentfile = "1.1.0"
 flexbox = "3.0.0"
 fragment = "1.9.1"
-glide = "5.0.9"
+glide = "5.0.10"
 gson = "2.15.0"
 jsonPath = "3.0.0"
 # issue #3811，不要更新版本，新版引入了一个破坏性变更（详见https://github.com/jhy/jsoup/pull/2017）

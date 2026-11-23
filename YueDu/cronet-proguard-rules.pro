@@ -65,13 +65,13 @@
 # found in the LICENSE file.
 
 # Keeps for method level annotations.
--keepclasseswithmembers,allowaccessmodification class ** {
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class ** {
   @**org.jni_zero.AccessedByNative <fields>;
 }
--keepclasseswithmembers,includedescriptorclasses,allowaccessmodification,allowoptimization class ** {
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class ** {
   @**org.jni_zero.CalledByNative <methods>;
 }
--keepclasseswithmembers,includedescriptorclasses,allowaccessmodification,allowoptimization class ** {
+-keepclasseswithmembers,includedescriptorclasses,allowaccessmodification class ** {
   @**org.jni_zero.CalledByNativeUnchecked <methods>;
 }
 
